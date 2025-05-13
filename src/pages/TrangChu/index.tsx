@@ -1,7 +1,6 @@
 import { Card } from 'antd';
 import './components/style.less';
 import { unitName } from '@/services/base/constant';
-import { useModel } from 'umi';
 
 const TrangChu = () => {
 	return (
