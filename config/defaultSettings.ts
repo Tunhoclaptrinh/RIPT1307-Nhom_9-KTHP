@@ -6,7 +6,7 @@ const Settings: LayoutSettings & {
 	borderRadiusBase: string;
 	siderWidth: number;
 } = {
-	navTheme: 'light',
+	navTheme: 'dark',
 	primaryColor: process.env.APP_CONFIG_PRIMARY_COLOR,
 	borderRadiusBase: '2px',
 	layout: 'mix',
@@ -18,7 +18,7 @@ const Settings: LayoutSettings & {
 	pwa: false,
 	logo: '/logo.png',
 	iconfontUrl: '',
-	headerTheme: 'light',
+	headerTheme: 'dark',
 	headerHeight: 60,
 	siderWidth: 220,
 };

@@ -30,12 +30,6 @@
 		component: './TienIch/GioiThieu',
 		hideInMenu: true,
 	},
-	{
-		path: '/random-user',
-		name: 'RandomUser',
-		component: './RandomUser',
-		icon: 'ArrowsAltOutlined',
-	},
 
 	// DANH MUC HE THONG
 	// {

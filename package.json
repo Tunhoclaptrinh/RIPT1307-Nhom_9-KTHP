@@ -123,7 +123,7 @@
     "@umijs/preset-dumi": "^1.1.7",
     "@umijs/preset-react": "^1.7.4",
     "@umijs/yorkie": "^2.0.3",
-    "cross-env": "^7.0.0",
+    "cross-env": "^7.0.3",
     "enzyme": "^3.11.0",
     "eslint": "^7.1.0",
     "express": "^4.17.1",
