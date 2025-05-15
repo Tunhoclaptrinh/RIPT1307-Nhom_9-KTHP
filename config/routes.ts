@@ -21,7 +21,7 @@
 	{
 		path: '/dashboard',
 		name: 'Dashboard',
-		component: './TrangChu',
+		component: './TrangChuPublic',
 		icon: 'HomeOutlined',
 		layout: false,
 	},
