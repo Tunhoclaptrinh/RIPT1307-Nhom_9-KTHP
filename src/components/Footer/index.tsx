@@ -6,16 +6,15 @@ const Footer = () => {
 		<div
 			className='box-wrapper'
 			style={{
-				maxWidth: '1200px',
+				maxWidth: '1600px',
 				margin: 'auto',
 				marginTop: 70,
 			}}
 		>
 			<div className='container'>
-				<div className='header'>
-					<img className='logo' src='/logo.png' alt='PTIT Logo' />
-					<h1 className='title'>{APP_CONFIG_TEN_TRUONG}</h1>
-				</div>
+				{/* <div className='header' style={{ display: 'flex', justifyContent: 'center', alignContent: 'center' }}> */}
+				<img className='logo' src='/logo-full.svg' alt='PTIT Logo' width={500} />
+				{/* </div> */}
 				<Row gutter={[12, 0]}>
 					<Col span={24} md={16}>
 						<div className='contact-info'>
