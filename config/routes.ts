@@ -23,6 +23,7 @@
 		name: 'Dashboard',
 		component: './TrangChu',
 		icon: 'HomeOutlined',
+		layout: false,
 	},
 	{
 		path: '/gioi-thieu',
