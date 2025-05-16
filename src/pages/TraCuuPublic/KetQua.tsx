@@ -18,23 +18,33 @@ const KetQuaVanBang = () => {
 			// render: (val, rec) => rec?.DuLieu?.soVaoSoBang,
 		},
 		{
-			title: 'Số hiệu văn bằng',
+			title: 'Ngày sinh',
 			width: 150,
 			// render: (val, rec) => rec?.DuLieu?.soHieuVanBang,
 		},
 		{
-			title: 'Họ tên',
+			title: 'Số báo danh',
 			width: 160,
 			// render: (val, rec) => rec?.DuLieu?.hoTen,
 		},
 		{
-			title: 'Ngày sinh',
+			title: 'Đối tượng ƯT',
 			align: 'center',
 			width: 100,
 			// render: (val, rec) => rec?.DuLieu?.ngaySinh && moment(rec?.DuLieu?.ngaySinh).format('DD/MM/YYYY'),
 		},
 		{
-			title: 'Mã SV',
+			title: 'Tổng điểm XT',
+			width: 120,
+			// render: (val, rec) => rec?.DuLieu?.maSinhVien,
+		},
+		{
+			title: 'Tổ hợp',
+			width: 120,
+			// render: (val, rec) => rec?.DuLieu?.maSinhVien,
+		},
+		{
+			title: 'Kết quả xét tuyển',
 			width: 120,
 			// render: (val, rec) => rec?.DuLieu?.maSinhVien,
 		},
