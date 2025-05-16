@@ -35,6 +35,8 @@ const TraCuuVanBangPublic = () => {
 					backgroundSize: 'cover',
 					backgroundPosition: 'center',
 					backgroundRepeat: 'no-repeat',
+					background:
+						'linear-gradient(rgba(255, 240, 245, 0.9), rgba(255, 240, 245, 0.9)), radial-gradient(#ff9eb5 1px, transparent 1px)',
 				}}
 			>
 				<div style={{ maxWidth: 1400, margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
