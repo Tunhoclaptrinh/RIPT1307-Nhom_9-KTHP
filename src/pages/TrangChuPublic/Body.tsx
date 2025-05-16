@@ -125,7 +125,13 @@ const TrangChuBody = () => {
 			</div>
 
 			{/* Key features */}
-			<div style={{ padding: '40px 0', background: '#fff' }}>
+			<div
+				style={{
+					padding: '40px 0',
+					// background: '#fff',
+					boxShadow: '0 8px 24px rgba(255, 182, 193, 0.3)',
+				}}
+			>
 				<div style={{ margin: '0 20px' }}>
 					<Row justify='center'>
 						<Col xs={24} lg={20}>
@@ -174,7 +180,6 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
-
 			{/* Statistics */}
 			<div style={{ background: primaryColor, padding: '40px 0', color: '#fff' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -225,7 +230,6 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
-
 			{/* Information Tabs */}
 			<div style={{ padding: '40px 0', background: '#f5f5f5' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -288,7 +292,6 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
-
 			{/* Timeline */}
 			<div style={{ padding: '40px 0', background: '#fff' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -351,7 +354,6 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
-
 			{/* FAQ Section */}
 			<div style={{ padding: '40px 0', background: '#f5f5f5' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -384,7 +386,6 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
-
 			{/* CTA Section */}
 			<div style={{ background: primaryColor, padding: '60px 0', color: '#fff' }}>
 				<div style={{ margin: '0 20px' }}>

@@ -6,18 +6,17 @@ const Footer = () => {
 		<div
 			className='box-wrapper'
 			style={{
-				maxWidth: '1200px',
+				maxWidth: '1600px',
 				margin: 'auto',
 				marginTop: 70,
 			}}
 		>
 			<div className='container'>
-				<div className='header'>
-					<img className='logo' src='/logo.png' alt='PTIT Logo' />
-					<h1 className='title'>{APP_CONFIG_TEN_TRUONG}</h1>
-				</div>
+				{/* <div className='header' style={{ display: 'flex', justifyContent: 'center', alignContent: 'center' }}> */}
+				<img className='logo' src='/logo-full.svg' alt='PTIT Logo' width={500} />
+				{/* </div> */}
 				<Row gutter={[12, 0]}>
-					<Col span={24} md={16}>
+					<Col span={24} md={12}>
 						<div className='contact-info'>
 							<div className='contact-item'>
 								<svg
@@ -103,11 +102,42 @@ const Footer = () => {
 							title='Google Map'
 						/>
 					</Col>
+					<Col span={24} md={4}>
+						<div className='social-media' style={{ marginTop: '20px' }}>
+							<h4 className='social-title'>Về Chúng tôi:</h4>
+							<p>Giới thiệu</p>
+							<p>Thông báo</p>
+							<p>Đề án tuyển sinh</p>
+							<p>Tra cứu tuyển sinh</p>
+
+							<div className='social-icons' style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+								<h4 className='social-title'>Kết nối:</h4>
+								<a href='https://www.facebook.com/HocvienCongngheButchinh/' target='_blank' rel='noreferrer'>
+									<svg width='24' height='24' fill='red' viewBox='0 0 24 24'>
+										<path d='M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C18.34 21.21 22 17.06 22 12.06C22 6.53 17.5 2.04 12 2.04Z' />
+									</svg>
+								</a>
+								<a href='https://www.youtube.com/channel/UC0UewdQzwwBhCbMHJJQ0wXw' target='_blank' rel='noreferrer'>
+									<svg width='24' height='24' fill='red' viewBox='0 0 24 24'>
+										<path d='M21.543 6.498C22 8.28 22 12 22 12C22 12 22 15.72 21.543 17.502C21.289 18.487 20.546 19.262 19.605 19.524C17.896 20 12 20 12 20C12 20 6.107 20 4.395 19.524C3.45 19.258 2.708 18.484 2.457 17.502C2 15.72 2 12 2 12C2 12 2 8.28 2.457 6.498C2.711 5.513 3.454 4.738 4.395 4.476C6.107 4 12 4 12 4C12 4 17.896 4 19.605 4.476C20.55 4.742 21.292 5.516 21.543 6.498ZM10 15.5L16 12L10 8.5V15.5Z' />
+									</svg>
+								</a>
+								<a href='https://www.tiktok.com/@ptit.edu.vn' target='_blank' rel='noreferrer'>
+									<svg width='24' height='24' fill='red' viewBox='0 0 24 24'>
+										<path d='M16.6 5.82C15.9 5.82 15.28 5.63 14.74 5.29C13.94 4.79 13.37 4 13.17 3.08C13.11 2.72 13.07 2.36 13.07 2H9.8V8.9V12.52V16.14C9.8 17.6 8.62 18.78 7.16 18.78C6.5 18.78 5.88 18.53 5.4 18.12C4.7 17.54 4.24 16.66 4.24 15.67C4.24 13.92 5.67 12.49 7.42 12.49C7.67 12.49 7.91 12.52 8.14 12.58V9.35C7.9 9.32 7.66 9.31 7.42 9.31C3.97 9.31 1.17 12.11 1.17 15.56C1.17 17.34 1.88 18.96 3.03 20.12C4.06 21.15 5.47 21.79 7.02 21.92C7.15 21.93 7.29 21.94 7.42 21.94C10.12 21.94 12.41 20.15 13.09 17.67C13.16 17.37 13.19 17.05 13.19 16.72V9.92C14.89 11.16 16.98 11.9 19.24 11.9V8.64C19.17 8.64 19.11 8.64 19.04 8.64C17.73 8.64 16.6 7.36 16.6 5.82Z' />
+									</svg>
+								</a>
+							</div>
+						</div>
+					</Col>
 				</Row>
 
 				<footer className='footer'>
-					<a className='link' href='https://aisoft.com.vn/' target='_blank' rel='noreferrer'>
-						<b>© 2024 Designed and Developed by A.I-SOFT</b>
+					<a className='link' href='https://ptit.edu.vn/' target='_blank' rel='noreferrer'>
+						<b>
+							© Copyright 2024 HocVienCongNgheBuuChinhVienThong, All rights reserved ® Học viện Công nghệ Bưu chính Viễn
+							thông giữ bản quyền nội dung trên website này
+						</b>
 					</a>
 				</footer>
 			</div>
