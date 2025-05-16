@@ -4,7 +4,7 @@ import { Button, Card, Col, Form, Input, message, Row } from 'antd';
 import { useModel } from 'umi';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header/Header';
-import KetQuaVanBang from './KetQua';
+import KetQuaVanBang from './components/KetQua';
 import rules from '@/utils/rules';
 
 const TraCuuVanBangPublic = () => {
@@ -37,7 +37,7 @@ const TraCuuVanBangPublic = () => {
 					backgroundRepeat: 'no-repeat',
 				}}
 			>
-				<div style={{ maxWidth: 1200, margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
+				<div style={{ maxWidth: 1400, margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
 					<Card title='Thông tin tra cứu'>
 						<Form
 							// onFinish={onFinish}
@@ -65,17 +65,18 @@ const TraCuuVanBangPublic = () => {
 										<Input placeholder='Nhập số báo danh' />
 									</Form.Item>
 								</Col>
-
-								<Col span={24}>
-									<Button
-										icon={<SearchOutlined />}
-										type='primary'
-										htmlType='submit'
-										// loading={formSubmiting}
-									>
-										Tra cứu
-									</Button>
-								</Col>
+							</Row>
+							<Row style={{ display: 'flex', justifySelf: 'end' }}>
+								<Button
+									icon={<SearchOutlined />}
+									type='primary'
+									htmlType='submit'
+									// loading={formSubmiting}
+									size='large'
+									style={{ minWidth: 180, margin: 'auto', marginTop: 20, height: 40 }}
+								>
+									Tra cứu
+								</Button>
 							</Row>
 						</Form>
 					</Card>
