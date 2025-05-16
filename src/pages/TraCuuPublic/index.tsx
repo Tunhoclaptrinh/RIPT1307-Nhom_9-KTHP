@@ -3,7 +3,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, message, Row } from 'antd';
 import { useModel } from 'umi';
 import Footer from '../../components/Footer';
-import Header from '../../components/Header/Header';
+import Header from '../../components/Header';
 import KetQuaVanBang from './components/KetQua';
 import rules from '@/utils/rules';
 
@@ -39,7 +39,7 @@ const TraCuuVanBangPublic = () => {
 						'linear-gradient(rgba(255, 240, 245, 0.9), rgba(255, 240, 245, 0.9)), radial-gradient(#ff9eb5 1px, transparent 1px)',
 				}}
 			>
-				<div style={{ maxWidth: 1400, margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
+				<div style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
 					<Card title='Thông tin tra cứu'>
 						<Form
 							// onFinish={onFinish}
