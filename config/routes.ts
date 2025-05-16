@@ -26,6 +26,13 @@
 		layout: false,
 	},
 	{
+		path: '/tra-cuu-public',
+		name: 'Tra cứu tuyển sinh',
+		component: './TraCuuPublic',
+		icon: 'HomeOutlined',
+		layout: false,
+	},
+	{
 		path: '/gioi-thieu',
 		name: 'About',
 		component: './TienIch/GioiThieu',
