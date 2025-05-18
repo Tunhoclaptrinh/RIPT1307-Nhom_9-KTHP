@@ -5,7 +5,7 @@ import { Button, Col, Drawer, Dropdown, Menu, Row, Space } from 'antd';
 import { UserOutlined, MenuOutlined, DownOutlined, CloseOutlined, AppstoreOutlined } from '@ant-design/icons';
 
 const Header = (props: HeaderProps) => {
-	const { subTitle = '', button = [], menu = [] } = props;
+	const { subTitle = 'Hệ thống Tuyển sinh Đại học Trực tuyến', button = [], menu = [] } = props;
 	const [isMobile, setIsMobile] = useState(false);
 	const [drawerVisible, setDrawerVisible] = useState(false);
 

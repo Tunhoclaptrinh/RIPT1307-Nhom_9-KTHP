@@ -25,8 +25,8 @@
 	///////////////////////////////////
 	// DEFAULT MENU
 	{
-		path: '/dashboard',
-		name: 'Dashboard',
+		path: '/trang-chu',
+		name: 'Trang chủ',
 		component: './TrangChuPublic',
 		icon: 'HomeOutlined',
 		layout: false,
@@ -43,6 +43,14 @@
 		name: 'About',
 		component: './TienIch/GioiThieu',
 		hideInMenu: true,
+	},
+	{
+		path: '/dash-board',
+		name: 'Trang này là của người dùng',
+		component: './ThiSinh/DashBoard',
+		icon: 'HomeOutlined',
+		// hideInMenu: true,
+		layout: false,
 	},
 
 	// DANH MUC HE THONG
