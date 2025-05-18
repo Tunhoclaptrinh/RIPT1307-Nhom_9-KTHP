@@ -7,7 +7,7 @@ import Header from '../../components/Header';
 import KetQuaVanBang from './components/KetQua';
 import rules from '@/utils/rules';
 
-const TraCuuVanBangPublic = () => {
+const TraCuuTuyenSinhPublic = () => {
 	const [form] = Form.useForm();
 	// const { formSubmiting, traCuuPhuLucVanBanModel } = useModel('vbcc.phulucvanbang');
 
@@ -27,8 +27,8 @@ const TraCuuVanBangPublic = () => {
 
 	return (
 		<>
-			<Header subTitle='Cổng xác thực thông tin văn bằng' />
-			<div
+			<Header subTitle='Hệ thống Tuyển sinh Đại học Trực tuyến' />
+			<Row
 				style={{
 					// eslint-disable-next-line quotes
 					backgroundImage: `url('/bg-vbcc.png')`,
@@ -39,7 +39,7 @@ const TraCuuVanBangPublic = () => {
 						'linear-gradient(rgba(255, 240, 245, 0.9), rgba(255, 240, 245, 0.9)), radial-gradient(#ff9eb5 1px, transparent 1px)',
 				}}
 			>
-				<div style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
+				<Col style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30 }} xs={24} lg={20}>
 					<Card title='Thông tin tra cứu'>
 						<Form
 							// onFinish={onFinish}
@@ -86,11 +86,11 @@ const TraCuuVanBangPublic = () => {
 					<div style={{ marginTop: 12 }}>
 						<KetQuaVanBang />
 					</div>
-				</div>
-			</div>
+				</Col>
+			</Row>
 			<Footer />
 		</>
 	);
 };
 
-export default TraCuuVanBangPublic;
+export default TraCuuTuyenSinhPublic;

@@ -79,7 +79,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
 		rightContentRender: () => <RightContent />,
 		disableContentMargin: false,
 
-		footerRender: () => <Footer />,
+		// footerRender: () => <Footer />,
 
 		onPageChange: () => {
 			if (initialState?.currentUser) {
@@ -123,6 +123,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
 			</OIDCBounder>
 		),
 		menuHeaderRender: undefined,
+		footerRender: undefined,
 		...initialState?.settings,
 	};
 };
