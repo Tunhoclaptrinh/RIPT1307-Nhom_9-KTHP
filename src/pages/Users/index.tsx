@@ -116,6 +116,8 @@ const UsersPage = () => {
 				Form={UserForm}
 				widthDrawer={900}
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				deleteMany
+				rowSelection
 			/>
 		</div>
 	);
