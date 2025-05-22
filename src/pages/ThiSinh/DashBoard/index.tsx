@@ -5,6 +5,7 @@ import { useModel } from 'umi';
 import styles from './index.less';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import UpdateInfoModal from './components/ModalCapNhatThongTin';
 
 // const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -14,6 +15,17 @@ const Dashboard: React.FC = () => {
 	const currentUser = initialState?.currentUser;
 	const [selectedYear, setSelectedYear] = useState('2024');
 	const [selectedMajor, setSelectedMajor] = useState('Chính quy');
+
+	const [isModalVisible, setIsModalVisible] = useState(false);
+
+	const handleSave = (values) => {
+		// Handle saving the updated info (e.g., API call)
+		console.log('Updated info:', values);
+	};
+
+	const handleCancel = () => {
+		setIsModalVisible(false);
+	};
 
 	// Các dịch vụ chính hiển thị trên dashboard
 	const services = [
@@ -27,7 +39,7 @@ const Dashboard: React.FC = () => {
 			title: 'Nhập học trực tuyến',
 			icon: <ReadOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/enroll.svg', // Thay thế bằng đường dẫn thực tế của bạn
+			image: 'https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg', // Thay thế bằng đường dẫn thực tế của bạn
 		},
 		{
 			title: 'Thanh toán trực tuyến',
@@ -179,6 +191,8 @@ const Dashboard: React.FC = () => {
 				</Row>
 			</div>
 			<Footer />
+
+			<UpdateInfoModal visible={isModalVisible} onCancel={handleCancel} onSave={handleSave} />
 		</>
 	);
 };

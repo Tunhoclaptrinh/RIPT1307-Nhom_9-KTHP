@@ -34,6 +34,9 @@ const TrangChu = () => {
 					<a key='contact' href='/contact'>
 						Liên hệ
 					</a>,
+					<a key='about' href='/about'>
+						Giới thiệu{' '}
+					</a>,
 				]}
 			/>
 
