@@ -44,7 +44,7 @@ const useInitService = (url: string, baseURL?: string) => {
 			payload.filters.forEach((filter: TFilter<any>) => {
 				const field = Array.isArray(filter.field) ? filter.field.join('.') : filter.field;
 				if (filter.operator === EOperatorType.CONTAIN) {
-					params[`${field}_like`] = filter.values[0];
+					params[`${String(field)}_like`] = filter.values[0];
 				} else if (filter.operator === EOperatorType.EQUAL) {
 					params[field] = filter.values[0];
 				}
@@ -80,7 +80,7 @@ const useInitService = (url: string, baseURL?: string) => {
 			payload.filters.forEach((filter: TFilter<any>) => {
 				const field = Array.isArray(filter.field) ? filter.field.join('.') : filter.field;
 				if (filter.operator === EOperatorType.CONTAIN) {
-					params[`${field}_like`] = filter.values[0];
+					params[`${String(field)}_like`] = filter.values[0];
 				} else if (filter.operator === EOperatorType.EQUAL) {
 					params[field] = filter.values[0];
 				}
@@ -109,10 +109,23 @@ const useInitService = (url: string, baseURL?: string) => {
 		return axios.delete(`${finalURL}/${url}/${id}`);
 	};
 
-	const deleteManyService = async (ids: (string | number)[], silent?: boolean) => {
-		const promises = ids.map((id) => axios.delete(`${finalURL}/${url}/${id}`));
-		const results = await Promise.all(promises);
-		return { data: results.map((r) => r.data) };
+	// const deleteManyService = async (ids: (string | number)[], silent?: boolean) => {
+	// 	const promises = ids.map((id) => axios.delete(`${finalURL}/${url}/${id}`));
+	// 	const results = await Promise.all(promises);
+	// 	return { data: results.map((r) => r.data) };
+	// };
+	const deleteManyService = async (ids: (string | number)[]) => {
+		try {
+			// Xóa tuần tự từng ID
+			const deletePromises = ids.map((id) => axios.delete(`${finalURL}/${url}/${id}`));
+			const results = await Promise.all(deletePromises);
+			return {
+				success: true,
+				data: results.map((r) => r.data),
+			};
+		} catch (error) {
+			return Promise.reject(error);
+		}
 	};
 
 	const getByIdService = (id: string | number) => {

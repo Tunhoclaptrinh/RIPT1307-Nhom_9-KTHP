@@ -19,6 +19,7 @@ import {
 	Drawer,
 	Empty,
 	Input,
+	message,
 	Modal,
 	Popconfirm,
 	Space,
@@ -386,11 +387,28 @@ const TableBase = (props: TableBaseProps) => {
 		setLimit(pageSize);
 	};
 
-	const handleDeleteMany = () => {
-		if (deleteManyModel && selectedIds?.length)
-			deleteManyModel(selectedIds, () => getData(params))
-				.then(() => setSelectedIds(undefined))
-				.catch((er: any) => console.log(er));
+	// const handleDeleteMany = () => {
+	// 	if (deleteManyModel && selectedIds?.length)
+	// 		deleteManyModel(selectedIds, () => getData(params))
+	// 			.then(() => setSelectedIds(undefined))
+	// 			.catch((er: any) => console.log(er));
+	// };
+
+	const handleDeleteMany = async () => {
+		if (!selectedIds?.length) {
+			message.warning('Vui lòng chọn ít nhất một mục để xóa');
+			return;
+		}
+
+		try {
+			await deleteManyModel(selectedIds);
+			message.success(`Đã xóa ${selectedIds.length} mục`);
+			setSelectedIds([]); // Reset selected items
+			getData(params); // Refresh data
+		} catch (error) {
+			console.error('Delete many error:', error);
+			message.error('Có lỗi xảy ra khi xóa dữ liệu');
+		}
 	};
 
 	const mainContent = (
@@ -499,6 +517,18 @@ const TableBase = (props: TableBaseProps) => {
 			>
 				<Table
 					scroll={{ x: _.sum(finalColumns.map((item) => item.width ?? 80)), ...props.scroll }}
+					// rowSelection={
+					// 	props?.rowSelection
+					// 		? {
+					// 				type: 'checkbox',
+					// 				selectedRowKeys: selectedIds ?? [],
+					// 				preserveSelectedRowKeys: true,
+					// 				onChange: (selectedRowKeys) => setSelectedIds(selectedRowKeys),
+					// 				columnWidth: 40,
+					// 				...props.detailRow,
+					// 		  }
+					// 		: undefined
+					// }
 					rowSelection={
 						props?.rowSelection
 							? {
@@ -508,9 +538,14 @@ const TableBase = (props: TableBaseProps) => {
 									onChange: (selectedRowKeys) => setSelectedIds(selectedRowKeys),
 									columnWidth: 40,
 									...props.detailRow,
+									// Thêm getCheckboxProps để lấy đúng ID
+									getCheckboxProps: (record) => ({
+										id: record.id,
+									}),
 							  }
 							: undefined
 					}
+					rowKey={(record) => record.id}
 					loading={loading}
 					bordered={props.border || true}
 					pagination={{
