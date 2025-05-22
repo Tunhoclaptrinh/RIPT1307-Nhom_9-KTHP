@@ -7,7 +7,7 @@
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh',
 			},
 			{
 				path: '/user',
