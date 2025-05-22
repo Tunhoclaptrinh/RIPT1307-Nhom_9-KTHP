@@ -30,7 +30,7 @@ const SignUp: React.FC = () => {
       await register(userData);
       message.success('Đăng ký thành công! Vui lòng đăng nhập');
       form.resetFields();
-      history.push('/user/login');
+      history.push('/user');
     } catch (error: any) {
       message.error(error.message || 'Có lỗi xảy ra khi đăng ký');
     } finally {
@@ -142,7 +142,7 @@ const SignUp: React.FC = () => {
           </Form>
 
           <div style={{ textAlign: 'center', marginTop: 16 }}>
-            Đã có tài khoản? <Link to='/user/login'>Đăng nhập</Link>
+            Đã có tài khoản? <Link to='/user'>Đăng nhập</Link>
           </div>
         </div>
       </div>

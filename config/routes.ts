@@ -7,7 +7,7 @@
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './ThiSinh', // Sử dụng component ThiSinh thay vì Login
+				component: './ThiSinh',
 			},
 			{
 				path: '/user',
