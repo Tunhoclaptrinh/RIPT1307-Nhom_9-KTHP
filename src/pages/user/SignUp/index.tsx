@@ -1,5 +1,7 @@
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message, Checkbox } from 'antd';
+import { register } from '@/services/user';
+import { history } from 'umi';
 import React, { useState } from 'react';
 import { Link } from 'umi';
 import styles from './index.less';
@@ -16,13 +18,34 @@ const SignUp: React.FC = () => {
       }
 
       setSubmitting(true);
-      // Giả lập API đăng ký
-      message.success('Đăng ký thành công');
-      form.resetFields();
-    } catch (error) {
-      message.error('Đăng ký thất bại');
+      
+      // Kiểm tra username tồn tại
+      const checkUser = await fetch(`http://localhost:3000/users?username=${values.username}`);
+      const users = await checkUser.json();
+      if (users.length > 0) {
+        throw new Error('Tên đăng nhập đã tồn tại');
+      }
+
+      const userData = {
+        username: values.username,
+        password: values.password,
+        email: values.email
+      };
+
+      const response = await register(userData);
+      
+      if (response.status === 201) {
+        message.success('Đăng ký thành công! Vui lòng đăng nhập');
+        form.resetFields();
+        history.push('/user/login');
+      } else {
+        throw new Error('Đăng ký thất bại');
+      }
+    } catch (error: any) {
+      message.error(error.message || 'Có lỗi xảy ra khi đăng ký');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   return (
@@ -38,10 +61,25 @@ const SignUp: React.FC = () => {
           <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Đăng ký tuyển sinh</h2>
           
           <Form form={form} onFinish={handleSubmit} layout='vertical'>
+            <Form.Item
+              name='username'
+              label='Tên đăng nhập'
+              rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
+            >
+              <Input
+                placeholder='Nhập tên đăng nhập'
+                prefix={<UserOutlined className={styles.prefixIcon} />}
+                size='large'
+              />
+            </Form.Item>
+
             <Form.Item 
-              name='email' 
-              label='Email' 
-              rules={[{ required: true, message: 'Vui lòng nhập email' }]}
+              name='email'
+              label='Email'
+              rules={[
+                { required: true, message: 'Vui lòng nhập email' },
+                { type: 'email', message: 'Email không hợp lệ' }
+              ]}
             >
               <Input
                 placeholder='Nhập email'
@@ -119,7 +157,7 @@ const SignUp: React.FC = () => {
         </div>
       </div>
     </div>
-	);
+  );
 };
 
 export default SignUp;

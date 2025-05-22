@@ -1,5 +1,6 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message } from 'antd';
+import { login } from '@/services/user';
 import React, { useState } from 'react';
 import { history } from 'umi';
 import styles from './index.less';
@@ -11,18 +12,16 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
       setSubmitting(true);
-      // Giả lập API đăng nhập đơn giản
-      // Trong thực tế sẽ gọi API và nhận về userId
-      const userId = 'user_' + Math.random().toString(36).substring(2, 9);
-      
-      // Lưu userId vào localStorage
-      localStorage.setItem('userId', userId);
+      const user = await login(values.username, values.password);
+      localStorage.setItem('userId', user.id);
+      localStorage.setItem('userInfo', JSON.stringify(user));
       message.success('Đăng nhập thành công');
       history.push('/dashboard');
-    } catch (error) {
-      message.error('Đăng nhập thất bại');
+    } catch (error: any) {
+      message.error(error.message || 'Đăng nhập thất bại');
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   return (

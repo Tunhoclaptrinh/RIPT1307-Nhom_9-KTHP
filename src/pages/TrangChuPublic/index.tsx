@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import TrangChuBody from './Body';
 import { Button, Modal } from 'antd';
 import { history } from 'umi';
+import { logout } from '@/services/user';
 
 const TrangChu = () => {
   const isLoggedIn = !!localStorage.getItem('userId');
@@ -19,7 +20,7 @@ const TrangChu = () => {
       okText: 'Đăng xuất',
       cancelText: 'Hủy',
       onOk() {
-        localStorage.removeItem('userId');
+        logout();
         window.location.reload();
       },
     });
