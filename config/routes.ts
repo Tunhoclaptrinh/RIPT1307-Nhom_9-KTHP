@@ -39,6 +39,12 @@
 		layout: false,
 	},
 	{
+		path: '/users',
+		name: 'Người dùng',
+		component: './Users',
+		icon: 'UserOutlined',
+	},
+	{
 		path: '/gioi-thieu',
 		name: 'About',
 		component: './TienIch/GioiThieu',
