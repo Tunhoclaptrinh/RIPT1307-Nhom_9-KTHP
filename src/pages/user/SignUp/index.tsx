@@ -18,29 +18,19 @@ const SignUp: React.FC = () => {
       }
 
       setSubmitting(true);
-      
-      // Kiểm tra username tồn tại
-      const checkUser = await fetch(`http://localhost:3000/users?username=${values.username}`);
-      const users = await checkUser.json();
-      if (users.length > 0) {
-        throw new Error('Tên đăng nhập đã tồn tại');
-      }
 
       const userData = {
         username: values.username,
         password: values.password,
-        email: values.email
+        email: values.email,
+        fullName: values.fullName || '',
+        phone: values.phone || ''
       };
 
-      const response = await register(userData);
-      
-      if (response.status === 201) {
-        message.success('Đăng ký thành công! Vui lòng đăng nhập');
-        form.resetFields();
-        history.push('/user/login');
-      } else {
-        throw new Error('Đăng ký thất bại');
-      }
+      await register(userData);
+      message.success('Đăng ký thành công! Vui lòng đăng nhập');
+      form.resetFields();
+      history.push('/user/login');
     } catch (error: any) {
       message.error(error.message || 'Có lỗi xảy ra khi đăng ký');
     } finally {

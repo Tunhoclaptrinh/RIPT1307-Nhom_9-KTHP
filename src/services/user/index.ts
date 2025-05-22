@@ -28,6 +28,11 @@ export async function login(username: string, password: string) {
 
 // Đăng ký user mới
 export async function register(userData: any) {
+  // Validate dữ liệu đầu vào
+  if (!userData.username || !userData.password || !userData.email) {
+    throw new Error('Vui lòng điền đầy đủ thông tin');
+  }
+
   // Kiểm tra username hoặc email đã tồn tại
   const checkUser = await request(
     `http://localhost:3000/users?username=${userData.username}&email=${userData.email}`
@@ -37,16 +42,21 @@ export async function register(userData: any) {
     throw new Error('Username hoặc email đã tồn tại');
   }
 
-  const response = await request('/users', {
+  // Tạo user mới
+  const response = await request('http://localhost:3000/users', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
     data: {
       ...userData,
-      id: `user_${Math.random().toString(36).substr(2, 8)}`
+      id: Date.now(),
+      createdAt: new Date().toISOString()
     }
   });
 
-  if (response.status >= 400) {
-    throw new Error('Đăng ký thất bại');
+  if (!response.data) {
+    throw new Error('Đăng ký thất bại, vui lòng thử lại');
   }
 
   return response.data;
