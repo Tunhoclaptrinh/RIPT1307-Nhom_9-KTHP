@@ -10,7 +10,7 @@ const TrangChu = () => {
   const isLoggedIn = !!localStorage.getItem('userId');
 
   const handleLogin = () => {
-    history.push('/user/login');
+    history.push('/user/login1');
   };
 
   const handleLogout = () => {

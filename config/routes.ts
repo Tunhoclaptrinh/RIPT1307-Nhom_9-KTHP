@@ -9,9 +9,15 @@
 				name: 'login',
 				component: './ThiSinh',
 			},
+			// {
+			// 	path: '/user',
+			// 	// redirect: '/user/login',
+			// },
 			{
-				path: '/user',
-				redirect: '/user/login',
+				path: '/user/login1',
+				layout: false,
+				name: 'signup',
+				component: './user/Login',
 			},
 			{
 				path: '/user/signup',

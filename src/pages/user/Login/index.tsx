@@ -2,7 +2,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message } from 'antd';
 import { login } from '@/services/user';
 import React, { useState } from 'react';
-import { history } from 'umi';
+import { history, Link } from 'umi';
 import styles from './index.less';
 
 const Login: React.FC = () => {
@@ -70,6 +70,9 @@ const Login: React.FC = () => {
               Đăng nhập
             </Button>
           </Form>
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              Chưa có tài khoản? <Link to='/user/Signup'>Đăng Ký</Link>
+            </div>
         </div>
       </div>
     </div>

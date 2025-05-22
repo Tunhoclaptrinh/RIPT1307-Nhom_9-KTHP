@@ -1,213 +1,224 @@
-import { LockOutlined, UserOutlined, MailOutlined, IdcardOutlined, PhoneOutlined, HomeOutlined } from '@ant-design/icons';
-import { Button, Form, Input, message, Checkbox, DatePicker, Select, Col, Row } from 'antd';
-import { register } from '@/services/user';
-import { history } from 'umi';
+import Footer from '@/components/Footer';
+import MyDatePicker from '@/components/MyDatePicker';
+// import { adminRegister } from '@/services/base/api';
+import { keycloakAuthority } from '@/utils/ip';
+import rules from '@/utils/rules';
+import { LockOutlined, UserOutlined, MailOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Tabs, message, Checkbox, Row, Col } from 'antd';
 import React, { useState } from 'react';
-import { Link } from 'umi';
+import { history, useIntl, Link } from 'umi';
 import styles from './index.less';
+import { register } from '@/services/user';
 
 const SignUp: React.FC = () => {
-  const [submitting, setSubmitting] = useState(false);
-  const [form] = Form.useForm();
+	const [submitting, setSubmitting] = useState(false);
+	const [form] = Form.useForm();
+	const intl = useIntl();
 
-  const handleSubmit = async (values: any) => {
-    try {
-      if (values.password !== values.confirmPassword) {
-        message.error('Mật khẩu không khớp');
-        return;
-      }
+	 const handleSubmit = async (values: any) => {
+		try {
+		if (values.password !== values.confirmPassword) {
+			message.error('Mật khẩu không khớp');
+			return;
+		}
 
-      setSubmitting(true);
+		setSubmitting(true);
 
-      const userData = {
-        username: values.username,
-        password: values.password,
-        email: values.email,
-        soCCCD: values.soCCCD,
-        ngayCap: values.ngayCap,
-        noiCap: values.noiCap,
-        ho: values.ho,
-        ten: values.ten,
-        hoKhauThuongTru: {
-          tinh_ThanhPho: values.tinhThanhPho,
-          quanHuyen: values.quanHuyen,
-          xaPhuong: values.xaPhuong,
-          diaChi: values.diaChi
-        },
-        ngaySinh: values.ngaySinh,
-        gioiTinh: values.gioiTinh,
-        soDT: values.soDT
-      };
+		const userData = {
+			username: values.username,
+			password: values.password,
+			email: values.email,
+			soCCCD: values.soCCCD,
+			ngayCap: values.ngayCap,
+			noiCap: values.noiCap,
+			ho: values.ho,
+			ten: values.ten,
+			hoKhauThuongTru: {
+			tinh_ThanhPho: values.tinhThanhPho,
+			quanHuyen: values.quanHuyen,
+			xaPhuong: values.xaPhuong,
+			diaChi: values.diaChi
+			},
+			ngaySinh: values.ngaySinh,
+			gioiTinh: values.gioiTinh,
+			soDT: values.soDT
+		};
 
-      await register(userData);
-      message.success('Đăng ký thành công! Vui lòng đăng nhập');
-      form.resetFields();
-      history.push('/user');
-    } catch (error: any) {
-      message.error(error.message || 'Có lỗi xảy ra khi đăng ký');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+		await register(userData);
+		message.success('Đăng ký thành công! Vui lòng đăng nhập');
+		form.resetFields();
+		history.push('/user');
+		} catch (error: any) {
+		message.error(error.message || 'Có lỗi xảy ra khi đăng ký');
+		} finally {
+		setSubmitting(false);
+		}
+	};
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.top}>
-          <div className={styles.header}>
-            <img alt='logo' className={styles.logo} src='/logo-full.svg' />
-          </div>
-        </div>
+	return (
+		<div className={styles.container}>
+			<div className={styles.content}>
+				<div className={styles.top}>
+					<div className={styles.header}>
+						<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+							<img alt='logo' className={styles.logo} src='/logo-full.svg' />
+						</div>
+					</div>
+				</div>
 
-        <div className={styles.main}>
-          <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Đăng ký tuyển sinh</h2>
-          
-          <Form form={form} onFinish={handleSubmit} layout='vertical'>
-  <Row gutter={16}>
-    <Col span={12}>
-      <Form.Item name='username' label='Tên đăng nhập' rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}>
-        <Input prefix={<UserOutlined />} placeholder='Tên đăng nhập' size='large' />
-      </Form.Item>
-    </Col>
+				<div className={styles.main}>
+					<span
+						style={{ fontWeight: 600, color: '#000', marginBottom: 30, textAlign: 'center' }}
+						className={styles.desc}
+					>
+						Đăng ký tài khoản mới
+					</span>
+					<Form form={form} onFinish={handleSubmit} layout='vertical' style={{ marginTop: 10 }}>
+						<Row gutter={[16, 0]}>
+							<Col span={24}>
+								<Form.Item name='email' label='Email' rules={[...rules.required, ...rules.email]}>
+									<Input
+										placeholder='Nhập địa chỉ email'
+										prefix={<MailOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={6}>
-      <Form.Item name='ho' label='Họ' rules={[{ required: true, message: 'Vui lòng nhập họ' }]}>
-        <Input placeholder='Họ' size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24} md={12}>
+								<Form.Item name='ho' label='Họ và tên đệm' rules={[...rules.required]}>
+									<Input
+										placeholder='Nhập họ và tên riêng'
+										prefix={<UserOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={6}>
-      <Form.Item name='ten' label='Tên' rules={[{ required: true, message: 'Vui lòng nhập tên' }]}>
-        <Input placeholder='Tên' size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24} md={12}>
+								<Form.Item name='ten' label='Tên' rules={[...rules.required]}>
+									<Input
+										placeholder='Nhập tên của bạn'
+										prefix={<UserOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={12}>
-      <Form.Item name='gioiTinh' label='Giới tính' rules={[{ required: true, message: 'Chọn giới tính' }]}>
-        <Select placeholder="Giới tính" size="large">
-          <Select.Option value="nam">Nam</Select.Option>
-          <Select.Option value="nu">Nữ</Select.Option>
-          <Select.Option value="khac">Khác</Select.Option>
-        </Select>
-      </Form.Item>
-    </Col>
+							{/* <Col span={24} md={12}>
+								<Form.Item name='username' label='Tên đăng nhập' rules={[...rules.required]}>
+									<Input
+										placeholder='Nhập tên đăng nhập'
+										prefix={<UserOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col> */}
 
-    <Col span={12}>
-      <Form.Item name='ngaySinh' label='Ngày sinh' rules={[{ required: true, message: 'Chọn ngày sinh' }]}>
-        <DatePicker style={{ width: '100%' }} size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24}>
+								<Form.Item name='password' label='Mật khẩu' rules={[...rules.required, ...rules.password]}>
+									<Input.Password
+										placeholder='Nhập mật khẩu'
+										prefix={<LockOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={12}>
-      <Form.Item name='soCCCD' label='Số CCCD' rules={[
-        { required: true, message: 'Vui lòng nhập số CCCD' },
-        { pattern: /^[0-9]{12}$/, message: 'Số CCCD phải có 12 chữ số' }
-      ]}>
-        <Input prefix={<IdcardOutlined />} placeholder='Số CCCD' size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24}>
+								<Form.Item
+									name='confirmPassword'
+									label='Xác nhận mật khẩu'
+									rules={[
+										...rules.required,
+										({ getFieldValue }) => ({
+											validator(_, value) {
+												if (!value || getFieldValue('password') === value) {
+													return Promise.resolve();
+												}
+												return Promise.reject(new Error('Mật khẩu không khớp'));
+											},
+										}),
+									]}
+								>
+									<Input.Password
+										placeholder='Nhập lại mật khẩu'
+										prefix={<LockOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={6}>
-      <Form.Item name='ngayCap' label='Ngày cấp' rules={[{ required: true, message: 'Chọn ngày cấp' }]}>
-        <DatePicker style={{ width: '100%' }} size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24} md={12}>
+								<Form.Item name='phone' label='Số điện thoại' rules={[...rules.required]}>
+									<Input
+										placeholder='Nhập số điện thoại'
+										prefix={<PhoneOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={6}>
-      <Form.Item name='noiCap' label='Nơi cấp' rules={[{ required: true, message: 'Nhập nơi cấp' }]}>
-        <Input placeholder='Nơi cấp' size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24} md={12}>
+								<Form.Item name='dateOfBirth' label='Ngày sinh'>
+									<MyDatePicker
+										placeholder='Chọn ngày sinh'
+										format='DD/MM/YYYY'
+										style={{ width: '100%' }}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={12}>
-      <Form.Item name='tinhThanhPho' label='Tỉnh/Thành phố' rules={[{ required: true, message: 'Nhập tỉnh/thành phố' }]}>
-        <Input prefix={<HomeOutlined />} placeholder='Tỉnh/TP' size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24}>
+								<Form.Item name='idNumber' label='Số CMND/CCCD' rules={[...rules.required]}>
+									<Input
+										placeholder='Nhập số CMND/CCCD'
+										prefix={<IdcardOutlined className={styles.prefixIcon} />}
+										size='large'
+									/>
+								</Form.Item>
+							</Col>
 
-    <Col span={12}>
-      <Form.Item name='quanHuyen' label='Quận/Huyện' rules={[{ required: true, message: 'Nhập quận/huyện' }]}>
-        <Input placeholder='Quận/Huyện' size='large' />
-      </Form.Item>
-    </Col>
+							<Col span={24}>
+								<Form.Item
+									name='terms'
+									valuePropName='checked'
+									rules={[
+										{
+											validator: (_, value) =>
+												value ? Promise.resolve() : Promise.reject(new Error('Bạn phải đồng ý với điều khoản sử dụng')),
+										},
+									]}
+								>
+									<Checkbox>
+										Tôi đã đọc và đồng ý với{' '}
+										<a href='#' target='_blank'>
+											điều khoản sử dụng
+										</a>
+									</Checkbox>
+								</Form.Item>
+							</Col>
+						</Row>
 
-    <Col span={12}>
-      <Form.Item name='xaPhuong' label='Xã/Phường' rules={[{ required: true, message: 'Nhập xã/phường' }]}>
-        <Input placeholder='Xã/Phường' size='large' />
-      </Form.Item>
-    </Col>
+						<Form.Item>
+							<Button type='primary' htmlType='submit' block size='large' loading={submitting}>
+								Đăng ký
+							</Button>
+						</Form.Item>
+					</Form>
 
-    <Col span={12}>
-      <Form.Item name='diaChi' label='Địa chỉ' rules={[{ required: true, message: 'Nhập địa chỉ' }]}>
-        <Input placeholder='Số nhà, đường...' size='large' />
-      </Form.Item>
-    </Col>
+					<div style={{ textAlign: 'center', marginTop: 16 }}>
+						Đã có tài khoản? <Link to='/user/login'>Đăng nhập ngay</Link>
+					</div>
+				</div>
+			</div>
 
-    <Col span={12}>
-      <Form.Item name='soDT' label='Số điện thoại' rules={[{ required: true, message: 'Nhập số điện thoại' }]}>
-        <Input prefix={<PhoneOutlined />} placeholder='Số điện thoại' size='large' />
-      </Form.Item>
-    </Col>
-
-    <Col span={12}>
-      <Form.Item name='email' label='Email' rules={[
-        { required: true, message: 'Nhập email' },
-        { type: 'email', message: 'Email không hợp lệ' }
-      ]}>
-        <Input prefix={<MailOutlined />} placeholder='Email' size='large' />
-      </Form.Item>
-    </Col>
-
-    <Col span={12}>
-      <Form.Item name='password' label='Mật khẩu' rules={[{ required: true, message: 'Nhập mật khẩu' }]}>
-        <Input.Password prefix={<LockOutlined />} placeholder='Mật khẩu' size='large' />
-      </Form.Item>
-    </Col>
-
-    <Col span={12}>
-      <Form.Item name='confirmPassword' label='Xác nhận mật khẩu' dependencies={['password']} rules={[
-        { required: true, message: 'Xác nhận mật khẩu' },
-        ({ getFieldValue }) => ({
-          validator(_, value) {
-            if (!value || getFieldValue('password') === value) {
-              return Promise.resolve();
-            }
-            return Promise.reject('Mật khẩu không khớp');
-          },
-        }),
-      ]}>
-        <Input.Password prefix={<LockOutlined />} placeholder='Nhập lại mật khẩu' size='large' />
-      </Form.Item>
-    </Col>
-
-    <Col span={24}>
-      <Form.Item
-        name='terms'
-        valuePropName='checked'
-        rules={[{ validator: (_, value) => value ? Promise.resolve() : Promise.reject('Bạn phải đồng ý điều khoản') }]}
-      >
-        <Checkbox>
-          Tôi đồng ý với <a href='#'>điều khoản sử dụng</a>
-        </Checkbox>
-      </Form.Item>
-    </Col>
-
-    <Col span={24}>
-      <Button type='primary' htmlType='submit' block size='large' loading={submitting}>
-        Đăng ký
-      </Button>
-    </Col>
-  </Row>
-</Form>
-
-
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            Đã có tài khoản? <Link to='/user'>Đăng nhập</Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+			{/* <div className='login-footer'>
+				<Footer />
+			</div> */}
+		</div>
+	);
 };
 
 export default SignUp;
