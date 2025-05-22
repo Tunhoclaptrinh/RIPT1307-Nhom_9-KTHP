@@ -7,7 +7,7 @@
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh',
 			},
 			{
 				path: '/user',
@@ -39,10 +39,11 @@
 		layout: false,
 	},
 	{
-		path: '/users',
-		name: 'Người dùng',
-		component: './Users',
-		icon: 'UserOutlined',
+		path: '/tuyen-sinh',
+		name: 'Tuyển sinh',
+		component: './ThiSinh',
+		icon: 'UserAddOutlined',
+		layout: false,
 	},
 	{
 		path: '/gioi-thieu',
