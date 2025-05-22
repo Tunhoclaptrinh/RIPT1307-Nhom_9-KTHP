@@ -9,10 +9,10 @@
 				name: 'login',
 				component: './ThiSinh',
 			},
-			// {
-			// 	path: '/user',
-			// 	// redirect: '/user/login',
-			// },
+			{
+				path: '/user',
+				redirect: '/user/login',
+			},
 			{
 				path: '/user/login1',
 				layout: false,
