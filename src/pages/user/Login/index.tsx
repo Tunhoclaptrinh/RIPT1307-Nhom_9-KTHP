@@ -16,7 +16,7 @@ const Login: React.FC = () => {
       localStorage.setItem('userId', user.id);
       localStorage.setItem('userInfo', JSON.stringify(user));
       message.success('Đăng nhập thành công');
-      history.push('/dashboard');
+      history.push('/tra-cuu-public');
     } catch (error: any) {
       message.error(error.message || 'Đăng nhập thất bại');
     } finally {
