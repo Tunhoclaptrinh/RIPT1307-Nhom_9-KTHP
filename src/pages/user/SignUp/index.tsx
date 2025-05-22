@@ -1,214 +1,124 @@
-import Footer from '@/components/Footer';
-import MyDatePicker from '@/components/MyDatePicker';
-// import { adminRegister } from '@/services/base/api';
-import { keycloakAuthority } from '@/utils/ip';
-import rules from '@/utils/rules';
-import { LockOutlined, UserOutlined, MailOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Tabs, message, Checkbox, Row, Col } from 'antd';
+import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
+import { Button, Form, Input, message, Checkbox } from 'antd';
 import React, { useState } from 'react';
-import { history, useIntl, Link } from 'umi';
+import { Link } from 'umi';
 import styles from './index.less';
 
 const SignUp: React.FC = () => {
-	const [submitting, setSubmitting] = useState(false);
-	const [form] = Form.useForm();
-	const intl = useIntl();
+  const [submitting, setSubmitting] = useState(false);
+  const [form] = Form.useForm();
 
-	const handleSubmit = async (values: any) => {
-		try {
-			// Kiểm tra xác nhận mật khẩu
-			if (values.password !== values.confirmPassword) {
-				message.error('Mật khẩu và xác nhận mật khẩu không khớp');
-				return;
-			}
+  const handleSubmit = async (values: any) => {
+    try {
+      if (values.password !== values.confirmPassword) {
+        message.error('Mật khẩu không khớp');
+        return;
+      }
 
-			setSubmitting(true);
+      setSubmitting(true);
+      // Giả lập API đăng ký
+      message.success('Đăng ký thành công');
+      form.resetFields();
+    } catch (error) {
+      message.error('Đăng ký thất bại');
+    }
+    setSubmitting(false);
+  };
 
-			// Đây là bước gọi API đăng ký - cần được cài đặt ở phía backend
-			// const msg = await adminRegister({
-			// 	username: values.username,
-			// 	password: values.password,
-			// 	fullName: values.fullName,
-			// 	email: values.email,
-			// 	phone: values.phone,
-			// 	dateOfBirth: values.dateOfBirth,
-			// 	idNumber: values.idNumber,
-			// 	terms: values.terms,
-			// });
+  return (
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.top}>
+          <div className={styles.header}>
+            <img alt='logo' className={styles.logo} src='/logo-full.svg' />
+          </div>
+        </div>
 
-			// if (msg?.status === 200) {
-			// 	message.success('Đăng ký tài khoản thành công');
-			// 	history.push('/user/login');
-			// }
-		} catch (error) {
-			message.error('Đăng ký tài khoản thất bại');
-		}
-		setSubmitting(false);
-	};
+        <div className={styles.main}>
+          <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Đăng ký tuyển sinh</h2>
+          
+          <Form form={form} onFinish={handleSubmit} layout='vertical'>
+            <Form.Item 
+              name='email' 
+              label='Email' 
+              rules={[{ required: true, message: 'Vui lòng nhập email' }]}
+            >
+              <Input
+                placeholder='Nhập email'
+                prefix={<MailOutlined className={styles.prefixIcon} />}
+                size='large'
+              />
+            </Form.Item>
 
-	return (
-		<div className={styles.container}>
-			<div className={styles.content}>
-				<div className={styles.top}>
-					<div className={styles.header}>
-						<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-							<img alt='logo' className={styles.logo} src='/logo-full.svg' />
-						</div>
-					</div>
-				</div>
+            <Form.Item
+              name='password'
+              label='Mật khẩu'
+              rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+            >
+              <Input.Password
+                placeholder='Nhập mật khẩu'
+                prefix={<LockOutlined className={styles.prefixIcon} />}
+                size='large'
+              />
+            </Form.Item>
 
-				<div className={styles.main}>
-					<span
-						style={{ fontWeight: 600, color: '#000', marginBottom: 30, textAlign: 'center' }}
-						className={styles.desc}
-					>
-						Đăng ký tài khoản mới
-					</span>
-					<Form form={form} onFinish={handleSubmit} layout='vertical' style={{ marginTop: 10 }}>
-						<Row gutter={[16, 0]}>
-							<Col span={24}>
-								<Form.Item name='email' label='Email' rules={[...rules.required, ...rules.email]}>
-									<Input
-										placeholder='Nhập địa chỉ email'
-										prefix={<MailOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
+            <Form.Item
+              name='confirmPassword'
+              label='Xác nhận mật khẩu'
+              dependencies={['password']}
+              rules={[
+                { required: true, message: 'Vui lòng xác nhận mật khẩu' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject('Mật khẩu không khớp');
+                  },
+                }),
+              ]}
+            >
+              <Input.Password
+                placeholder='Nhập lại mật khẩu'
+                prefix={<LockOutlined className={styles.prefixIcon} />}
+                size='large'
+              />
+            </Form.Item>
 
-							<Col span={24} md={12}>
-								<Form.Item name='ho' label='Họ và tên đệm' rules={[...rules.required]}>
-									<Input
-										placeholder='Nhập họ và tên riêng'
-										prefix={<UserOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
+            <Form.Item
+              name='terms'
+              valuePropName='checked'
+              rules={[
+                {
+                  validator: (_, value) =>
+                    value ? Promise.resolve() : Promise.reject('Bạn phải đồng ý điều khoản'),
+                },
+              ]}
+            >
+              <Checkbox>
+                Tôi đồng ý với <a href='#'>điều khoản sử dụng</a>
+              </Checkbox>
+            </Form.Item>
 
-							<Col span={24} md={12}>
-								<Form.Item name='ten' label='Tên' rules={[...rules.required]}>
-									<Input
-										placeholder='Nhập tên của bạn'
-										prefix={<UserOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
+            <Form.Item>
+              <Button 
+                type='primary' 
+                htmlType='submit' 
+                block 
+                size='large' 
+                loading={submitting}
+              >
+                Đăng ký
+              </Button>
+            </Form.Item>
+          </Form>
 
-							{/* <Col span={24} md={12}>
-								<Form.Item name='username' label='Tên đăng nhập' rules={[...rules.required]}>
-									<Input
-										placeholder='Nhập tên đăng nhập'
-										prefix={<UserOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col> */}
-
-							<Col span={24}>
-								<Form.Item name='password' label='Mật khẩu' rules={[...rules.required, ...rules.password]}>
-									<Input.Password
-										placeholder='Nhập mật khẩu'
-										prefix={<LockOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
-
-							<Col span={24}>
-								<Form.Item
-									name='confirmPassword'
-									label='Xác nhận mật khẩu'
-									rules={[
-										...rules.required,
-										({ getFieldValue }) => ({
-											validator(_, value) {
-												if (!value || getFieldValue('password') === value) {
-													return Promise.resolve();
-												}
-												return Promise.reject(new Error('Mật khẩu không khớp'));
-											},
-										}),
-									]}
-								>
-									<Input.Password
-										placeholder='Nhập lại mật khẩu'
-										prefix={<LockOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
-
-							<Col span={24} md={12}>
-								<Form.Item name='phone' label='Số điện thoại' rules={[...rules.required]}>
-									<Input
-										placeholder='Nhập số điện thoại'
-										prefix={<PhoneOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
-
-							<Col span={24} md={12}>
-								<Form.Item name='dateOfBirth' label='Ngày sinh'>
-									<MyDatePicker
-										placeholder='Chọn ngày sinh'
-										format='DD/MM/YYYY'
-										style={{ width: '100%' }}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
-
-							<Col span={24}>
-								<Form.Item name='idNumber' label='Số CMND/CCCD' rules={[...rules.required]}>
-									<Input
-										placeholder='Nhập số CMND/CCCD'
-										prefix={<IdcardOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col>
-
-							<Col span={24}>
-								<Form.Item
-									name='terms'
-									valuePropName='checked'
-									rules={[
-										{
-											validator: (_, value) =>
-												value ? Promise.resolve() : Promise.reject(new Error('Bạn phải đồng ý với điều khoản sử dụng')),
-										},
-									]}
-								>
-									<Checkbox>
-										Tôi đã đọc và đồng ý với{' '}
-										<a href='#' target='_blank'>
-											điều khoản sử dụng
-										</a>
-									</Checkbox>
-								</Form.Item>
-							</Col>
-						</Row>
-
-						<Form.Item>
-							<Button type='primary' htmlType='submit' block size='large' loading={submitting}>
-								Đăng ký
-							</Button>
-						</Form.Item>
-					</Form>
-
-					<div style={{ textAlign: 'center', marginTop: 16 }}>
-						Đã có tài khoản? <Link to='/user/login'>Đăng nhập ngay</Link>
-					</div>
-				</div>
-			</div>
-
-			{/* <div className='login-footer'>
-				<Footer />
-			</div> */}
-		</div>
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            Đã có tài khoản? <Link to='/user/login'>Đăng nhập</Link>
+          </div>
+        </div>
+      </div>
+    </div>
 	);
 };
 

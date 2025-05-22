@@ -7,7 +7,7 @@
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh', // Sử dụng component ThiSinh thay vì Login
 			},
 			{
 				path: '/user',
@@ -36,6 +36,13 @@
 		name: 'Tra cứu tuyển sinh',
 		component: './TraCuuPublic',
 		icon: 'HomeOutlined',
+		layout: false,
+	},
+	{
+		path: '/tuyen-sinh',
+		name: 'Tuyển sinh',
+		component: './ThiSinh',
+		icon: 'UserAddOutlined',
 		layout: false,
 	},
 	{
