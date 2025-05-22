@@ -39,11 +39,18 @@
 		layout: false,
 	},
 	{
+		path: '/users',
+		name: 'Người dùng',
+		component: './Users',
+		icon: 'UserOutlined',
+	},
+	{
 		path: '/gioi-thieu',
 		name: 'About',
 		component: './TienIch/GioiThieu',
 		hideInMenu: true,
 	},
+
 	{
 		path: '/dash-board',
 		name: 'Trang này là của người dùng',

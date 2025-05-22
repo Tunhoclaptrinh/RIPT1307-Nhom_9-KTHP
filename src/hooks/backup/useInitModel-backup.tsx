@@ -7,16 +7,16 @@ import useInitService from './useInitService';
 /**
  *
  * @param url path api
- * @param fieldNameCondtion condition | cond (not used in JSON Server)
+ * @param fieldNameCondtion condition | cond
  * @param initCondition initConditionValue
- * @param baseURL Base URL của JSON Server (default: http://localhost:3000)
+ * @param upService Ip của dịch vụ bên thứ 3
  * @returns
  */
 const useInitModel = <T,>(
 	url: string,
-	fieldNameCondtion?: 'condition' | 'cond', // Not used in JSON Server
+	fieldNameCondtion?: 'condition' | 'cond',
 	initCondition?: Partial<T>,
-	baseURL?: string,
+	ipService?: string,
 	initSort?: { [k in keyof T]?: 1 | -1 },
 	initFilter?: TFilter<T>[],
 ) => {
@@ -33,7 +33,7 @@ const useInitModel = <T,>(
 	const [isView, setIsView] = useState<boolean>(true);
 	const [visibleForm, setVisibleForm] = useState<boolean>(false);
 	const [total, setTotal] = useState<number>(0);
-	const [importHeaders, setImportHeaders] = useState<TImportHeader[]>([]);
+	const [importHeaders, setImportHeaders] = useState<TImportHeader[]>([]); // Import Headers lấy từ API
 	const [selectedIds, setSelectedIds] = useState<string[]>();
 
 	const {
@@ -51,7 +51,7 @@ const useInitModel = <T,>(
 		postValidateImport,
 		getExportFields,
 		postExport,
-	} = useInitService(url, baseURL);
+	} = useInitService(url, ipService);
 
 	/**
 	 * Get Pageable Model
@@ -61,7 +61,7 @@ const useInitModel = <T,>(
 	 * @param {any} sortParam Sort khác
 	 * @param {any} paramPage Page khác
 	 * @param {any} paramLimit Limit khác
-	 * @param {any} path Đường dẫn (không dùng với JSON Server)
+	 * @param {any} path Đường dẫn (mặc định là `page`)
 	 * @param {any} otherQuery Truy vấn thêm vào query
 	 * @returns {any} Các IRecord
 	 */
@@ -82,7 +82,7 @@ const useInitModel = <T,>(
 			page: paramPage || page,
 			limit: paramLimit || limit,
 			sort: sortParam || sort,
-			condition: {
+			[fieldNameCondtion ?? 'condition']: {
 				...condition,
 				...paramCondition,
 			},
@@ -96,13 +96,10 @@ const useInitModel = <T,>(
 
 		try {
 			const response = await getService(payload, path ?? 'page', isAbsolutePath ?? false);
+			const tempData: T[] = response?.data?.data?.result ?? [];
+			const tempTotal: number = response?.data?.data?.total ?? 0;
 
-			// JSON Server returns data directly in response.data array
-			// and total count in X-Total-Count header
-			const tempData: T[] = Array.isArray(response.data) ? response.data : [];
-			const tempTotal: number = parseInt(response.headers['x-total-count'] || '0', 10) || tempData.length;
-
-			if (tempData.length === 0 && tempTotal && paramPage && paramPage > 1) {
+			if (tempData.length === 0 && tempTotal) {
 				const maxPage = Math.ceil(tempTotal / payload.limit) || 1;
 				setPage(maxPage);
 				return Promise.reject('Invalid page');
@@ -132,17 +129,15 @@ const useInitModel = <T,>(
 		setLoading(true);
 		try {
 			const payload = {
-				condition: conditionParam,
+				[fieldNameCondtion ?? 'condition']: conditionParam,
 				sort: sortParam,
 				filters: filterParam,
 				select: selectParams?.join(' '),
 				...(otherQuery ?? {}),
 			};
 			const response = await getAllService(payload, pathParam);
-
-			// JSON Server returns data directly
-			const data: T[] = Array.isArray(response.data) ? response.data : [];
-
+			const data: T[] = response?.data?.data ?? [];
+			// if (sortParam) data.sort(sortParam);
 			if (isSetDanhSach !== false) setDanhSach(data);
 			if (isSetRecord) setRecord(data?.[0]);
 
@@ -159,8 +154,8 @@ const useInitModel = <T,>(
 		setLoading(true);
 		try {
 			const response = await getByIdService(id);
-			if (isSetRecord !== false) setRecord(response?.data ?? null);
-			return response?.data;
+			if (isSetRecord !== false) setRecord(response?.data?.data ?? null);
+			return response?.data?.data;
 		} catch (er) {
 			return Promise.reject(er);
 		} finally {
@@ -173,9 +168,8 @@ const useInitModel = <T,>(
 		setLoading(true);
 		try {
 			const response = await getService({ condition: conditionParam }, 'one');
-			const data = Array.isArray(response.data) ? response.data[0] : response.data;
-			setRecord(data ?? null);
-			return data;
+			setRecord(response?.data?.data ?? null);
+			return response?.data?.data;
 		} catch (er) {
 			return Promise.reject(er);
 		} finally {
@@ -189,7 +183,7 @@ const useInitModel = <T,>(
 		closeModal?: boolean,
 		messageText?: string,
 	): Promise<T> => {
-		if (formSubmiting) return Promise.reject('Form submiting');
+		if (formSubmiting) Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
 			const res = await postService(chuanHoaObject(payload));
@@ -199,7 +193,7 @@ const useInitModel = <T,>(
 			else getModel();
 			if (closeModal !== false) setVisibleForm(false);
 
-			return res.data;
+			return res.data?.data;
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -225,7 +219,7 @@ const useInitModel = <T,>(
 			else if (!notGet) getModel();
 			if (closeModal !== false) setVisibleForm(false);
 
-			return res.data;
+			return res.data?.data;
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -240,7 +234,7 @@ const useInitModel = <T,>(
 		notGet?: boolean,
 		closeModal?: boolean,
 		messageText?: string,
-	): Promise<any> => {
+	): Promise<T> => {
 		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
@@ -251,8 +245,7 @@ const useInitModel = <T,>(
 			else if (!notGet) getModel();
 			if (closeModal !== false) setVisibleForm(false);
 
-			// return res.data;
-			return res.data;
+			return res.data?.data;
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -271,9 +264,7 @@ const useInitModel = <T,>(
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
-			}
-
-			if (getData) getData();
+			} else if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
 
 			return res.data;
@@ -296,9 +287,7 @@ const useInitModel = <T,>(
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
-			}
-
-			if (getData) getData();
+			} else if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
 
 			return res.data;
@@ -323,7 +312,11 @@ const useInitModel = <T,>(
 		setVisibleForm(true);
 	};
 
-	//#region BASE IMPORT - Mock implementations for JSON Server
+	//#region BASE IMPORT
+	/**
+	 * Lấy header cho chức năng import
+	 * @returns {any}
+	 */
 	const getImportHeaderModel = async (): Promise<TImportHeader[]> => {
 		try {
 			const res = await getImportHeaders();
@@ -334,6 +327,10 @@ const useInitModel = <T,>(
 		}
 	};
 
+	/**
+	 * Lấy file excel mẫu cho chức năng import
+	 * @returns {any}
+	 */
 	const getImportTemplateModel = async (): Promise<any> => {
 		try {
 			const res = await getImportTemplate();
@@ -343,24 +340,17 @@ const useInitModel = <T,>(
 		}
 	};
 
+	/**
+	 * Validate dữ liệu cần import
+	 * @returns {any}
+	 */
 	const postValidateModel = async (payload: any[]): Promise<TImportResponse> => {
 		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
 			const res = await postValidateImport({ rows: payload });
 			message.success('Đã kiểm tra dữ liệu');
-			// Ensure the returned object matches TImportResponse
-			const data = res.data?.data ?? [];
-			const error =
-				typeof data === 'object' &&
-				data !== null &&
-				'invalid' in data &&
-				Array.isArray((data as any).invalid) &&
-				(data as any).invalid.length > 0;
-			return {
-				error,
-				...data,
-			};
+			return res.data?.data ?? [];
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -368,23 +358,17 @@ const useInitModel = <T,>(
 		}
 	};
 
+	/**
+	 * Thực thi import dữ liệu
+	 * @returns {any}
+	 */
 	const postExecuteImpotModel = async (payload: any[]): Promise<TImportResponse> => {
 		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
 			const res = await postExecuteImport({ rows: payload });
 			message.success('Đã nhập dữ liệu');
-			const data = res.data?.data ?? {};
-			const error =
-				typeof data === 'object' &&
-				data !== null &&
-				'invalid' in data &&
-				Array.isArray((data as any).invalid) &&
-				(data as any).invalid.length > 0;
-			return {
-				error,
-				...data,
-			};
+			return res.data?.data ?? [];
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -393,7 +377,11 @@ const useInitModel = <T,>(
 	};
 	//#endregion
 
-	//#region BASE EXPORT - Mock implementations for JSON Server
+	//#region BASE EXPORT
+	/**
+	 * Lấy fields cho chức năng export
+	 * @returns {any}
+	 */
 	const getExportFieldsModel = async (): Promise<TExportField[]> => {
 		const genIdField = (data?: TExportField[], prefix?: string): TExportField[] | undefined => {
 			if (!data?.length) return undefined;
@@ -414,6 +402,10 @@ const useInitModel = <T,>(
 		}
 	};
 
+	/**
+	 * Thực thi export
+	 * @returns {any}
+	 */
 	const postExportModel = async (
 		payload: { ids?: string[]; definitions: TExportField[] },
 		paramCondition?: Partial<T>,
