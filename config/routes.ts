@@ -7,7 +7,7 @@
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh',
 			},
 			{
 				path: '/user',
@@ -37,12 +37,6 @@
 		component: './TraCuuPublic',
 		icon: 'HomeOutlined',
 		layout: false,
-	},
-	{
-		path: '/users',
-		name: 'Người dùng',
-		component: './Users',
-		icon: 'UserOutlined',
 	},
 	{
 		path: '/gioi-thieu',
