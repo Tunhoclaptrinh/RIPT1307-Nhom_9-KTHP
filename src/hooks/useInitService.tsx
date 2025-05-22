@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { EOperatorType } from '../components/Table/constant';
+import type { TFilter } from '../components/Table/typing';
 
 const useInitService = (url: string, baseURL?: string) => {
 	const finalURL = baseURL ?? 'http://localhost:3000';
@@ -9,15 +11,13 @@ const useInitService = (url: string, baseURL?: string) => {
 			limit?: number;
 			condition?: any;
 			sort?: any;
-			filters?: any[];
+			filters?: TFilter<any>[];
 			select?: string;
 		},
 		path?: string,
 		isAbsolutePath?: boolean,
 	) => {
 		const finalPath = isAbsolutePath ? `${finalURL}/${path}` : `${finalURL}/${url}`;
-
-		// JSON Server pagination parameters
 		const params: any = {};
 
 		if (payload.page && payload.limit) {
@@ -25,7 +25,6 @@ const useInitService = (url: string, baseURL?: string) => {
 			params._limit = payload.limit;
 		}
 
-		// JSON Server sorting
 		if (payload.sort) {
 			const sortKey = Object.keys(payload.sort)[0];
 			const sortOrder = payload.sort[sortKey] === 1 ? 'asc' : 'desc';
@@ -33,7 +32,6 @@ const useInitService = (url: string, baseURL?: string) => {
 			params._order = sortOrder;
 		}
 
-		// Basic filtering for JSON Server
 		if (payload.condition) {
 			Object.keys(payload.condition).forEach((key) => {
 				if (payload.condition[key] !== undefined && payload.condition[key] !== null) {
@@ -42,7 +40,55 @@ const useInitService = (url: string, baseURL?: string) => {
 			});
 		}
 
+		if (payload.filters) {
+			payload.filters.forEach((filter: TFilter<any>) => {
+				const field = Array.isArray(filter.field) ? filter.field.join('.') : filter.field;
+				if (filter.operator === EOperatorType.CONTAIN) {
+					params[`${field}_like`] = filter.values[0];
+				} else if (filter.operator === EOperatorType.EQUAL) {
+					params[field] = filter.values[0];
+				}
+				// Các toán tử khác sẽ được xử lý phía client
+			});
+		}
+
 		return axios.get(finalPath, { params });
+	};
+
+	const getAllService = (
+		payload?: { condition?: any; sort?: any; filters?: TFilter<any>[]; select?: string },
+		path?: string,
+	) => {
+		const params: any = {};
+
+		if (payload?.sort) {
+			const sortKey = Object.keys(payload.sort)[0];
+			const sortOrder = payload.sort[sortKey] === 1 ? 'asc' : 'desc';
+			params._sort = sortKey;
+			params._order = sortOrder;
+		}
+
+		if (payload?.condition) {
+			Object.keys(payload.condition).forEach((key) => {
+				if (payload.condition[key] !== undefined && payload.condition[key] !== null) {
+					params[key] = payload.condition[key];
+				}
+			});
+		}
+
+		if (payload?.filters) {
+			payload.filters.forEach((filter: TFilter<any>) => {
+				const field = Array.isArray(filter.field) ? filter.field.join('.') : filter.field;
+				if (filter.operator === EOperatorType.CONTAIN) {
+					params[`${field}_like`] = filter.values[0];
+				} else if (filter.operator === EOperatorType.EQUAL) {
+					params[field] = filter.values[0];
+				}
+				// Các toán tử khác sẽ được xử lý phía client
+			});
+		}
+
+		return axios.get(`${finalURL}/${url}`, { params });
 	};
 
 	const postService = (payload: any) => {
@@ -54,7 +100,6 @@ const useInitService = (url: string, baseURL?: string) => {
 	};
 
 	const putManyService = async (ids: (string | number)[], update: any) => {
-		// JSON Server doesn't support bulk updates, so we update one by one
 		const promises = ids.map((id) => axios.put(`${finalURL}/${url}/${id}`, update));
 		const results = await Promise.all(promises);
 		return { data: results.map((r) => r.data) };
@@ -65,43 +110,15 @@ const useInitService = (url: string, baseURL?: string) => {
 	};
 
 	const deleteManyService = async (ids: (string | number)[], silent?: boolean) => {
-		// JSON Server doesn't support bulk deletes, so we delete one by one
 		const promises = ids.map((id) => axios.delete(`${finalURL}/${url}/${id}`));
 		const results = await Promise.all(promises);
 		return { data: results.map((r) => r.data) };
-	};
-
-	const getAllService = (
-		payload?: { condition?: any; sort?: any; filters?: any[]; select?: string },
-		path?: string,
-	) => {
-		const params: any = {};
-
-		// JSON Server sorting
-		if (payload?.sort) {
-			const sortKey = Object.keys(payload.sort)[0];
-			const sortOrder = payload.sort[sortKey] === 1 ? 'asc' : 'desc';
-			params._sort = sortKey;
-			params._order = sortOrder;
-		}
-
-		// Basic filtering for JSON Server
-		if (payload?.condition) {
-			Object.keys(payload.condition).forEach((key) => {
-				if (payload.condition[key] !== undefined && payload.condition[key] !== null) {
-					params[key] = payload.condition[key];
-				}
-			});
-		}
-
-		return axios.get(`${finalURL}/${url}`, { params });
 	};
 
 	const getByIdService = (id: string | number) => {
 		return axios.get(`${finalURL}/${url}/${id}`);
 	};
 
-	// Import/Export functions - Mock implementations for JSON Server
 	const getImportHeaders = () => {
 		return Promise.resolve({ data: { data: [] } });
 	};

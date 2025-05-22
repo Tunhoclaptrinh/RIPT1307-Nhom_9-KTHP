@@ -82,23 +82,17 @@ const TableBase = (props: TableBaseProps) => {
 
 	useEffect(() => {
 		getData(params);
-	}, [...dependencies, filters, condition, sort]);
+	}, [...dependencies, filters, condition, sort, page, limit]);
 
 	useEffect(() => {
 		return () => {
 			if (props.noCleanUp !== true) {
-				// setCondition(undefined);
 				setFilters(initFilter);
 				setSelectedIds(undefined);
-				// setSort(undefined);
 			}
 		};
 	}, []);
 
-	/**
-	 * Get current filter rule in column
-	 * @date 2023-04-13
-	 */
 	const getFilterColumn = (fieldName: any, operator?: EOperatorType, active?: boolean) =>
 		filters?.find(
 			(item) =>
@@ -107,7 +101,6 @@ const TableBase = (props: TableBaseProps) => {
 				(active === undefined || item.active === undefined || item.active === active),
 		);
 
-	//#region Get Sort Column Props
 	const getCondValue = (dataIndex: any) => {
 		const type = typeof dataIndex;
 		return _.get(sort, type === 'string' ? dataIndex : dataIndex?.join('.'), []);
@@ -123,32 +116,28 @@ const TableBase = (props: TableBaseProps) => {
 		sortDirections: ['ascend', 'descend'],
 		sortOrder: getSortValue(dataIndex),
 	});
-	//#endregion
 
-	//#region Get Search Column Props
 	const handleSearch = (dataIndex: any, value: string, confirm?: () => void) => {
 		if (!value) {
-			// Remove filter of this column
 			const tempFilters = filters?.filter((item) => JSON.stringify(item.field) !== JSON.stringify(dataIndex));
 			setFilters(tempFilters);
 		} else {
 			const filter = getFilterColumn(dataIndex);
 			let tempFilters: TFilter<any>[] = [...(filters ?? [])];
-			if (filter)
-				// Udpate current filter
+			if (filter) {
 				tempFilters = tempFilters.map((item) =>
 					JSON.stringify(item.field) === JSON.stringify(dataIndex)
 						? { ...item, active: true, operator: EOperatorType.CONTAIN, values: [value] }
 						: item,
 				);
-			// Add new filter rule for this column
-			else
+			} else {
 				tempFilters.push({
 					active: true,
 					field: dataIndex,
 					operator: EOperatorType.CONTAIN,
 					values: [value],
 				});
+			}
 			setFilters(tempFilters);
 		}
 		if (confirm) confirm();
@@ -219,33 +208,28 @@ const TableBase = (props: TableBaseProps) => {
 			onFilterDropdownVisibleChange: (vis) => vis && setTimeout(() => searchInputRef?.current?.select(), 100),
 		};
 	};
-	//#endregion
-
-	//#region Get Filter Column Props
 
 	const handleFilter = (dataIndex: any, values: string[]) => {
 		if (!values || !values.length) {
-			// Remove filter of this column
 			const tempFilters = filters?.filter((item) => JSON.stringify(item.field) !== JSON.stringify(dataIndex));
 			setFilters(tempFilters);
 		} else {
 			const filter = getFilterColumn(dataIndex);
 			let tempFilters: TFilter<any>[] = [...(filters ?? [])];
-			if (filter)
-				// Udpate current filter
+			if (filter) {
 				tempFilters = tempFilters.map((item) =>
 					JSON.stringify(item.field) === JSON.stringify(dataIndex)
 						? { ...item, active: true, operator: EOperatorType.INCLUDE, values }
 						: item,
 				);
-			// Add new filter rule for this column
-			else
+			} else {
 				tempFilters.push({
 					active: true,
 					field: dataIndex,
 					operator: EOperatorType.INCLUDE,
 					values,
 				});
+			}
 			setFilters(tempFilters);
 		}
 	};
@@ -262,7 +246,6 @@ const TableBase = (props: TableBaseProps) => {
 			filterSearch: true,
 		};
 	};
-	//#endregion
 
 	const getColumnSelectProps = (dataIndex: any, filterCustomSelect?: JSX.Element): Partial<IColumn<unknown>> => {
 		if (!filterCustomSelect) return {};
@@ -306,8 +289,6 @@ const TableBase = (props: TableBaseProps) => {
 		};
 	};
 
-	//#region Get Table Columns
-
 	const getColumns = () => {
 		let final: IColumn<any>[] = props.columns.map((item) => ({
 			...item,
@@ -348,7 +329,6 @@ const TableBase = (props: TableBaseProps) => {
 		getColumns();
 	}, [JSON.stringify(filters), sort, ...props.columns]);
 
-	//#region Get Drag Sortable column
 	const DragHandle = SortableHandle(() => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />);
 
 	const SortableItem = SortableElement((props1: React.HTMLAttributes<HTMLTableRowElement>) => <tr {...props1} />);
@@ -376,18 +356,10 @@ const TableBase = (props: TableBaseProps) => {
 	);
 
 	const DraggableBodyRow: React.FC<any> = ({ className, style, ...restProps }) => {
-		// function findIndex base on Table rowKey props and should always be a right array index
 		const index = restProps['data-row-key'];
 		return <SortableItem index={index ?? 0} {...restProps} />;
 	};
-	//#endregion
 
-	//#endregion
-
-	/**
-	 * On Table Changed
-	 * @date 2023-04-13
-	 */
 	const onChange = (pagination: PaginationProps, fil: Record<string, FilterValue | null>, sorter: any) => {
 		const allColumns = finalColumns
 			.map((col) => {
@@ -395,9 +367,8 @@ const TableBase = (props: TableBaseProps) => {
 				else return [col];
 			})
 			.flat();
-		// Handle Filter in columns
+
 		Object.entries(fil).map(([field, values]) => {
-			// Field từ table => nếu dataIndex là Array => field1.subfield
 			const dataIndex = field.includes('.') ? field.split('.') : field;
 			const col = allColumns.find((item) => JSON.stringify(item.dataIndex) === JSON.stringify(dataIndex));
 			if (col?.filterType === 'select') handleFilter(dataIndex, values as any);
@@ -407,9 +378,8 @@ const TableBase = (props: TableBaseProps) => {
 
 		const { order, field } = sorter;
 		const orderValue = order === 'ascend' ? 1 : order === 'descend' ? -1 : undefined;
-		if (sorter && setSort) setSort({ [Array.isArray(field) ? field.join('.') : field]: orderValue });
+		if (setSort) setSort(orderValue ? { [Array.isArray(field) ? field.join('.') : field]: orderValue } : {});
 
-		// thay đổi từ phân trang || filter
 		const { current, pageSize } = pagination;
 		setPage(current);
 		setLimit(pageSize);

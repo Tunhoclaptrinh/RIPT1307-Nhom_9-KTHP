@@ -115,7 +115,7 @@ const UsersPage = () => {
 				title='Quản lý người dùng'
 				Form={UserForm}
 				widthDrawer={900}
-				getData={getModel}
+				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 			/>
 		</div>
 	);

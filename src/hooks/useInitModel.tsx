@@ -3,18 +3,19 @@ import { chuanHoaObject } from '@/utils/utils';
 import { message } from 'antd';
 import { useState } from 'react';
 import useInitService from './useInitService';
+import { EOperatorType } from '../components/Table/constant';
+import _ from 'lodash';
 
 /**
- *
  * @param url path api
- * @param fieldNameCondtion condition | cond (not used in JSON Server)
+ * @param fieldNameCondition condition | cond (not used in JSON Server)
  * @param initCondition initConditionValue
  * @param baseURL Base URL của JSON Server (default: http://localhost:3000)
  * @returns
  */
 const useInitModel = <T,>(
 	url: string,
-	fieldNameCondtion?: 'condition' | 'cond', // Not used in JSON Server
+	fieldNameCondition?: 'condition' | 'cond',
 	initCondition?: Partial<T>,
 	baseURL?: string,
 	initSort?: { [k in keyof T]?: 1 | -1 },
@@ -53,18 +54,50 @@ const useInitModel = <T,>(
 		postExport,
 	} = useInitService(url, baseURL);
 
-	/**
-	 * Get Pageable Model
-	 * @date 2023-04-05
-	 * @param {any} paramCondition Condition khác
-	 * @param {any} filterParams Các filters khác
-	 * @param {any} sortParam Sort khác
-	 * @param {any} paramPage Page khác
-	 * @param {any} paramLimit Limit khác
-	 * @param {any} path Đường dẫn (không dùng với JSON Server)
-	 * @param {any} otherQuery Truy vấn thêm vào query
-	 * @returns {any} Các IRecord
-	 */
+	const applyClientSideFilter = (data: T[], filters: TFilter<T>[]): T[] => {
+		return data.filter((item) =>
+			filters.every((filter) => {
+				const field = Array.isArray(filter.field) ? _.get(item, filter.field.join('.')) : item[filter.field];
+				const value = String(field).toLowerCase();
+				const filterValue = String(filter.values[0]).toLowerCase();
+				const filterValue2 = filter.values[1] ? String(filter.values[1]).toLowerCase() : undefined;
+
+				switch (filter.operator) {
+					case EOperatorType.CONTAIN:
+						return value.includes(filterValue);
+					case EOperatorType.NOT_CONTAIN:
+						return !value.includes(filterValue);
+					case EOperatorType.START_WITH:
+						return value.startsWith(filterValue);
+					case EOperatorType.END_WITH:
+						return value.endsWith(filterValue);
+					case EOperatorType.EQUAL:
+						return value === filterValue;
+					case EOperatorType.NOT_EQUAL:
+						return value !== filterValue;
+					case EOperatorType.LESS_THAN:
+						return Number(field) < Number(filter.values[0]);
+					case EOperatorType.LESS_EQUAL:
+						return Number(field) <= Number(filter.values[0]);
+					case EOperatorType.GREAT_THAN:
+						return Number(field) > Number(filter.values[0]);
+					case EOperatorType.GREAT_EQUAL:
+						return Number(field) >= Number(filter.values[0]);
+					case EOperatorType.BETWEEN:
+						return Number(field) >= Number(filter.values[0]) && Number(field) <= Number(filter.values[1]);
+					case EOperatorType.NOT_BETWEEN:
+						return Number(field) < Number(filter.values[0]) || Number(field) > Number(filter.values[1]);
+					case EOperatorType.INCLUDE:
+						return filter.values.includes(field);
+					case EOperatorType.NOT_INCLUDE:
+						return !filter.values.includes(field);
+					default:
+						return true;
+				}
+			}),
+		);
+	};
+
 	const getModel = async (
 		paramCondition?: Partial<T>,
 		filterParams?: TFilter<T>[],
@@ -82,10 +115,7 @@ const useInitModel = <T,>(
 			page: paramPage || page,
 			limit: paramLimit || limit,
 			sort: sortParam || sort,
-			condition: {
-				...condition,
-				...paramCondition,
-			},
+			condition: { ...condition, ...paramCondition },
 			filters: [
 				...(filters?.filter((item) => item.active !== false)?.map(({ active, ...item }) => item) || []),
 				...(filterParams || []),
@@ -96,11 +126,16 @@ const useInitModel = <T,>(
 
 		try {
 			const response = await getService(payload, path ?? 'page', isAbsolutePath ?? false);
-
-			// JSON Server returns data directly in response.data array
-			// and total count in X-Total-Count header
-			const tempData: T[] = Array.isArray(response.data) ? response.data : [];
+			let tempData: T[] = Array.isArray(response.data) ? response.data : [];
 			const tempTotal: number = parseInt(response.headers['x-total-count'] || '0', 10) || tempData.length;
+
+			// Áp dụng lọc phía client cho các toán tử không được JSON Server hỗ trợ
+			const complexFilters = payload.filters.filter(
+				(f) => f.operator !== undefined && ![EOperatorType.CONTAIN, EOperatorType.EQUAL].includes(f.operator),
+			);
+			if (complexFilters.length > 0) {
+				tempData = applyClientSideFilter(tempData, complexFilters);
+			}
 
 			if (tempData.length === 0 && tempTotal && paramPage && paramPage > 1) {
 				const maxPage = Math.ceil(tempTotal / payload.limit) || 1;
@@ -109,7 +144,6 @@ const useInitModel = <T,>(
 			} else {
 				if (isSetDanhSach !== false) setDanhSach(tempData);
 				setTotal(tempTotal);
-
 				return tempData;
 			}
 		} catch (er) {
@@ -139,13 +173,15 @@ const useInitModel = <T,>(
 				...(otherQuery ?? {}),
 			};
 			const response = await getAllService(payload, pathParam);
+			let data: T[] = Array.isArray(response.data) ? response.data : [];
 
-			// JSON Server returns data directly
-			const data: T[] = Array.isArray(response.data) ? response.data : [];
+			// Áp dụng lọc phía client
+			if (payload.filters && payload.filters.length > 0) {
+				data = applyClientSideFilter(data, payload.filters);
+			}
 
 			if (isSetDanhSach !== false) setDanhSach(data);
 			if (isSetRecord) setRecord(data?.[0]);
-
 			return data;
 		} catch (er) {
 			return Promise.reject(er);
@@ -198,7 +234,6 @@ const useInitModel = <T,>(
 			if (getData) getData();
 			else getModel();
 			if (closeModal !== false) setVisibleForm(false);
-
 			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
@@ -224,7 +259,6 @@ const useInitModel = <T,>(
 			if (getData) getData();
 			else if (!notGet) getModel();
 			if (closeModal !== false) setVisibleForm(false);
-
 			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
@@ -250,8 +284,6 @@ const useInitModel = <T,>(
 			if (getData) getData();
 			else if (!notGet) getModel();
 			if (closeModal !== false) setVisibleForm(false);
-
-			// return res.data;
 			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
@@ -265,17 +297,14 @@ const useInitModel = <T,>(
 		try {
 			const res = await deleteService(id);
 			message.success('Xóa thành công');
-
 			const maxPage = Math.ceil((total - 1) / limit) || 1;
 			let newPage = page;
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
 			}
-
 			if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
-
 			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
@@ -290,17 +319,14 @@ const useInitModel = <T,>(
 		try {
 			const res = await deleteManyService(ids);
 			message.success(`Xóa thành công ${ids.length} mục`);
-
 			const maxPage = Math.ceil((total - ids.length) / limit) || 1;
 			let newPage = page;
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
 			}
-
 			if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
-
 			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
@@ -323,7 +349,6 @@ const useInitModel = <T,>(
 		setVisibleForm(true);
 	};
 
-	//#region BASE IMPORT - Mock implementations for JSON Server
 	const getImportHeaderModel = async (): Promise<TImportHeader[]> => {
 		try {
 			const res = await getImportHeaders();
@@ -349,7 +374,6 @@ const useInitModel = <T,>(
 		try {
 			const res = await postValidateImport({ rows: payload });
 			message.success('Đã kiểm tra dữ liệu');
-			// Ensure the returned object matches TImportResponse
 			const data = res.data?.data ?? [];
 			const error =
 				typeof data === 'object' &&
@@ -391,9 +415,7 @@ const useInitModel = <T,>(
 			setFormSubmiting(false);
 		}
 	};
-	//#endregion
 
-	//#region BASE EXPORT - Mock implementations for JSON Server
 	const getExportFieldsModel = async (): Promise<TExportField[]> => {
 		const genIdField = (data?: TExportField[], prefix?: string): TExportField[] | undefined => {
 			if (!data?.length) return undefined;
@@ -407,7 +429,6 @@ const useInitModel = <T,>(
 		try {
 			const res = await getExportFields();
 			const fields = genIdField(res.data?.data) ?? [];
-
 			return fields;
 		} catch (err) {
 			return Promise.reject(err);
@@ -438,7 +459,6 @@ const useInitModel = <T,>(
 			setFormSubmiting(false);
 		}
 	};
-	//#endregion
 
 	return {
 		sort,
