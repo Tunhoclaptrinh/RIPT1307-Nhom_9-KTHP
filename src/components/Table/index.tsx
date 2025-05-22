@@ -81,6 +81,7 @@ const TableBase = (props: TableBaseProps) => {
 	}, [JSON.stringify(filters ?? [])]);
 
 	useEffect(() => {
+		console.log('TableBase: Fetching data with page:', page, 'limit:', limit, 'total:', total);
 		getData(params);
 	}, [...dependencies, filters, condition, sort, page, limit]);
 

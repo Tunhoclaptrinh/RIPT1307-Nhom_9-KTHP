@@ -127,7 +127,17 @@ const useInitModel = <T,>(
 		try {
 			const response = await getService(payload, path ?? 'page', isAbsolutePath ?? false);
 			let tempData: T[] = Array.isArray(response.data) ? response.data : [];
-			const tempTotal: number = parseInt(response.headers['x-total-count'] || '0', 10) || tempData.length;
+
+			// Kiểm tra và log header X-Total-Count
+			const xTotalCount = response.headers['x-total-count'];
+			let tempTotal: number;
+			if (xTotalCount && !isNaN(parseInt(xTotalCount, 10))) {
+				tempTotal = parseInt(xTotalCount, 10);
+			} else {
+				console.warn('X-Total-Count header is missing or invalid. Falling back to getAllService.');
+				const allDataResponse = await getAllService(payload, path);
+				tempTotal = Array.isArray(allDataResponse.data) ? allDataResponse.data.length : 0;
+			}
 
 			// Áp dụng lọc phía client cho các toán tử không được JSON Server hỗ trợ
 			const complexFilters = payload.filters.filter(
@@ -137,16 +147,20 @@ const useInitModel = <T,>(
 				tempData = applyClientSideFilter(tempData, complexFilters);
 			}
 
-			if (tempData.length === 0 && tempTotal && paramPage && paramPage > 1) {
+			// Kiểm tra trang không hợp lệ
+			if (tempData.length === 0 && tempTotal > 0 && payload.page > 1) {
 				const maxPage = Math.ceil(tempTotal / payload.limit) || 1;
 				setPage(maxPage);
 				return Promise.reject('Invalid page');
-			} else {
-				if (isSetDanhSach !== false) setDanhSach(tempData);
-				setTotal(tempTotal);
-				return tempData;
 			}
+
+			if (isSetDanhSach !== false) {
+				setDanhSach(tempData);
+			}
+			setTotal(tempTotal);
+			return tempData;
 		} catch (er) {
+			console.error('Error in getModel:', er);
 			return Promise.reject(er);
 		} finally {
 			setLoading(false);
