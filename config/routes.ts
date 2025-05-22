@@ -7,11 +7,17 @@
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh',
 			},
+			// {
+			// 	path: '/user',
+			// 	// redirect: '/user/login',
+			// },
 			{
-				path: '/user',
-				redirect: '/user/login',
+				path: '/user/login1',
+				layout: false,
+				name: 'signup',
+				component: './user/Login',
 			},
 			{
 				path: '/user/signup',
@@ -39,10 +45,11 @@
 		layout: false,
 	},
 	{
-		path: '/users',
-		name: 'Người dùng',
-		component: './Users',
-		icon: 'UserOutlined',
+		path: '/tuyen-sinh',
+		name: 'Tuyển sinh',
+		component: './ThiSinh',
+		icon: 'UserAddOutlined',
+		layout: false,
 	},
 	{
 		path: '/gioi-thieu',
