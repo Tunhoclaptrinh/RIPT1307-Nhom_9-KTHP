@@ -67,6 +67,18 @@ export default [
 		component: './HeDaoTao',
 		icon: 'AppstoreOutlined',
 	},
+	{
+		path: '/phuong-thuc-xet-tuyen',
+		name: 'Phương thức xét tuyển',
+		component: './PhuongThucXT',
+		icon: 'ProfileOutlined',
+	},
+	{
+		path: '/to-hop',
+		name: 'Tổ hợp môn học',
+		component: './ToHop',
+		icon: 'ReadOutlined',
+	},
 
 	// {
 	// 	name: 'Public',
