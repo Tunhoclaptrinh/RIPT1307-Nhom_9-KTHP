@@ -1,49 +1,54 @@
-import Footer from '@/components/Footer';
 import MyDatePicker from '@/components/MyDatePicker';
-// import { adminRegister } from '@/services/base/api';
-import { keycloakAuthority } from '@/utils/ip';
 import rules from '@/utils/rules';
 import { LockOutlined, UserOutlined, MailOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Tabs, message, Checkbox, Row, Col } from 'antd';
 import React, { useState } from 'react';
-import { history, useIntl, Link } from 'umi';
+import { history, Link } from 'umi';
 import styles from './index.less';
+import { register } from '@/services/user';
 
 const SignUp: React.FC = () => {
 	const [submitting, setSubmitting] = useState(false);
 	const [form] = Form.useForm();
-	const intl = useIntl();
 
-	const handleSubmit = async (values: any) => {
+	 const handleSubmit = async (values: any) => {
 		try {
-			// Kiểm tra xác nhận mật khẩu
-			if (values.password !== values.confirmPassword) {
-				message.error('Mật khẩu và xác nhận mật khẩu không khớp');
-				return;
-			}
-
-			setSubmitting(true);
-
-			// Đây là bước gọi API đăng ký - cần được cài đặt ở phía backend
-			// const msg = await adminRegister({
-			// 	username: values.username,
-			// 	password: values.password,
-			// 	fullName: values.fullName,
-			// 	email: values.email,
-			// 	phone: values.phone,
-			// 	dateOfBirth: values.dateOfBirth,
-			// 	idNumber: values.idNumber,
-			// 	terms: values.terms,
-			// });
-
-			// if (msg?.status === 200) {
-			// 	message.success('Đăng ký tài khoản thành công');
-			// 	history.push('/user/login');
-			// }
-		} catch (error) {
-			message.error('Đăng ký tài khoản thất bại');
+		if (values.password !== values.confirmPassword) {
+			message.error('Mật khẩu không khớp');
+			return;
 		}
+
+		setSubmitting(true);
+
+		const userData = {
+			username: values.username,
+			password: values.password,
+			email: values.email,
+			soCCCD: values.soCCCD,
+			ngayCap: values.ngayCap,
+			noiCap: values.noiCap,
+			ho: values.ho,
+			ten: values.ten,
+			hoKhauThuongTru: {
+			tinh_ThanhPho: values.tinhThanhPho,
+			quanHuyen: values.quanHuyen,
+			xaPhuong: values.xaPhuong,
+			diaChi: values.diaChi
+			},
+			ngaySinh: values.ngaySinh,
+			gioiTinh: values.gioiTinh,
+			soDT: values.soDT
+		};
+
+		await register(userData);
+		message.success('Đăng ký thành công! Vui lòng đăng nhập');
+		form.resetFields();
+		history.push('/user');
+		} catch (error: any) {
+		message.error(error.message || 'Có lỗi xảy ra khi đăng ký');
+		} finally {
 		setSubmitting(false);
+		}
 	};
 
 	return (
@@ -96,7 +101,7 @@ const SignUp: React.FC = () => {
 								</Form.Item>
 							</Col>
 
-							{/* <Col span={24} md={12}>
+							<Col span={24} md={12}>
 								<Form.Item name='username' label='Tên đăng nhập' rules={[...rules.required]}>
 									<Input
 										placeholder='Nhập tên đăng nhập'
@@ -104,7 +109,7 @@ const SignUp: React.FC = () => {
 										size='large'
 									/>
 								</Form.Item>
-							</Col> */}
+							</Col>
 
 							<Col span={24}>
 								<Form.Item name='password' label='Mật khẩu' rules={[...rules.required, ...rules.password]}>

@@ -10,11 +10,17 @@ export default [
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh',
 			},
 			{
 				path: '/user',
 				redirect: '/user/login',
+			},
+			{
+				path: '/user/login1',
+				layout: false,
+				name: 'signup',
+				component: './user/Login',
 			},
 			{
 				path: '/user/signup',
@@ -56,16 +62,24 @@ export default [
 		layout: false,
 	},
 	{
-		path: '/users',
-		name: 'Người dùng',
-		component: './Users',
-		icon: 'TeamOutlined',
+		path: '/tuyen-sinh',
+		name: 'Tuyển sinh',
+		component: './ThiSinh',
+		icon: 'UserAddOutlined',
+		layout: false,
 	},
 	{
 		path: '/he-dao-tao',
 		name: 'Hệ đào tạo',
 		component: './HeDaoTao',
 		icon: 'AppstoreOutlined',
+	},
+	{
+		path: '/xet-tuyen',
+		name: 'Xét tuyển hồ sơ',
+		component: './XetTuyen',
+		icon: 'UserAddOutlined',
+		layout: false,
 	},
 
 	// {
