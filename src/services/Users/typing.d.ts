@@ -8,15 +8,17 @@ declare module User {
 		noiCap: string;
 		ho: string;
 		ten: string;
-		hoKhauThuongTru: {
-			tinh_ThanhPho: string;
-			quanHuyen: string;
-			xaPhuong: string;
-			diaChi: string;
-		};
+		hoKhauThuongTru: HoKhauThuongTru;
 		ngaySinh: string;
 		gioiTinh: 'nam' | 'nữ' | 'khác';
 		email: string;
 		soDT: string;
 	}
+
+	export type HoKhauThuongTru = {
+		tinh_ThanhPho: string;
+		quanHuyen: string;
+		xaPhuong: string;
+		diaChi: string;
+	};
 }

@@ -1,4 +1,7 @@
-﻿export default [
+﻿import { icons } from 'antd/lib/image/PreviewGroup';
+import route from 'mock/route';
+
+export default [
 	{
 		path: '/user',
 		layout: false,
@@ -30,6 +33,13 @@
 
 	///////////////////////////////////
 	// DEFAULT MENU
+
+	{
+		path: '/gioi-thieu',
+		name: 'Giới thiệu',
+		component: './TienIch/GioiThieu',
+		icon: 'InfoCircleOutlined',
+	},
 	{
 		path: '/trang-chu',
 		name: 'Trang chủ',
@@ -41,7 +51,14 @@
 		path: '/tra-cuu-public',
 		name: 'Tra cứu tuyển sinh',
 		component: './TraCuuPublic',
-		icon: 'HomeOutlined',
+		icon: 'SearchOutlined',
+		layout: false,
+	},
+	{
+		path: '/dash-board',
+		name: 'Trang cá nhân', // Tramg cá nhân thí sinh
+		component: './ThiSinh/DashBoard',
+		icon: 'UserOutlined',
 		layout: false,
 	},
 	{
@@ -52,20 +69,24 @@
 		layout: false,
 	},
 	{
-		path: '/gioi-thieu',
-		name: 'About',
-		component: './TienIch/GioiThieu',
-		hideInMenu: true,
+		path: '/he-dao-tao',
+		name: 'Hệ đào tạo',
+		component: './HeDaoTao',
+		icon: 'AppstoreOutlined',
 	},
 
-	{
-		path: '/dash-board',
-		name: 'Trang này là của người dùng',
-		component: './ThiSinh/DashBoard',
-		icon: 'HomeOutlined',
-		// hideInMenu: true,
-		layout: false,
-	},
+	// {
+	// 	name: 'Public',
+	// 	// path: '/public',
+	// 	icon: 'GlobalOutlined',
+	// 	routes: [],
+	// },
+
+	// {
+	// 	name: 'Manager',
+	// 	icon: 'SettingOutlined',
+	// 	routes: [],
+	// },
 
 	// DANH MUC HE THONG
 	// {

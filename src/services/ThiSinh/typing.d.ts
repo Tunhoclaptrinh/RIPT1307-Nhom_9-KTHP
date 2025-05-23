@@ -1,6 +1,6 @@
-declare module User {
+declare module ThiSinh {
 	export interface IRecord {
-		_id: string;
+		id: string;
 		password: string;
 		username: string;
 		soCCCD: string | number;

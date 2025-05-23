@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import dayjs from 'dayjs';
+import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import HeDaoTaoSelect from '../../HeDaoTao/components/Select';
 
 const { Option } = Select;
 
@@ -14,13 +16,24 @@ interface UserFormProps {
 
 const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('users');
-
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
+	// State để lưu giá trị địa chỉ đã chọn
+	const [selectedProvince, setSelectedProvince] = useState<string>();
+	const [selectedDistrict, setSelectedDistrict] = useState<string>();
+	const [selectedWard, setSelectedWard] = useState<string>();
+
+	// Thêm state loading
+	const [submitting, setSubmitting] = useState(false);
+
+	// Reset form và cập nhật giá trị khi record thay đổi
 	useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
+			setSelectedProvince(undefined);
+			setSelectedDistrict(undefined);
+			setSelectedWard(undefined);
 		} else if (record?.id) {
 			const formData = {
 				...record,
@@ -28,25 +41,77 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 				ngaySinh: record.ngaySinh ? dayjs(record.ngaySinh) : undefined,
 			};
 			form.setFieldsValue(formData);
+
+			// Cập nhật state địa chỉ
+			setSelectedProvince(record.hoKhauThuongTru?.tinh_ThanhPho);
+			setSelectedDistrict(record.hoKhauThuongTru?.quanHuyen);
+			setSelectedWard(record.hoKhauThuongTru?.xaPhuong);
 		}
 	}, [record?.id, visibleForm]);
 
+	// Cập nhật hàm onFinish
 	const onFinish = async (values: any) => {
-		const submitData = {
-			...values,
-			ngayCap: values.ngayCap?.format('YYYY-MM-DD'),
-			ngaySinh: values.ngaySinh?.format('YYYY-MM-DD'),
-		};
-
 		try {
+			setSubmitting(true);
+			const submitData = {
+				...values,
+				ngayCap: values.ngayCap?.format('YYYY-MM-DD'),
+				ngaySinh: values.ngaySinh?.format('YYYY-MM-DD'),
+				hoKhauThuongTru: {
+					tinh_ThanhPho: values.hoKhauThuongTru?.tinh_ThanhPho,
+					quanHuyen: values.hoKhauThuongTru?.quanHuyen,
+					xaPhuong: values.hoKhauThuongTru?.xaPhuong,
+					diaChi: values.hoKhauThuongTru?.diaChi,
+				},
+			};
+
 			if (edit) {
 				await putModel(record?.id ?? '', submitData);
 			} else {
 				await postModel(submitData);
 			}
+			setVisibleForm(false);
 		} catch (error) {
-			console.log(error);
+			console.error('Form submission error:', error);
+		} finally {
+			setSubmitting(false);
 		}
+	};
+
+	const handleProvinceChange = (value: string) => {
+		setSelectedProvince(value);
+		setSelectedDistrict(undefined);
+		setSelectedWard(undefined);
+		form.setFieldsValue({
+			hoKhauThuongTru: {
+				...form.getFieldValue('hoKhauThuongTru'),
+				tinh_ThanhPho: value,
+				quanHuyen: undefined,
+				xaPhuong: undefined,
+			},
+		});
+	};
+
+	const handleDistrictChange = (value: string) => {
+		setSelectedDistrict(value);
+		setSelectedWard(undefined);
+		form.setFieldsValue({
+			hoKhauThuongTru: {
+				...form.getFieldValue('hoKhauThuongTru'),
+				quanHuyen: value,
+				xaPhuong: undefined,
+			},
+		});
+	};
+
+	const handleWardChange = (value: string) => {
+		setSelectedWard(value);
+		form.setFieldsValue({
+			hoKhauThuongTru: {
+				...form.getFieldValue('hoKhauThuongTru'),
+				xaPhuong: value,
+			},
+		});
 	};
 
 	return (
@@ -124,7 +189,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 						</Form.Item>
 					)}
 
-					<Card title='Hộ khẩu thường trú' style={{ marginTop: 16 }}>
+					<Card title='Hộ khẩu thường trú' style={{ marginTop: 16, border: 'none' }}>
 						<Row gutter={16}>
 							<Col span={12}>
 								<Form.Item
@@ -132,12 +197,22 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 									name={['hoKhauThuongTru', 'tinh_ThanhPho']}
 									rules={[...rules.required]}
 								>
-									<Input placeholder='Nhập tỉnh/thành phố' />
+									<ProvincesSelect
+										placeholder='Chọn tỉnh/thành phố'
+										onChange={handleProvinceChange}
+										value={selectedProvince}
+									/>
 								</Form.Item>
 							</Col>
 							<Col span={12}>
 								<Form.Item label='Quận/Huyện' name={['hoKhauThuongTru', 'quanHuyen']} rules={[...rules.required]}>
-									<Input placeholder='Nhập quận/huyện' />
+									{/* <DistrictsSelect
+										provinceCode={selectedProvince}
+										placeholder='Chọn quận/huyện'
+										onChange={handleDistrictChange}
+										value={selectedDistrict}
+									/> */}
+									<Input placeholder='Nhập số nhà, tên đường...' />
 								</Form.Item>
 							</Col>
 						</Row>
@@ -145,19 +220,25 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 						<Row gutter={16}>
 							<Col span={12}>
 								<Form.Item label='Xã/Phường' name={['hoKhauThuongTru', 'xaPhuong']} rules={[...rules.required]}>
-									<Input placeholder='Nhập xã/phường' />
+									{/* <WardsSelect
+										districtCode={selectedDistrict}
+										placeholder='Chọn xã/phường'
+										onChange={handleWardChange}
+										value={selectedWard}
+									/> */}
+									<Input placeholder='Nhập số nhà, tên đường...' />
 								</Form.Item>
 							</Col>
 							<Col span={12}>
 								<Form.Item label='Địa chỉ cụ thể' name={['hoKhauThuongTru', 'diaChi']} rules={[...rules.required]}>
-									<Input placeholder='Nhập địa chỉ cụ thể' />
+									<Input placeholder='Nhập số nhà, tên đường...' />
 								</Form.Item>
 							</Col>
 						</Row>
 					</Card>
 
 					<div className='form-actions'>
-						<Button loading={formSubmiting} htmlType='submit' type='primary'>
+						<Button loading={submitting} htmlType='submit' type='primary'>
 							{!edit
 								? intl.formatMessage({ id: 'global.button.themmoi' })
 								: intl.formatMessage({ id: 'global.button.luulai' })}

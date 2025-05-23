@@ -485,22 +485,51 @@ const useInitModel = <T,>(
 		}
 	};
 
+	// const deleteManyModel = async (ids: (string | number)[], getData?: () => void): Promise<any> => {
+	// 	if (!ids.length) return;
+	// 	setLoading(true);
+	// 	try {
+	// 		const res = await deleteManyService(ids);
+	// 		message.success(`Xóa thành công ${ids.length} mục`);
+	// 		const maxPage = Math.ceil((total - ids.length) / limit) || 1;
+	// 		let newPage = page;
+	// 		if (newPage > maxPage) {
+	// 			newPage = maxPage;
+	// 			setPage(newPage);
+	// 		}
+	// 		if (getData) getData();
+	// 		else getModel(undefined, undefined, undefined, newPage);
+	// 		return res.data;
+	// 	} catch (err) {
+	// 		return Promise.reject(err);
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
 	const deleteManyModel = async (ids: (string | number)[], getData?: () => void): Promise<any> => {
 		if (!ids.length) return;
+
 		setLoading(true);
 		try {
-			const res = await deleteManyService(ids);
-			message.success(`Xóa thành công ${ids.length} mục`);
+			// Gọi service để xóa
+			await deleteManyService(ids);
+
+			// Cập nhật pagination
 			const maxPage = Math.ceil((total - ids.length) / limit) || 1;
 			let newPage = page;
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
 			}
+
+			// Refresh data
 			if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
-			return res.data;
+
+			return Promise.resolve();
 		} catch (err) {
+			message.error('Có lỗi xảy ra khi xóa dữ liệu');
 			return Promise.reject(err);
 		} finally {
 			setLoading(false);

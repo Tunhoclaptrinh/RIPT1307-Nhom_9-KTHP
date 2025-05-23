@@ -68,3 +68,30 @@ export interface IFile {
 	};
 	url: string;
 }
+
+//  Address //  Province, District, Ward
+
+export interface ApiResponse<T> {
+	code: string;
+	data: T[];
+	total: number;
+}
+
+export interface BaseLocation {
+	id: string;
+	name: string;
+	type: number;
+	typeText: string;
+}
+
+export interface Province extends BaseLocation {
+	slug: string;
+}
+
+export interface District extends BaseLocation {
+	provinceId: string;
+}
+
+export interface Ward extends BaseLocation {
+	districtId: string;
+}
