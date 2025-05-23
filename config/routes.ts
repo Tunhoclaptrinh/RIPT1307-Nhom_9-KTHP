@@ -10,7 +10,7 @@ export default [
 				path: '/user/login',
 				layout: false,
 				name: 'login',
-				component: './user/Login',
+				component: './ThiSinh',
 			},
 			{
 				path: '/user',
@@ -47,6 +47,19 @@ export default [
 		component: './TraCuuPublic',
 		icon: 'SearchOutlined',
 		layout: false,
+	},
+	{
+		path: '/tuyen-sinh',
+		name: 'Tuyển sinh',
+		component: './ThiSinh',
+		icon: 'UserAddOutlined',
+		layout: false,
+	},
+	{
+		path: '/gioi-thieu',
+		name: 'About',
+		component: './TienIch/GioiThieu',
+		hideInMenu: true,
 	},
 	{
 		path: '/dash-board',
