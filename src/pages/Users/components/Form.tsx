@@ -5,8 +5,6 @@ import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import dayjs from 'dayjs';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
-import HeDaoTaoSelect from '../../HeDaoTao/components/Select';
-
 const { Option } = Select;
 
 interface UserFormProps {

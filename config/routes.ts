@@ -67,6 +67,31 @@ export default [
 		component: './HeDaoTao',
 		icon: 'AppstoreOutlined',
 	},
+	{
+		path: '/nganh-dao-tao',
+		name: 'Ngành đào tạo',
+		component: './NganhDaoTao',
+		icon: 'AppstoreOutlined',
+	},
+	{
+		path: '/hoc-ba',
+		name: 'Học bạ ',
+		component: './HocBa',
+		icon: 'AppstoreOutlined',
+	},
+	{
+		path: '/thong-tin-hoc-tap',
+		name: 'Thông tin học tập ',
+		component: './ThongTinHocTap',
+		icon: 'AppstoreOutlined',
+	},
+	{
+		path: '/thong-tin-nguyen-vong',
+		name: 'Thông tin nguyện vọng ',
+		component: './ThongTinNguyenVong',
+		icon: 'AppstoreOutlined',
+	},
+
 
 	// {
 	// 	name: 'Public',

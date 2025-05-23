@@ -1,0 +1,410 @@
+import React from 'react';
+import { Button, Card, Form, Input, Select, Switch, DatePicker, InputNumber } from 'antd';
+import { useModel } from 'umi';
+import { resetFieldsForm } from '@/utils/utils';
+import rules from '@/utils/rules';
+import moment from 'moment';
+import {Space } from 'antd';
+import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+
+const { Option } = Select;
+const { TextArea } = Input;
+
+interface ThongTinHocTapFormProps {
+  title?: string;
+}
+
+const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông tin học tập' }) => {
+  const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
+  const [form] = Form.useForm();
+
+  // Reset form when opening/closing
+  React.useEffect(() => {
+    if (!visibleForm) {
+      resetFieldsForm(form);
+    } else if (record?.id) {
+      form.setFieldsValue({
+        ...record,
+        thongTinTHPT: {
+          ...record.thongTinTHPT,
+          namTotNghiep: record.thongTinTHPT.namTotNghiep ? moment(record.thongTinTHPT.namTotNghiep) : null,
+        },
+        hasDGTD: !!record.diemDGTD?.tongDiem || !!record.diemDGTD?.mon?.length,
+        hasDGNL: !!record.diemDGNL?.tongDiem || !!record.diemDGNL?.mon?.length,
+        hasGiaiHSG: !!record.giaiHSG,
+        hasChungChi: !!record.chungChi?.length,
+        giaiHSG: record.giaiHSG
+          ? {
+              ...record.giaiHSG,
+              nam: record.giaiHSG.nam ? moment(record.giaiHSG.nam) : null,
+            }
+          : undefined,
+      });
+    }
+  }, [record?.id, visibleForm, form]);
+
+  const onFinish = async (values: any) => {
+    try {
+      const formattedValues = {
+        ...values,
+        thongTinTHPT: {
+          ...values.thongTinTHPT,
+          namTotNghiep: values.thongTinTHPT.daTotNghiep && values.thongTinTHPT.namTotNghiep 
+            ? moment(values.thongTinTHPT.namTotNghiep).format('YYYY') 
+            : '',
+        },
+        diemDGTD: values.hasDGTD ? values.diemDGTD : undefined,
+        diemDGNL: values.hasDGNL ? values.diemDGNL : undefined,
+        giaiHSG: values.hasGiaiHSG ? {
+          ...values.giaiHSG,
+          nam: values.giaiHSG?.nam ? moment(values.giaiHSG.nam).format('YYYY') : '',
+        } : undefined,
+        chungChi: values.hasChungChi ? values.chungChi : [],
+      };
+      if (edit) {
+        await putModel(record?.id ?? '', formattedValues);
+      } else {
+        await postModel(formattedValues);
+      }
+      setVisibleForm(false);
+    } catch (error) {
+      console.error('Form submission error:', error);
+    }
+  };
+
+  // Watch switch states to apply conditional rules
+  const hasDGTD = Form.useWatch('hasDGTD', form);
+  const hasDGNL = Form.useWatch('hasDGNL', form);
+  const hasGiaiHSG = Form.useWatch('hasGiaiHSG', form);
+  const hasChungChi = Form.useWatch('hasChungChi', form);
+  const daTotNghiep = Form.useWatch(['thongTinTHPT', 'daTotNghiep'], form);
+
+  return (
+    <div>
+      <Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
+        <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
+          {/* Thông tin THPT */}
+          <Card type="inner" title="Thông tin trường THPT" style={{ marginBottom: 16 }}>
+            <Form.Item label="Mã trường" name={['thongTinTHPT', 'maTruong']} rules={[...rules.required]}>
+              <Input placeholder="Nhập mã trường" />
+            </Form.Item>
+            <Form.Item label="Tỉnh/Thành phố" name={['thongTinTHPT', 'tinh_ThanhPho']} rules={[...rules.required]}>
+              <Input placeholder="Nhập tỉnh/thành phố" />
+            </Form.Item>
+            <Form.Item label="Quận/Huyện" name={['thongTinTHPT', 'quanHuyen']} rules={[...rules.required]}>
+              <Input placeholder="Nhập quận/huyện" />
+            </Form.Item>
+            <Form.Item label="Xã/Phường" name={['thongTinTHPT', 'xaPhuong']}>
+              <Input placeholder="Nhập xã/phường" />
+            </Form.Item>
+            <Form.Item label="Địa chỉ" name={['thongTinTHPT', 'diaChi']}>
+              <Input placeholder="Nhập địa chỉ" />
+            </Form.Item>
+            <Form.Item label="Mã tỉnh" name={['thongTinTHPT', 'maTinh']}>
+              <Input placeholder="Nhập mã tỉnh" />
+            </Form.Item>
+            <Form.Item label="Khu vực ưu tiên" name={['thongTinTHPT', 'khuVucUT']} rules={[...rules.required]}>
+              <Select placeholder="Chọn khu vực ưu tiên">
+                <Option value="kv1">KV1</Option>
+                <Option value="kv2">KV2</Option>
+                <Option value="kv2NT">KV2NT</Option>
+                <Option value="kv3">KV3</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="Đối tượng ưu tiên" name={['thongTinTHPT', 'doiTuongUT']}>
+              <Select placeholder="Chọn đối tượng ưu tiên" allowClear>
+                <Option value="hộ nghèo">Hộ nghèo</Option>
+                <Option value="cận nghèo">Cận nghèo</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="Đã tốt nghiệp" name={['thongTinTHPT', 'daTotNghiep']} valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            {daTotNghiep && (
+              <Form.Item 
+                label="Năm tốt nghiệp" 
+                name={['thongTinTHPT', 'namTotNghiep']} 
+                rules={[...rules.required]}
+              >
+                <DatePicker picker="year" placeholder="Chọn năm tốt nghiệp" />
+              </Form.Item>
+            )}
+          </Card>
+
+          {/* Điểm THPT */}
+          <Card type="inner" title="Điểm THPT" style={{ marginBottom: 16 }}>
+            <Form.List name="diemTHPT">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'mon']}
+                        rules={[...rules.required]}
+                      >
+                        <Select placeholder="Chọn môn thi" style={{ width: 120 }}>
+                          <Option value="toán">Toán</Option>
+                          <Option value="văn">Văn</Option>
+                          <Option value="anh">Anh</Option>
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'diem']}
+                        rules={[...rules.required, { type: 'number', min: 0, max: 10 }]}
+                      >
+                        <InputNumber placeholder="Điểm" step={0.1} style={{ width: 100 }} />
+                      </Form.Item>
+                      <MinusCircleOutlined onClick={() => remove(name)} />
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                      Thêm điểm môn
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          </Card>
+
+          {/* Điểm ĐGTD */}
+            <Card
+            type="inner"
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>Điểm đánh giá tư duy (ĐGTD)</span>
+                    <Switch />
+                </div>
+            }
+            style={{ marginBottom: 16 }}
+            >
+            {hasDGTD && (
+              <>
+                <Form.Item 
+                  label="Tổng điểm ĐGTD" 
+                  name={['diemDGTD', 'tongDiem']} 
+                  rules={[...rules.required]}
+                >
+                  <InputNumber placeholder="Nhập tổng điểm" min={0} step={0.1} />
+                </Form.Item>
+                <Form.List name={['diemDGTD', 'mon']}>
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'ten']}
+                            rules={[...rules.required]}
+                          >
+                            <Input placeholder="Tên môn" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'diem']}
+                            rules={[...rules.required, { type: 'number', min: 0 }]}
+                          >
+                            <InputNumber placeholder="Điểm" step={0.1} style={{ width: 100 }} />
+                          </Form.Item>
+                          <MinusCircleOutlined onClick={() => remove(name)} />
+                        </Space>
+                      ))}
+                      <Form.Item>
+                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                          Thêm môn ĐGTD
+                        </Button>
+                      </Form.Item>
+                    </>
+                  )}
+                </Form.List>
+              </>
+            )}
+          </Card>
+
+          {/* Điểm ĐGNL */}
+          <Card type="inner" title="Điểm đánh giá năng lực (ĐGNL)" style={{ marginBottom: 16 }}>
+            <Form.Item label="Có điểm ĐGNL" name="hasDGNL" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            {hasDGNL && (
+              <>
+                <Form.Item 
+                  label="Tổng điểm ĐGNL" 
+                  name={['diemDGNL', 'tongDiem']} 
+                  rules={[...rules.required]}
+                >
+                  <InputNumber placeholder="Nhập tổng điểm" min={0} step={0.1} />
+                </Form.Item>
+                <Form.List name={['diemDGNL', 'mon']}>
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => (
+                        <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'ten']}
+                            rules={[...rules.required]}
+                          >
+                            <Input placeholder="Tên môn" />
+                          </Form.Item>
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'diem']}
+                            rules={[...rules.required, { type: 'number', min: 0 }]}
+                          >
+                            <InputNumber placeholder="Điểm" step={0.1} style={{ width: 100 }} />
+                          </Form.Item>
+                          <MinusCircleOutlined onClick={() => remove(name)} />
+                        </Space>
+                      ))}
+                      <Form.Item>
+                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                          Thêm môn ĐGNL
+                        </Button>
+                      </Form.Item>
+                    </>
+                  )}
+                </Form.List>
+              </>
+            )}
+          </Card>
+
+          {/* Giải HSG */}
+          <Card type="inner" title="Giải học sinh giỏi (HSG)" style={{ marginBottom: 16 }}>
+            <Form.Item label="Có giải HSG" name="hasGiaiHSG" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            {hasGiaiHSG && (
+              <>
+                <Form.Item 
+                  label="Loại giải" 
+                  name={['giaiHSG', 'loaiGiai']} 
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn loại giải">
+                    <Option value="nhất">Nhất</Option>
+                    <Option value="nhì">Nhì</Option>
+                    <Option value="ba">Ba</Option>
+                    <Option value="khuyến khích">Khuyến khích</Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item 
+                  label="Môn" 
+                  name={['giaiHSG', 'mon']} 
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn môn thi">
+                    <Option value="toán">Toán</Option>
+                    <Option value="văn">Văn</Option>
+                    <Option value="anh">Anh</Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item 
+                  label="Cấp giải" 
+                  name={['giaiHSG', 'giaiHsgCap']} 
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn cấp giải">
+                    <Option value="thành phố">Thành phố</Option>
+                    <Option value="tỉnh">Tỉnh</Option>
+                    <Option value="quốc gia">Quốc gia</Option>
+                    <Option value="quốc tế">Quốc tế</Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item 
+                  label="Năm" 
+                  name={['giaiHSG', 'nam']} 
+                  rules={[...rules.required]}
+                >
+                  <DatePicker picker="year" placeholder="Chọn năm" />
+                </Form.Item>
+                <Form.Item 
+                  label="Nơi cấp" 
+                  name={['giaiHSG', 'noiCap']} 
+                  rules={[...rules.required]}
+                >
+                  <Input placeholder="Nhập nơi cấp" />
+                </Form.Item>
+                <Form.Item 
+                  label="Minh chứng" 
+                  name={['giaiHSG', 'minhChung']} 
+                  rules={[...rules.required]}
+                >
+                  <Input placeholder="Nhập minh chứng" />
+                </Form.Item>
+              </>
+            )}
+          </Card>
+
+          {/* Chứng chỉ */}
+          <Card type="inner" title="Chứng chỉ" style={{ marginBottom: 16 }}>
+            <Form.Item label="Có chứng chỉ" name="hasChungChi" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            {hasChungChi && (
+              <Form.List name="chungChi">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'loaiCC']}
+                          rules={[...rules.required]}
+                        >
+                          <Select placeholder="Chọn loại chứng chỉ" style={{ width: 150 }}>
+                            <Option value="tiếng anh">Tiếng Anh</Option>
+                            <Option value="tin học">Tin học</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'ketQua']}
+                          rules={[...rules.required]}
+                        >
+                          <Input placeholder="Kết quả" style={{ width: 150 }} />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'minhChung']}
+                          rules={[...rules.required]}
+                        >
+                          <Input placeholder="Minh chứng" style={{ width: 200 }} />
+                        </Form.Item>
+                        <MinusCircleOutlined onClick={() => remove(name)} />
+                      </Space>
+                    ))}
+                    <Form.Item>
+                      <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                        Thêm chứng chỉ
+                      </Button>
+                    </Form.Item>
+                  </>
+                )}
+              </Form.List>
+            )}
+          </Card>
+
+          {/* Học bạ THPT */}
+          <Form.Item label="Học bạ THPT" name="hocBaTHPT">
+            <Input placeholder="Nhập ID học bạ" />
+          </Form.Item>
+
+          {/* Form actions */}
+          <div className="form-actions" style={{ marginTop: 24, textAlign: 'right' }}>
+            <Button.Group>
+              <Button loading={formSubmiting} type="primary" htmlType="submit">
+                {!edit ? 'Thêm mới' : 'Cập nhật'}
+              </Button>
+              <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
+            </Button.Group>
+          </div>
+        </Form>
+      </Card>
+    </div>
+  );
+};
+
+export default ThongTinHocTapForm;

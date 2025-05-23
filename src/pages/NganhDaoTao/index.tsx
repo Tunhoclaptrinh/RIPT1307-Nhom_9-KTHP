@@ -6,22 +6,28 @@ import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import HeDaoTaoForm from './components/Form';
-
+import NganhDaoTaoForm from './components/Form';
 const UsersPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('hedaotao');
+	const { handleEdit, handleView, deleteModel, getModel } = useModel('nganhdaotao');
 
-	const columns: IColumn<HeDaoTao.IRecord>[] = [
+	const columns: IColumn<NganhDaoTao.IRecord>[] = [
 		{
-			title: 'Mã hệ đào tạo',
-			dataIndex: 'id',
+			title: 'Mã ngành đào tạo',
+            dataIndex:'ma',
 			width: 180,
 			sortable: true,
 			filterType: 'string',
 		},
-		{
-			title: 'Tên hệ đào tạo',
-			dataIndex: 'ten',
+        {
+			title: 'Tên ngành đào tạo',
+            dataIndex:'ten',
+			width: 180,
+			sortable: true,
+			filterType: 'string',
+		},
+        {
+			title: 'Mô tả ngành đào tạo',
+            dataIndex:'moTa',
 			width: 180,
 			sortable: true,
 			filterType: 'string',
@@ -37,12 +43,13 @@ const UsersPage = () => {
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
-						title='Bạn có chắc chắn muốn xóa hệ dào tạo này này?'
+						title='Bạn có chắc chắn muốn xóa ngành đào tạo này?'
 						placement='topRight'
 					>
 						<ButtonExtend tooltip='Xóa' danger type='link' icon={<DeleteOutlined />} />
 					</Popconfirm>
 				</Space>
+                
 			),
 		},
 	];
@@ -51,9 +58,9 @@ const UsersPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='hedaotao'
-				title='Quản lý hệ đào tạo'
-				Form={HeDaoTaoForm}
+				modelName='nganhdaotao'
+				title='Quản lý ngành đào tạo'
+				Form={NganhDaoTaoForm}
 				widthDrawer={500}
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
