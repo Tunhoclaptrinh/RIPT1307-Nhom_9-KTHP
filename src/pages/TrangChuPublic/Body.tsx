@@ -9,9 +9,14 @@ import {
 	UserOutlined,
 } from '@ant-design/icons';
 import { primaryColor } from '@/services/base/constant';
-
+import { history, Link } from 'umi';
+import { useCheckUserAndRedirect } from '@/services/user'; 
 const { Title, Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
+const SomePage = () => {
+  useCheckUserAndRedirect();
+  return null; 
+};
 
 const TrangChuBody = () => {
 	const thongTinTuyenSinh = [
@@ -105,7 +110,7 @@ const TrangChuBody = () => {
 										sơ tuyển sinh của bạn mọi lúc, mọi nơi.
 									</Paragraph>
 									<Space>
-										<Button type='primary' size='large'>
+										<Button type='primary' size='large' onClick={SomePage}>
 											Đăng Ký Xét Tuyển
 										</Button>
 										<Button size='large'>Tra Cứu Thông Tin</Button>

@@ -74,6 +74,13 @@ export default [
 		component: './HeDaoTao',
 		icon: 'AppstoreOutlined',
 	},
+	{
+		path: '/xet-tuyen',
+		name: 'Xét tuyển hồ sơ',
+		component: './XetTuyen',
+		icon: 'UserAddOutlined',
+		layout: false,
+	},
 
 	// {
 	// 	name: 'Public',

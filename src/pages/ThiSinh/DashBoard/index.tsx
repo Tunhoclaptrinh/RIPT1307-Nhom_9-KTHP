@@ -14,7 +14,8 @@ const Dashboard: React.FC = () => {
 	const currentUser = initialState?.currentUser;
 	const [selectedYear, setSelectedYear] = useState('2024');
 	const [selectedMajor, setSelectedMajor] = useState('Chính quy');
-
+	const userString = localStorage.getItem('userInfo');
+	const user = userString ? JSON.parse(userString) : null;
 	// Các dịch vụ chính hiển thị trên dashboard
 	const services = [
 		{
@@ -48,7 +49,7 @@ const Dashboard: React.FC = () => {
 							<Row justify='center' align='middle'>
 								<Col span={24} style={{ textAlign: 'center', padding: '20px 0' }}>
 									<Typography.Title level={3} style={{ color: '#8b1d1d' }}>
-										Xin chào {currentUser?.fullName || 'Linh'},{' '}
+										Xin chào {user?.ho || ''} {user?.ten || ''},{' '}
 										<span role='img' aria-label='wave'>
 											👋
 										</span>

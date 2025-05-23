@@ -1,4 +1,5 @@
 import axios from '@/utils/axios';
+import { history } from 'umi'; 
 
 // Hàm request wrapper đơn giản
 async function request(url: string, options?: any) {
@@ -10,7 +11,7 @@ async function request(url: string, options?: any) {
 
 // Đăng nhập
 export async function login(username: string, password: string) {
-  const response = await request(`http://localhost:3000/users?username=${username}`, {
+  const response = await request(`http://localhost:3001/users?username=${username}`, {
     method: 'GET'
   });
   
@@ -35,7 +36,7 @@ export async function register(userData: any) {
 
   // Kiểm tra username hoặc email đã tồn tại
   const checkUser = await request(
-    `http://localhost:3000/users?username=${userData.username}&email=${userData.email}`
+    `http://localhost:3001/users?username=${userData.username}&email=${userData.email}`
   );
   
   if (checkUser.data.length > 0) {
@@ -43,7 +44,7 @@ export async function register(userData: any) {
   }
 
   // Tạo user mới
-  const response = await request('http://localhost:3000/users', {
+  const response = await request('http://localhost:3001/users', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -73,4 +74,19 @@ export async function getUserInfo(userId: string) {
 export function logout() {
   localStorage.removeItem('userId');
   localStorage.removeItem('token');
+  localStorage.removeItem('userInfo');
+  history.push('/trang-chu');
+  
 }
+
+
+export const useCheckUserAndRedirect = () => {
+    const userInfo = localStorage.getItem('userInfo');
+    const userId = userInfo ? JSON.parse(userInfo) : null;
+
+    if (userId) {
+      history.push('/xet-tuyen');
+    } else {
+      history.push('/user');
+    }
+};
