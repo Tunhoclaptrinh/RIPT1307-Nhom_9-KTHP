@@ -3,12 +3,12 @@ import { Select } from 'antd';
 import { useEffect } from 'react';
 import { useModel } from 'umi';
 
-const PhuongThucXetTuyenSelect = (
+const PhuongThucXTSelect = (
     props: { values?: string; onChange?: (val: string) => void; placeholder?: string },
     hasDefault?: boolean,
 ) => {
     const { values: value, onChange } = props;
-    const { danhSach, getAllModel } = useModel('phuongthucxettuyen');
+    const { danhSach, getAllModel } = useModel('phuongthucxt');
 
     useEffect(() => {
         getAllModel().then((res) => {
@@ -36,4 +36,4 @@ const PhuongThucXetTuyenSelect = (
     );
 };
 
-export default PhuongThucXetTuyenSelect;
+export default PhuongThucXTSelect;

@@ -25,7 +25,7 @@ const ToHopSelect = (
             options={danhSach.map((item) => ({
                 key: item.id,
                 value: item.id,
-                label: `${item.ten}`,
+                label: `${item.id} - ${item.monHoc.join(' - ')}`,
             }))}
             showSearch
             optionFilterProp='label'
