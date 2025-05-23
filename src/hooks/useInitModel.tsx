@@ -3,20 +3,21 @@ import { chuanHoaObject } from '@/utils/utils';
 import { message } from 'antd';
 import { useState } from 'react';
 import useInitService from './useInitService';
+import { EOperatorType } from '../components/Table/constant';
+import _ from 'lodash';
 
 /**
- *
  * @param url path api
- * @param fieldNameCondtion condition | cond
+ * @param fieldNameCondition condition | cond (not used in JSON Server)
  * @param initCondition initConditionValue
- * @param upService Ip của dịch vụ bên thứ 3
+ * @param baseURL Base URL của JSON Server (default: http://localhost:3000)
  * @returns
  */
 const useInitModel = <T,>(
 	url: string,
-	fieldNameCondtion?: 'condition' | 'cond',
+	fieldNameCondition?: 'condition' | 'cond',
 	initCondition?: Partial<T>,
-	ipService?: string,
+	baseURL?: string,
 	initSort?: { [k in keyof T]?: 1 | -1 },
 	initFilter?: TFilter<T>[],
 ) => {
@@ -33,7 +34,7 @@ const useInitModel = <T,>(
 	const [isView, setIsView] = useState<boolean>(true);
 	const [visibleForm, setVisibleForm] = useState<boolean>(false);
 	const [total, setTotal] = useState<number>(0);
-	const [importHeaders, setImportHeaders] = useState<TImportHeader[]>([]); // Import Headers lấy từ API
+	const [importHeaders, setImportHeaders] = useState<TImportHeader[]>([]);
 	const [selectedIds, setSelectedIds] = useState<string[]>();
 
 	const {
@@ -51,20 +52,198 @@ const useInitModel = <T,>(
 		postValidateImport,
 		getExportFields,
 		postExport,
-	} = useInitService(url, ipService);
+	} = useInitService(url, baseURL);
 
-	/**
-	 * Get Pageable Model
-	 * @date 2023-04-05
-	 * @param {any} paramCondition Condition khác
-	 * @param {any} filterParams Các filters khác
-	 * @param {any} sortParam Sort khác
-	 * @param {any} paramPage Page khác
-	 * @param {any} paramLimit Limit khác
-	 * @param {any} path Đường dẫn (mặc định là `page`)
-	 * @param {any} otherQuery Truy vấn thêm vào query
-	 * @returns {any} Các IRecord
-	 */
+	const applyClientSideFilter = (data: T[], filters: TFilter<T>[]): T[] => {
+		return data.filter((item) =>
+			filters.every((filter) => {
+				const field = Array.isArray(filter.field) ? _.get(item, filter.field.join('.')) : item[filter.field];
+				const value = String(field).toLowerCase();
+				const filterValue = String(filter.values[0]).toLowerCase();
+				const filterValue2 = filter.values[1] ? String(filter.values[1]).toLowerCase() : undefined;
+
+				switch (filter.operator) {
+					case EOperatorType.CONTAIN:
+						return value.includes(filterValue);
+					case EOperatorType.NOT_CONTAIN:
+						return !value.includes(filterValue);
+					case EOperatorType.START_WITH:
+						return value.startsWith(filterValue);
+					case EOperatorType.END_WITH:
+						return value.endsWith(filterValue);
+					case EOperatorType.EQUAL:
+						return value === filterValue;
+					case EOperatorType.NOT_EQUAL:
+						return value !== filterValue;
+					case EOperatorType.LESS_THAN:
+						return Number(field) < Number(filter.values[0]);
+					case EOperatorType.LESS_EQUAL:
+						return Number(field) <= Number(filter.values[0]);
+					case EOperatorType.GREAT_THAN:
+						return Number(field) > Number(filter.values[0]);
+					case EOperatorType.GREAT_EQUAL:
+						return Number(field) >= Number(filter.values[0]);
+					case EOperatorType.BETWEEN:
+						return Number(field) >= Number(filter.values[0]) && Number(field) <= Number(filter.values[1]);
+					case EOperatorType.NOT_BETWEEN:
+						return Number(field) < Number(filter.values[0]) || Number(field) > Number(filter.values[1]);
+					case EOperatorType.INCLUDE:
+						return filter.values.includes(field);
+					case EOperatorType.NOT_INCLUDE:
+						return !filter.values.includes(field);
+					default:
+						return true;
+				}
+			}),
+		);
+	};
+
+	// 	paramCondition?: Partial<T>,
+	// 	filterParams?: TFilter<T>[],
+	// 	sortParam?: { [k in keyof T]?: 1 | -1 },
+	// 	paramPage?: number,
+	// 	paramLimit?: number,
+	// 	path?: string,
+	// 	otherQuery?: Record<string, any>,
+	// 	isSetDanhSach?: boolean,
+	// 	isAbsolutePath?: boolean,
+	// 	selectParams?: string[],
+	// ): Promise<T[]> => {
+	// 	setLoading(true);
+	// 	const payload = {
+	// 		page: paramPage || page,
+	// 		limit: paramLimit || limit,
+	// 		sort: sortParam || sort,
+	// 		condition: { ...condition, ...paramCondition },
+	// 		filters: [
+	// 			...(filters?.filter((item) => item.active !== false)?.map(({ active, ...item }) => item) || []),
+	// 			...(filterParams || []),
+	// 		],
+	// 		select: selectParams?.join(' '),
+	// 		...(otherQuery ?? {}),
+	// 	};
+
+	// 	try {
+	// 		const response = await getService(payload, path ?? 'page', isAbsolutePath ?? false);
+	// 		let tempData: T[] = Array.isArray(response.data) ? response.data : [];
+
+	// 		// Kiểm tra và log header X-Total-Count
+	// 		const xTotalCount = response.headers['x-total-count'];
+	// 		let tempTotal: number;
+	// 		if (xTotalCount && !isNaN(parseInt(xTotalCount, 10))) {
+	// 			tempTotal = parseInt(xTotalCount, 10);
+	// 		} else {
+	// 			console.warn('X-Total-Count header is missing or invalid. Falling back to getAllService.');
+	// 			const allDataResponse = await getAllService(payload, path);
+	// 			tempTotal = Array.isArray(allDataResponse.data) ? allDataResponse.data.length : 0;
+	// 		}
+
+	// 		// Áp dụng lọc phía client cho các toán tử không được JSON Server hỗ trợ
+	// 		const complexFilters = payload.filters.filter(
+	// 			(f) => f.operator !== undefined && ![EOperatorType.CONTAIN, EOperatorType.EQUAL].includes(f.operator),
+	// 		);
+	// 		if (complexFilters.length > 0) {
+	// 			tempData = applyClientSideFilter(tempData, complexFilters);
+	// 		}
+
+	// 		// Kiểm tra trang không hợp lệ
+	// 		if (tempData.length === 0 && tempTotal > 0 && payload.page > 1) {
+	// 			const maxPage = Math.ceil(tempTotal / payload.limit) || 1;
+	// 			setPage(maxPage);
+	// 			return Promise.reject('Invalid page');
+	// 		}
+
+	// 		if (isSetDanhSach !== false) {
+	// 			setDanhSach(tempData);
+	// 		}
+	// 		setTotal(tempTotal);
+	// 		return tempData;
+	// 	} catch (er) {
+	// 		console.error('Error in getModel:', er);
+	// 		return Promise.reject(er);
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+	// const getModel = async (
+	// 	paramCondition?: Partial<T>,
+	// 	filterParams?: TFilter<T>[],
+	// 	sortParam?: { [k in keyof T]?: 1 | -1 },
+	// 	paramPage?: number,
+	// 	paramLimit?: number,
+	// 	path?: string,
+	// 	otherQuery?: Record<string, any>,
+	// 	isSetDanhSach?: boolean,
+	// 	isAbsolutePath?: boolean,
+	// 	selectParams?: string[],
+	// ): Promise<T[]> => {
+	// 	setLoading(true);
+	// 	const payload = {
+	// 		page: paramPage || page,
+	// 		limit: paramLimit || limit,
+	// 		sort: sortParam || sort,
+	// 		condition: { ...condition, ...paramCondition },
+	// 		filters: [
+	// 			...(filters?.filter((item) => item.active !== false)?.map(({ active, ...item }) => item) || []),
+	// 			...(filterParams || []),
+	// 		],
+	// 		select: selectParams?.join(' '),
+	// 		...(otherQuery ?? {}),
+	// 	};
+
+	// 	try {
+	// 		const response = await getService(payload, path ?? 'page', isAbsolutePath ?? false);
+	// 		let tempData: T[] = Array.isArray(response.data) ? response.data : [];
+
+	// 		// Áp dụng lọc phía client cho tất cả filters
+	// 		if (payload.filters.length > 0) {
+	// 			tempData = applyClientSideFilter(tempData, payload.filters);
+	// 		}
+
+	// 		// Áp dụng sắp xếp phía client
+	// 		if (payload.sort) {
+	// 			const sortKey = Object.keys(payload.sort)[0] as keyof T;
+	// 			const sortOrder = payload.sort[sortKey];
+	// 			tempData = [...tempData].sort((a, b) => {
+	// 				const aValue = typeof sortKey === 'string' && sortKey.includes('.') ? _.get(a, sortKey) : a[sortKey];
+	// 				const bValue = typeof sortKey === 'string' && sortKey.includes('.') ? _.get(b, sortKey) : b[sortKey];
+	// 				if (typeof aValue === 'string' && typeof bValue === 'string') {
+	// 					return sortOrder === 1 ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+	// 				}
+	// 				return sortOrder === 1 ? (aValue > bValue ? 1 : -1) : aValue < bValue ? 1 : -1;
+	// 			});
+	// 		}
+
+	// 		// Kiểm tra và log header X-Total-Count
+	// 		const xTotalCount = response.headers['x-total-count'];
+	// 		let tempTotal: number;
+	// 		if (xTotalCount && !isNaN(parseInt(xTotalCount, 10))) {
+	// 			tempTotal = parseInt(xTotalCount, 10);
+	// 		} else {
+	// 			console.warn('X-Total-Count header is missing or invalid. Falling back to getAllService.');
+	// 			const allDataResponse = await getAllService(payload, path);
+	// 			tempTotal = Array.isArray(allDataResponse.data) ? allDataResponse.data.length : 0;
+	// 		}
+
+	// 		// Kiểm tra trang không hợp lệ
+	// 		if (tempData.length === 0 && tempTotal > 0 && payload.page > 1) {
+	// 			const maxPage = Math.ceil(tempTotal / payload.limit) || 1;
+	// 			setPage(maxPage);
+	// 			return Promise.reject('Invalid page');
+	// 		}
+
+	// 		if (isSetDanhSach !== false) {
+	// 			setDanhSach(tempData);
+	// 		}
+	// 		setTotal(tempTotal);
+	// 		return tempData;
+	// 	} catch (er) {
+	// 		console.error('Error in getModel:', er);
+	// 		return Promise.reject(er);
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
 	const getModel = async (
 		paramCondition?: Partial<T>,
 		filterParams?: TFilter<T>[],
@@ -82,10 +261,7 @@ const useInitModel = <T,>(
 			page: paramPage || page,
 			limit: paramLimit || limit,
 			sort: sortParam || sort,
-			[fieldNameCondtion ?? 'condition']: {
-				...condition,
-				...paramCondition,
-			},
+			condition: { ...condition, ...paramCondition },
 			filters: [
 				...(filters?.filter((item) => item.active !== false)?.map(({ active, ...item }) => item) || []),
 				...(filterParams || []),
@@ -96,26 +272,59 @@ const useInitModel = <T,>(
 
 		try {
 			const response = await getService(payload, path ?? 'page', isAbsolutePath ?? false);
-			const tempData: T[] = response?.data?.data?.result ?? [];
-			const tempTotal: number = response?.data?.data?.total ?? 0;
+			let tempData: T[] = Array.isArray(response.data) ? response.data : [];
 
-			if (tempData.length === 0 && tempTotal) {
+			// Áp dụng lọc phía client
+			if (payload.filters.length > 0) {
+				tempData = applyClientSideFilter(tempData, payload.filters);
+			}
+
+			// Áp dụng sắp xếp phía client chỉ khi sort được xác định rõ ràng
+			if (payload.sort && Object.keys(payload.sort).length > 0) {
+				const sortKey = Object.keys(payload.sort)[0] as keyof T;
+				const sortOrder = payload.sort[sortKey];
+				tempData = [...tempData].sort((a, b) => {
+					const aValue =
+						typeof sortKey === 'string' ? (sortKey.includes('.') ? _.get(a, sortKey) : a[sortKey]) : a[sortKey];
+					const bValue =
+						typeof sortKey === 'string' ? (sortKey.includes('.') ? _.get(b, sortKey) : b[sortKey]) : b[sortKey];
+					if (typeof aValue === 'string' && typeof bValue === 'string') {
+						return sortOrder === 1 ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+					}
+					return sortOrder === 1 ? (aValue > bValue ? 1 : -1) : aValue < bValue ? 1 : -1;
+				});
+			}
+
+			// Kiểm tra và log header X-Total-Count
+			const xTotalCount = response.headers['x-total-count'];
+			let tempTotal: number;
+			if (xTotalCount && !isNaN(parseInt(xTotalCount, 10))) {
+				tempTotal = parseInt(xTotalCount, 10);
+			} else {
+				console.warn('X-Total-Count header is missing or invalid. Falling back to getAllService.');
+				const allDataResponse = await getAllService(payload, path);
+				tempTotal = Array.isArray(allDataResponse.data) ? allDataResponse.data.length : 0;
+			}
+
+			// Kiểm tra trang không hợp lệ
+			if (tempData.length === 0 && tempTotal > 0 && payload.page > 1) {
 				const maxPage = Math.ceil(tempTotal / payload.limit) || 1;
 				setPage(maxPage);
 				return Promise.reject('Invalid page');
-			} else {
-				if (isSetDanhSach !== false) setDanhSach(tempData);
-				setTotal(tempTotal);
-
-				return tempData;
 			}
+
+			if (isSetDanhSach !== false) {
+				setDanhSach(tempData);
+			}
+			setTotal(tempTotal);
+			return tempData;
 		} catch (er) {
+			console.error('Error in getModel:', er);
 			return Promise.reject(er);
 		} finally {
 			setLoading(false);
 		}
 	};
-
 	const getAllModel = async (
 		isSetRecord?: boolean,
 		sortParam?: { [k in keyof T]?: 1 | -1 },
@@ -129,18 +338,22 @@ const useInitModel = <T,>(
 		setLoading(true);
 		try {
 			const payload = {
-				[fieldNameCondtion ?? 'condition']: conditionParam,
+				condition: conditionParam,
 				sort: sortParam,
 				filters: filterParam,
 				select: selectParams?.join(' '),
 				...(otherQuery ?? {}),
 			};
 			const response = await getAllService(payload, pathParam);
-			const data: T[] = response?.data?.data ?? [];
-			// if (sortParam) data.sort(sortParam);
+			let data: T[] = Array.isArray(response.data) ? response.data : [];
+
+			// Áp dụng lọc phía client
+			if (payload.filters && payload.filters.length > 0) {
+				data = applyClientSideFilter(data, payload.filters);
+			}
+
 			if (isSetDanhSach !== false) setDanhSach(data);
 			if (isSetRecord) setRecord(data?.[0]);
-
 			return data;
 		} catch (er) {
 			return Promise.reject(er);
@@ -154,8 +367,8 @@ const useInitModel = <T,>(
 		setLoading(true);
 		try {
 			const response = await getByIdService(id);
-			if (isSetRecord !== false) setRecord(response?.data?.data ?? null);
-			return response?.data?.data;
+			if (isSetRecord !== false) setRecord(response?.data ?? null);
+			return response?.data;
 		} catch (er) {
 			return Promise.reject(er);
 		} finally {
@@ -168,8 +381,9 @@ const useInitModel = <T,>(
 		setLoading(true);
 		try {
 			const response = await getService({ condition: conditionParam }, 'one');
-			setRecord(response?.data?.data ?? null);
-			return response?.data?.data;
+			const data = Array.isArray(response.data) ? response.data[0] : response.data;
+			setRecord(data ?? null);
+			return data;
 		} catch (er) {
 			return Promise.reject(er);
 		} finally {
@@ -183,7 +397,7 @@ const useInitModel = <T,>(
 		closeModal?: boolean,
 		messageText?: string,
 	): Promise<T> => {
-		if (formSubmiting) Promise.reject('Form submiting');
+		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
 			const res = await postService(chuanHoaObject(payload));
@@ -192,8 +406,7 @@ const useInitModel = <T,>(
 			if (getData) getData();
 			else getModel();
 			if (closeModal !== false) setVisibleForm(false);
-
-			return res.data?.data;
+			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -218,8 +431,7 @@ const useInitModel = <T,>(
 			if (getData) getData();
 			else if (!notGet) getModel();
 			if (closeModal !== false) setVisibleForm(false);
-
-			return res.data?.data;
+			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -234,7 +446,7 @@ const useInitModel = <T,>(
 		notGet?: boolean,
 		closeModal?: boolean,
 		messageText?: string,
-	): Promise<T> => {
+	): Promise<any> => {
 		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
@@ -244,8 +456,7 @@ const useInitModel = <T,>(
 			if (getData) getData();
 			else if (!notGet) getModel();
 			if (closeModal !== false) setVisibleForm(false);
-
-			return res.data?.data;
+			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -258,15 +469,14 @@ const useInitModel = <T,>(
 		try {
 			const res = await deleteService(id);
 			message.success('Xóa thành công');
-
 			const maxPage = Math.ceil((total - 1) / limit) || 1;
 			let newPage = page;
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
-			} else if (getData) getData();
+			}
+			if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
-
 			return res.data;
 		} catch (err) {
 			return Promise.reject(err);
@@ -275,23 +485,51 @@ const useInitModel = <T,>(
 		}
 	};
 
+	// const deleteManyModel = async (ids: (string | number)[], getData?: () => void): Promise<any> => {
+	// 	if (!ids.length) return;
+	// 	setLoading(true);
+	// 	try {
+	// 		const res = await deleteManyService(ids);
+	// 		message.success(`Xóa thành công ${ids.length} mục`);
+	// 		const maxPage = Math.ceil((total - ids.length) / limit) || 1;
+	// 		let newPage = page;
+	// 		if (newPage > maxPage) {
+	// 			newPage = maxPage;
+	// 			setPage(newPage);
+	// 		}
+	// 		if (getData) getData();
+	// 		else getModel(undefined, undefined, undefined, newPage);
+	// 		return res.data;
+	// 	} catch (err) {
+	// 		return Promise.reject(err);
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
+
 	const deleteManyModel = async (ids: (string | number)[], getData?: () => void): Promise<any> => {
 		if (!ids.length) return;
+
 		setLoading(true);
 		try {
-			const res = await deleteManyService(ids);
-			message.success(`Xóa thành công ${ids.length} mục`);
+			// Gọi service để xóa
+			await deleteManyService(ids);
 
+			// Cập nhật pagination
 			const maxPage = Math.ceil((total - ids.length) / limit) || 1;
 			let newPage = page;
 			if (newPage > maxPage) {
 				newPage = maxPage;
 				setPage(newPage);
-			} else if (getData) getData();
+			}
+
+			// Refresh data
+			if (getData) getData();
 			else getModel(undefined, undefined, undefined, newPage);
 
-			return res.data;
+			return Promise.resolve();
 		} catch (err) {
+			message.error('Có lỗi xảy ra khi xóa dữ liệu');
 			return Promise.reject(err);
 		} finally {
 			setLoading(false);
@@ -312,11 +550,6 @@ const useInitModel = <T,>(
 		setVisibleForm(true);
 	};
 
-	//#region BASE IMPORT
-	/**
-	 * Lấy header cho chức năng import
-	 * @returns {any}
-	 */
 	const getImportHeaderModel = async (): Promise<TImportHeader[]> => {
 		try {
 			const res = await getImportHeaders();
@@ -327,10 +560,6 @@ const useInitModel = <T,>(
 		}
 	};
 
-	/**
-	 * Lấy file excel mẫu cho chức năng import
-	 * @returns {any}
-	 */
 	const getImportTemplateModel = async (): Promise<any> => {
 		try {
 			const res = await getImportTemplate();
@@ -340,17 +569,23 @@ const useInitModel = <T,>(
 		}
 	};
 
-	/**
-	 * Validate dữ liệu cần import
-	 * @returns {any}
-	 */
 	const postValidateModel = async (payload: any[]): Promise<TImportResponse> => {
 		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
 			const res = await postValidateImport({ rows: payload });
 			message.success('Đã kiểm tra dữ liệu');
-			return res.data?.data ?? [];
+			const data = res.data?.data ?? [];
+			const error =
+				typeof data === 'object' &&
+				data !== null &&
+				'invalid' in data &&
+				Array.isArray((data as any).invalid) &&
+				(data as any).invalid.length > 0;
+			return {
+				error,
+				...data,
+			};
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
@@ -358,30 +593,30 @@ const useInitModel = <T,>(
 		}
 	};
 
-	/**
-	 * Thực thi import dữ liệu
-	 * @returns {any}
-	 */
 	const postExecuteImpotModel = async (payload: any[]): Promise<TImportResponse> => {
 		if (formSubmiting) return Promise.reject('Form submiting');
 		setFormSubmiting(true);
 		try {
 			const res = await postExecuteImport({ rows: payload });
 			message.success('Đã nhập dữ liệu');
-			return res.data?.data ?? [];
+			const data = res.data?.data ?? {};
+			const error =
+				typeof data === 'object' &&
+				data !== null &&
+				'invalid' in data &&
+				Array.isArray((data as any).invalid) &&
+				(data as any).invalid.length > 0;
+			return {
+				error,
+				...data,
+			};
 		} catch (err) {
 			return Promise.reject(err);
 		} finally {
 			setFormSubmiting(false);
 		}
 	};
-	//#endregion
 
-	//#region BASE EXPORT
-	/**
-	 * Lấy fields cho chức năng export
-	 * @returns {any}
-	 */
 	const getExportFieldsModel = async (): Promise<TExportField[]> => {
 		const genIdField = (data?: TExportField[], prefix?: string): TExportField[] | undefined => {
 			if (!data?.length) return undefined;
@@ -395,17 +630,12 @@ const useInitModel = <T,>(
 		try {
 			const res = await getExportFields();
 			const fields = genIdField(res.data?.data) ?? [];
-
 			return fields;
 		} catch (err) {
 			return Promise.reject(err);
 		}
 	};
 
-	/**
-	 * Thực thi export
-	 * @returns {any}
-	 */
 	const postExportModel = async (
 		payload: { ids?: string[]; definitions: TExportField[] },
 		paramCondition?: Partial<T>,
@@ -430,7 +660,6 @@ const useInitModel = <T,>(
 			setFormSubmiting(false);
 		}
 	};
-	//#endregion
 
 	return {
 		sort,
