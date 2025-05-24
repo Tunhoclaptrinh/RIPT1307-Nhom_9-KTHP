@@ -1,4 +1,4 @@
-declare module ThongBaoTS {
+declare module FAQ {
     export interface IRecord {
         id: string;
         question: string;

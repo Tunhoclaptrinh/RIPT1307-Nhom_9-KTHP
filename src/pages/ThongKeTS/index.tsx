@@ -94,7 +94,7 @@ const ThongKeTSPage = () => {
             sortable: true,
             filterType: 'date',
             render: (date: string) => (
-                <div style={{ fontSize: '12px', color: '#666' }}>
+                <div style={{ color: '#666' }}>
                     {moment(date, 'DD/MM/YYYY').format('DD/MM/YYYY')}
                 </div>
             ),
