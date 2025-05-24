@@ -1,5 +1,5 @@
-import React from 'react';
-import { Popconfirm, Tag, Space, Badge } from 'antd';
+import React, { useState } from 'react';
+import { Popconfirm, Tag, Space, Badge, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -14,10 +14,31 @@ import {
 } from '@ant-design/icons';
 import moment from 'moment';
 import LichTrinhTSForm from './components/Form';
+import LichTrinhTSDetail from './components/Detail'; // Import modal mới
 
 const LichTrinhTSPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('lichtrinhts');
+	const { handleEdit, handleView, deleteModel } = useModel('lichtrinhts');
+	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
+	const [selectedRecord, setSelectedRecord] = useState<LichTrinhTS.IRecord | undefined>();
 
+	// Hàm xử lý mở modal mở rộng
+	const onOpenExtendedModal = (record: LichTrinhTS.IRecord) => {
+		setSelectedRecord(record);
+		setExtendedModalVisible(true);
+	};
+
+	// Hàm đóng
+	const onCloseExtendedModal = () => {
+		setExtendedModalVisible(false);
+	};
+
+	// Hàm chuyển sang chế độ edit
+	const onEditFromView = () => {
+		setExtendedModalVisible(false);
+		if (selectedRecord) {
+			handleEdit(selectedRecord);
+		}
+	};
 	const getTypeColor = (type: string) => {
 		switch (type) {
 			case 'dangky':
@@ -104,16 +125,19 @@ const LichTrinhTSPage = () => {
 			sortable: false,
 			filterType: 'string',
 			render: (description: string) => (
-				<div
-					style={{
-						overflow: 'hidden',
-						textOverflow: 'ellipsis',
-						whiteSpace: 'nowrap',
-						maxWidth: '380px',
-					}}
-				>
-					{description}
-				</div>
+				<Popover content={<div style={{ maxWidth: 360 }}>{description}</div>} title='Chi tiết mô tả' trigger='click'>
+					<div
+						style={{
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+							maxWidth: '380px',
+							cursor: 'pointer',
+						}}
+					>
+						{description}
+					</div>
+				</Popover>
 			),
 		},
 		{
@@ -157,7 +181,12 @@ const LichTrinhTSPage = () => {
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
-					<ButtonExtend tooltip='Xem chi tiết' onClick={() => handleView(record)} type='link' icon={<EyeOutlined />} />
+					<ButtonExtend
+						tooltip='Xem chi tiết'
+						onClick={() => onOpenExtendedModal(record)}
+						type='link'
+						icon={<EyeOutlined />}
+					/>
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
@@ -182,6 +211,12 @@ const LichTrinhTSPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+			/>
+			<LichTrinhTSDetail
+				isVisible={extendedModalVisible}
+				onClose={onCloseExtendedModal}
+				record={selectedRecord}
+				onEdit={onEditFromView}
 			/>
 		</div>
 	);

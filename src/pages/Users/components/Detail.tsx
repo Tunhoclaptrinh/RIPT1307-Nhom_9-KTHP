@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Descriptions, Button } from 'antd';
-import dayjs from 'dayjs';
+import moment from 'moment';
 
 interface ViewModalProps {
 	isVisible: boolean;
@@ -10,7 +10,7 @@ interface ViewModalProps {
 	title?: string;
 }
 
-const ViewModal: React.FC<ViewModalProps> = ({ isVisible, onClose, onEdit, record, title = 'người dùng' }) => {
+const UserDetail: React.FC<ViewModalProps> = ({ isVisible, onClose, onEdit, record, title = 'người dùng' }) => {
 	if (!record) return null;
 
 	return (
@@ -34,11 +34,11 @@ const ViewModal: React.FC<ViewModalProps> = ({ isVisible, onClose, onEdit, recor
 				<Descriptions.Item label='Email'>{record.email}</Descriptions.Item>
 				<Descriptions.Item label='Số CCCD'>{record.soCCCD}</Descriptions.Item>
 				<Descriptions.Item label='Ngày cấp'>
-					{record.ngayCap ? dayjs(record.ngayCap).format('DD/MM/YYYY') : ''}
+					{record.ngayCap ? moment(record.ngayCap).format('DD/MM/YYYY') : ''}
 				</Descriptions.Item>
 				<Descriptions.Item label='Nơi cấp'>{record.noiCap}</Descriptions.Item>
 				<Descriptions.Item label='Ngày sinh'>
-					{record.ngaySinh ? dayjs(record.ngaySinh).format('DD/MM/YYYY') : ''}
+					{record.ngaySinh ? moment(record.ngaySinh).format('DD/MM/YYYY') : ''}
 				</Descriptions.Item>
 				<Descriptions.Item label='Giới tính'>{record.gioiTinh}</Descriptions.Item>
 				<Descriptions.Item label='Địa chỉ' span={2}>
@@ -50,4 +50,4 @@ const ViewModal: React.FC<ViewModalProps> = ({ isVisible, onClose, onEdit, recor
 	);
 };
 
-export default ViewModal;
+export default UserDetail;

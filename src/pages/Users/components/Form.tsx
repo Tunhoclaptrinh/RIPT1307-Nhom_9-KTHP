@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Card, Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';

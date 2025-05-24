@@ -9,6 +9,8 @@ const ip3 = ipRoot + 'slink'; // ip dev
 const ipNotif = ipRoot + 'notification'; // ip dev
 const ipSlink = ipRoot + 'slink'; // ip dev
 
+const ipLocal = 'http://localhost:3001';
+
 const currentRole = EModuleKey.CONNECT;
 const oneSignalRole = EModuleKey.CONNECT;
 
@@ -26,6 +28,7 @@ export {
 	ip3,
 	ipNotif,
 	ipSlink,
+	ipLocal,
 	currentRole,
 	oneSignalRole,
 	keycloakClientID,

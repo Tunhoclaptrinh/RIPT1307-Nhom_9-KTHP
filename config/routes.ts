@@ -76,7 +76,7 @@ export default [
 			{
 				path: '/public-manage/huong-dan-ho-so',
 				name: 'Hướng dẫn hồ sơ',
-				component: './HuongDanHS',
+				component: './HDHoSo',
 				icon: 'FileTextOutlined',
 			},
 			{
@@ -159,7 +159,6 @@ export default [
 		component: './ToHop',
 		icon: 'ReadOutlined',
 	},
-
 
 	// {
 	// 	name: 'Public',

@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, Badge, Popover } from 'antd';
+import { Popconfirm, Tag, Space, Button, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import ThongBaoTSForm from './components/Form';
-import ThongBaoTSDetail from './components/Detail';
+import HuongDanHSForm from './components/Form';
+import HuongDanHSDetail from './components/Detail';
+import { getNameFile } from '@/utils/utils';
 
-const ThongBaoTSPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('thongbaots');
+interface HuongDanHSRecord {
+	id: string;
+	title: string;
+	category: string;
+	date: string;
+	summary: string;
+	fileUrl: string;
+	fileSize: string;
+}
+
+const HuongDanHSPage = () => {
+	const { handleEdit, deleteModel } = useModel('huongdanhs');
 	const [detailModalVisible, setDetailModalVisible] = useState(false);
-	const [selectedRecord, setSelectedRecord] = useState<ThongBaoTS.IRecord | undefined>();
+	const [selectedRecord, setSelectedRecord] = useState<HuongDanHSRecord | undefined>();
 
-	const onOpenDetailModal = (record: ThongBaoTS.IRecord) => {
+	const onOpenDetailModal = (record: HuongDanHSRecord) => {
 		setSelectedRecord(record);
 		setDetailModalVisible(true);
 	};
@@ -30,23 +41,30 @@ const ThongBaoTSPage = () => {
 		}
 	};
 
-	const columns: IColumn<ThongBaoTS.IRecord>[] = [
+	const columns: IColumn<HuongDanHSRecord>[] = [
 		{
 			title: 'Tiêu đề',
 			dataIndex: 'title',
 			width: 300,
 			sortable: true,
 			filterType: 'string',
-			render: (title: string) => <div style={{ fontWeight: 500 }}>{title}</div>,
+		},
+		{
+			title: 'Danh mục',
+			dataIndex: 'category',
+			width: 150,
+			sortable: true,
+			filterType: 'select',
+			align: 'center',
 		},
 		{
 			title: 'Tóm tắt',
 			dataIndex: 'summary',
-			width: 400,
+			width: 300,
 			sortable: false,
 			filterType: 'string',
 			render: (summary: string) => (
-				<Popover content={<div style={{ maxWidth: 400 }}>{summary}</div>} title='Chi tiết mô tả' trigger='click'>
+				<Popover content={<div style={{ maxWidth: 360 }}>{summary}</div>} title='Chi tiết mô tả' trigger='click'>
 					<div
 						style={{
 							overflow: 'hidden',
@@ -67,28 +85,35 @@ const ThongBaoTSPage = () => {
 			width: 120,
 			sortable: true,
 			filterType: 'date',
-			align: 'center',
 			render: (date: string) => moment(date, 'DD/MM/YYYY').format('DD/MM/YYYY'),
 		},
 		{
-			title: 'Ưu tiên',
-			dataIndex: 'priority',
-			width: 100,
-			sortable: true,
-			filterType: 'number',
-			align: 'center',
-			render: (priority: number) => (
-				<Badge count={priority} color={priority === 1 ? 'red' : priority === 2 ? 'orange' : 'blue'} showZero />
-			),
+			title: 'Tệp hướng dẫn',
+			dataIndex: 'fileUrl',
+			width: 200,
+			sortable: false,
+			render: (fileUrl: string) =>
+				fileUrl ? (
+					<a href={fileUrl} target='_blank' rel='noopener noreferrer'>
+						{getNameFile(fileUrl)}
+					</a>
+				) : (
+					'N/A'
+				),
 		},
 		{
-			title: 'Trạng thái',
-			dataIndex: 'isActive',
-			width: 120,
+			title: 'Dung lượng',
+			dataIndex: 'fileSize',
+			width: 100,
 			sortable: true,
-			filterType: 'select',
 			align: 'center',
-			render: (isActive: boolean) => <Tag color={isActive ? 'green' : 'red'}>{isActive ? 'Hiển thị' : 'Ẩn'}</Tag>,
+			render: (fileSize: string) => {
+				const bytes = parseInt(fileSize, 10);
+				if (isNaN(bytes)) return 'N/A';
+				if (bytes < 1024) return `${bytes} B`;
+				if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+				return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+			},
 		},
 		{
 			title: 'Thao tác',
@@ -106,7 +131,7 @@ const ThongBaoTSPage = () => {
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
-						title='Bạn có chắc chắn muốn xóa thông báo này?'
+						title='Bạn có chắc chắn muốn xóa hướng dẫn này?'
 						placement='topRight'
 					>
 						<ButtonExtend tooltip='Xóa' danger type='link' icon={<DeleteOutlined />} />
@@ -120,15 +145,15 @@ const ThongBaoTSPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='thongbaots'
-				title='Thông báo tuyển sinh'
-				Form={ThongBaoTSForm}
+				modelName='huongdanhs'
+				title='Hướng dẫn hồ sơ'
+				Form={HuongDanHSForm}
 				widthDrawer={800}
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>
-			<ThongBaoTSDetail
+			<HuongDanHSDetail
 				isVisible={detailModalVisible}
 				onClose={onCloseDetailModal}
 				record={selectedRecord}
@@ -138,4 +163,4 @@ const ThongBaoTSPage = () => {
 	);
 };
 
-export default ThongBaoTSPage;
+export default HuongDanHSPage;

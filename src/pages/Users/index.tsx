@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { Popconfirm, Tag, Space } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
-import Form from './components/Form';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import UserForm from './components/Form';
-import ViewModal from './components/View'; // Thêm import ViewModal
+import UserDetail from './components/Detail'; // Thêm import ViewModal
 import ExpandText from '@/components/ExpandText';
 
 const UsersPage = () => {
@@ -146,7 +145,7 @@ const UsersPage = () => {
 				rowSelection
 			/>
 			{/* Modal xem chi tiết */}
-			<ViewModal
+			<UserDetail
 				isVisible={viewModalVisible}
 				onClose={onCloseModal}
 				onEdit={onEditFromView}
