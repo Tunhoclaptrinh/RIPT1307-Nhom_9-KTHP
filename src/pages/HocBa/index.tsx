@@ -12,16 +12,21 @@ const { Text } = Typography;
 const DiemHocSinhPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hocba');
 
-	// Helper function để render loại hạnh kiểm với màu sắc
-	const renderLoaiHanhKiem = (loai: DiemHocSinh.LoaiHanhKiem) => {
-		const colorMap = {
-			'tốt': 'green',
-			'khá': 'blue',
-			'trung bình': 'orange',
-			'yếu': 'red',
-			'kém': 'volcano'
-		};
-		return <Tag color={colorMap[loai]}>{loai.toUpperCase()}</Tag>;
+	const renderLoaiHanhKiem = (loai?: DiemHocSinh.LoaiHanhKiem) => {
+	const colorMap: { [key in DiemHocSinh.LoaiHanhKiem]: string } = {
+		'tốt': 'green',
+		'khá': 'blue',
+		'trung bình': 'orange',
+		'yếu': 'red',
+		'kém': 'volcano',
+	};
+
+	// Check if loai is defined and exists in colorMap
+	if (!loai || !colorMap[loai]) {
+		return <Tag color="default">Không xác định</Tag>;
+	}
+
+	return <Tag color={colorMap[loai]}>{loai.toUpperCase()}</Tag>;
 	};
 
 	// Helper function để render điểm môn học

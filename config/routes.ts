@@ -91,6 +91,12 @@ export default [
 		component: './ThongTinNguyenVong',
 		icon: 'AppstoreOutlined',
 	},
+	{
+		path: '/ho-so',
+		name: 'Ho So ',
+		component: './HoSo',
+		icon: 'AppstoreOutlined',
+	},
 
 
 	// {
