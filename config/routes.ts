@@ -79,6 +79,42 @@ export default [
 		component: './ToHop',
 		icon: 'ReadOutlined',
 	},
+	{
+		path: '/thong-bao-tuyen-sinh',
+		name: 'Thông báo tuyển sinh',
+		component: './ThongBaoTS',
+		icon: 'NotificationOutlined',
+	},
+	{
+		path: '/huong-dan-ho-so',
+		name: 'Hướng dẫn hồ sơ',
+		component: './HuongDanHS',
+		icon: 'FileTextOutlined',
+	},
+	{
+		path: '/hoi-dap',
+		name: 'Hỏi đáp',
+		component: './FAQ',
+		icon: 'QuestionCircleOutlined',
+	},
+	{
+		path: '/lich-trinh-tuyen-sinh',
+		name: 'Lịch trình tuyển sinh',
+		component: './LichTrinhTS',
+		icon: 'CalendarOutlined',
+	},
+	{
+		path: '/thong-ke-tuyen-sinh',
+		name: 'Thống kê tuyển sinh',
+		component: './ThongKeTS',
+		icon: 'BarChartOutlined',
+	},
+	{
+		path: '/tin-tuc',
+		name: 'Tin tức',
+		component: './TinTuc',
+		icon: 'FileSearchOutlined',
+	},
 
 	// {
 	// 	name: 'Public',
