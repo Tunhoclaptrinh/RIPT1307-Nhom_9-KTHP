@@ -1,4 +1,3 @@
-import React from 'react';
 import { Popconfirm, Tag, Space, Typography } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
@@ -11,7 +10,7 @@ import ThongTinHocTapForm from './components/Form';
 const { Text } = Typography;
 
 const ThongTinHocTapPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('thongtinhoctap');
+	const { handleEdit, handleView, deleteModel } = useModel('thongtinhoctap');
 
 	// Helper function để render trạng thái tốt nghiệp
 	const renderTrangThaiTotNghiep = (daTotNghiep: boolean, namTotNghiep: string | Date) => {

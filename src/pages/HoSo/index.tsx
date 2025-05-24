@@ -9,7 +9,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
 
 const HoSoPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
+	const { handleEdit, handleView, deleteModel} = useModel('hoso');
 
 	const columns: IColumn<HoSo.IRecord>[] = [
 		{

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Card, Form, Input, Select, Switch, DatePicker, InputNumber, Row, Col } from 'antd';
-import { useModel } from 'umi';
+import { useModel, useIntl } from 'umi';
 import { resetFieldsForm } from '@/utils/utils';
 import rules from '@/utils/rules';
 import moment from 'moment';
@@ -8,15 +8,16 @@ import { Space } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
-const { TextArea } = Input;
+
 
 interface ThongTinHocTapFormProps {
   title?: string;
 }
 
 const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông tin học tập' }) => {
-  const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
+  const { record, setVisibleForm, edit, postModel, putModel,formSubmiting,  visibleForm } = useModel('thongtinhoctap');
   const [form] = Form.useForm();
+  const intl = useIntl();
 
   // Reset form when opening/closing
   React.useEffect(() => {
@@ -92,15 +93,16 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
                 </Form.Item>
               </Col>
               <Col span={8}>
+                <Form.Item label="Mã tỉnh" name={['thongTinTHPT', 'maTinh']} rules={[...rules.required]}>
+                  <Input placeholder="Nhập mã tỉnh" />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
                 <Form.Item label="Tỉnh/Thành phố" name={['thongTinTHPT', 'tinh_ThanhPho']} rules={[...rules.required]}>
                   <Input placeholder="Nhập tỉnh/thành phố" />
                 </Form.Item>
               </Col>
-              <Col span={8}>
-                <Form.Item label="Mã tỉnh" name={['thongTinTHPT', 'maTinh']}>
-                  <Input placeholder="Nhập mã tỉnh" />
-                </Form.Item>
-              </Col>
+
             </Row>
             
             <Row gutter={16}>
@@ -110,7 +112,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="Xã/Phường" name={['thongTinTHPT', 'xaPhuong']}>
+                <Form.Item label="Xã/Phường" name={['thongTinTHPT', 'xaPhuong']} rules={[...rules.required]}>
                   <Input placeholder="Nhập xã/phường" />
                 </Form.Item>
               </Col>
@@ -508,12 +510,14 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
           </Form.Item>
 
           {/* Form actions */}
-          <div className="form-actions" style={{ marginTop: 24, textAlign: 'right' }}>
+          <div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
             <Space>
-              <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-              <Button loading={formSubmiting} type="primary" htmlType="submit">
-                {!edit ? 'Thêm mới' : 'Cập nhật'}
+              <Button loading={formSubmiting} htmlType='submit' type='primary'>
+                {!edit
+                  ? intl.formatMessage({ id: 'global.button.themmoi' })
+                  : intl.formatMessage({ id: 'global.button.luulai' })}
               </Button>
+              <Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
             </Space>
           </div>
         </Form>

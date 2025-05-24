@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Form, Input } from 'antd';
-import { useIntl, useModel } from 'umi';
+import { Button, Card, Form, Input,Space,  } from 'antd';
+import {  useModel, useIntl } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 
@@ -64,13 +64,17 @@ const ToHopForm: React.FC<ToHopFormProps> = ({ title = 'tổ hợp môn học' }
                         <Input.TextArea placeholder='Nhập mỗi môn học trên một dòng' autoSize={{ minRows: 3 }} />
                     </Form.Item>
 
-                    <div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-                        <Button.Group>
-                            <Button loading={formSubmiting} type='primary' htmlType='submit'>
-                                {!edit ? 'Thêm mới' : 'Cập nhật'}
+                    <div className="form-actions" style={{ marginTop: 24, textAlign: 'center' }}>
+                        <Space>
+                            <Button loading={formSubmiting} htmlType="submit" type="primary">
+                            {!edit
+                                ? intl.formatMessage({ id: 'global.button.themmoi' })
+                                : intl.formatMessage({ id: 'global.button.luulai' })}
                             </Button>
-                            <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-                        </Button.Group>
+                            <Button onClick={() => setVisibleForm(false)}>
+                            {intl.formatMessage({ id: 'global.button.huy' })}
+                            </Button>
+                        </Space>
                     </div>
                 </Form>
             </Card>

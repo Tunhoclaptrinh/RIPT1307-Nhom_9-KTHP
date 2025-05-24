@@ -17,6 +17,7 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
+
 	// Danh sách môn học có thể chọn
 	const monHocOptions = [
 		'Toán', 'Ngữ văn', 'Tiếng Anh', 'Vật lý', 'Hóa học', 'Sinh học',
@@ -197,13 +198,15 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 						/>
 					</Form.Item>
 
-					<div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-						<Button.Group>
-							<Button loading={formSubmiting} type='primary' htmlType='submit'>
-								{!edit ? 'Thêm mới' : 'Cập nhật'}
-							</Button>
-							<Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-						</Button.Group>
+					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+						<Space>
+						<Button loading={formSubmiting} htmlType='submit' type='primary'>
+							{!edit
+							? intl.formatMessage({ id: 'global.button.themmoi' })
+							: intl.formatMessage({ id: 'global.button.luulai' })}
+						</Button>
+						<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+						</Space>
 					</div>
 				</Form>
 			</Card>

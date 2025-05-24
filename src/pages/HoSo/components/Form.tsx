@@ -5,6 +5,7 @@ import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import { HoSo } from '@/services/HoSo/typing';
+import { Space } from 'antd';
 const { Option } = Select;
 
 interface HoSoFormProps {
@@ -13,7 +14,7 @@ interface HoSoFormProps {
 }
 
 const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
-  const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('hoso');
+  const { record, setVisibleForm, edit, postModel, putModel,  visibleForm } = useModel('hoso');
   const [form] = Form.useForm();
   const intl = useIntl();
 
@@ -274,15 +275,17 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
             </Row>
           </Card>
 
-          <div className="form-actions">
-            <Button loading={submitting} htmlType="submit" type="primary">
-              {!edit
-                ? intl.formatMessage({ id: 'global.button.themmoi' })
-                : intl.formatMessage({ id: 'global.button.luulai' })}
-            </Button>
-            <Button onClick={() => setVisibleForm(false)}>
-              {intl.formatMessage({ id: 'global.button.huy' })}
-            </Button>
+          <div className="form-actions" style={{ marginTop: 24, textAlign: 'center' }}>
+            <Space>
+              <Button loading={submitting} htmlType="submit" type="primary">
+                {!edit
+                  ? intl.formatMessage({ id: 'global.button.themmoi' })
+                  : intl.formatMessage({ id: 'global.button.luulai' })}
+              </Button>
+              <Button onClick={() => setVisibleForm(false)}>
+                {intl.formatMessage({ id: 'global.button.huy' })}
+              </Button>
+            </Space>
           </div>
         </Form>
       </Card>

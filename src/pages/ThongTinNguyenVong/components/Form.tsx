@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button, Card, Form, Input, InputNumber } from 'antd';
-import { useIntl, useModel } from 'umi';
+import { useModel, useIntl } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
+import { Space } from 'antd';
 
 interface ThongTinNguyenVongFormProps {
   title?: string;
@@ -138,14 +139,17 @@ const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({ title =
               placeholder='Nhập danh sách phương thức xét tuyển (tùy chọn, cách nhau bằng dấu phẩy)'
             />
           </Form.Item>
-
-          <div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-            <Button.Group>
-              <Button loading={formSubmiting} type='primary' htmlType='submit'>
-                {!edit ? 'Thêm mới' : 'Cập nhật'}
-              </Button>
-              <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-            </Button.Group>
+          <div className="form-actions" style={{ marginTop: 24, textAlign: 'center' }}>
+              <Space>
+                  <Button loading={formSubmiting} htmlType="submit" type="primary">
+                  {!edit
+                      ? intl.formatMessage({ id: 'global.button.themmoi' })
+                      : intl.formatMessage({ id: 'global.button.luulai' })}
+                  </Button>
+                  <Button onClick={() => setVisibleForm(false)}>
+                  {intl.formatMessage({ id: 'global.button.huy' })}
+                  </Button>
+              </Space>
           </div>
         </Form>
       </Card>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { Button, Card, Col, DatePicker, Form, Input, Row, Select } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
@@ -6,6 +6,7 @@ import { resetFieldsForm } from '@/utils/utils';
 import dayjs from 'dayjs';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 const { Option } = Select;
+import { Space } from 'antd';
 
 interface UserFormProps {
 	title?: string;
@@ -13,7 +14,7 @@ interface UserFormProps {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('users');
+	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('users');
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
@@ -24,7 +25,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 	const [submitting, setSubmitting] = useState(false);
 
 	// Reset form khi đóng modal hoặc khi mở form mới
-	useEffect(() => {
+	React.useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
 			setSelectedProvince(undefined);
@@ -266,13 +267,15 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 						</Row>
 					</Card>
 
-					<div className='form-actions'>
-						<Button loading={submitting} htmlType='submit' type='primary'>
-							{!edit
-								? intl.formatMessage({ id: 'global.button.themmoi' })
-								: intl.formatMessage({ id: 'global.button.luulai' })}
-						</Button>
-						<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+						<Space>
+							<Button loading={submitting} htmlType='submit' type='primary'>
+								{!edit
+									? intl.formatMessage({ id: 'global.button.themmoi' })
+									: intl.formatMessage({ id: 'global.button.luulai' })}
+							</Button>
+							<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+						</Space>
 					</div>
 				</Form>
 			</Card>

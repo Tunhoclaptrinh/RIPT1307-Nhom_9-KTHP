@@ -1,15 +1,13 @@
-import React from 'react';
-import { Popconfirm, Tag, Space } from 'antd';
+import { Popconfirm,  Space } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import HeDaoTaoForm from './components/Form';
 
 const UsersPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('hedaotao');
+	const { handleEdit, handleView, deleteModel } = useModel('hedaotao');
 
 	const columns: IColumn<HeDaoTao.IRecord>[] = [
 		{
