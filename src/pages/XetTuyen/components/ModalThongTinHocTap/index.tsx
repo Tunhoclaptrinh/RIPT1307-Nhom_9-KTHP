@@ -1,6 +1,8 @@
 import { Modal, Form, Input, Button, Select, Row, Col, DatePicker, Upload, Divider } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import styles from './index.less';
+import { useModel } from 'umi';
+import { useEffect } from 'react';
 
 const { Option } = Select;
 
@@ -18,6 +20,27 @@ const ModalThongTinHocTap: React.FC<ModalThongTinHocTapProps> = ({
   initialValues
 }) => {
   const [form] = Form.useForm();
+  const {
+    provinces, 
+    districts, 
+    wards, 
+     fetchProvinces, 
+     fetchDistricts, 
+     fetchWards
+  } = useModel('xettuyen');
+    useEffect(() => {
+      fetchProvinces();
+    }, []);
+  
+    const handleProvinceChange = (value: number) => {
+      form.setFieldsValue({ quanHuyen: undefined, xaPhuong: undefined });
+      fetchDistricts(value);
+    };
+  
+    const handleDistrictChange = (value: number) => {
+      form.setFieldsValue({ xaPhuong: undefined });
+      fetchWards(value);
+    };
 
   const handleSubmit = () => {
     form.validateFields()
@@ -50,18 +73,21 @@ const ModalThongTinHocTap: React.FC<ModalThongTinHocTapProps> = ({
         <Divider orientation="left">Thông tin THPT</Divider>
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="Tỉnh/Thành phố" name={['thongTinTHPT', 'tinh_ThanhPho']}>
-              <Input />
+            <Form.Item label="Tỉnh/Thành phố" name={['thongTinTHPT', 'tinh_ThanhPho']} >
+              <Select onChange={handleProvinceChange} placeholder="Chọn tỉnh">
+            {provinces.map(p => <Option key={p.id} value={p.id}>{p.name}</Option>)}</Select>  
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Quận/Huyện" name={['thongTinTHPT', 'quanHuyen']}>
-              <Input />
+            <Select onChange={handleDistrictChange} placeholder="Chọn huyện">
+            {districts.map(d => <Option key={d.id} value={d.id}>{d.name}</Option>)}</Select>
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Xã/Phường" name={['thongTinTHPT', 'xaPhuong']}>
-              <Input />
+              <Select placeholder="Chọn xã">
+            {wards.map(w => <Option key={w.id} value={w.id}>{w.name}</Option>)}</Select>
             </Form.Item>
           </Col>
         </Row>

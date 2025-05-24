@@ -55,7 +55,7 @@ export async function uploadMinhChung(formData: FormData) {
     }
   });
 }
-
+ 
 // Theo dõi trạng thái hồ sơ
 export async function fetchHoSoByUser(userId: string) {
   return request(`${BASE_URL}/hoSo?thongTinCaNhanId=${userId}`, { method: 'GET' });
@@ -65,3 +65,6 @@ export async function fetchHoSoByUser(userId: string) {
 export async function fetchThongTinHocTap(userId: string) {
   return request(`${BASE_URL}/thongTinHocTap?userId=${userId}`, { method: 'GET' });
 }
+
+
+  
