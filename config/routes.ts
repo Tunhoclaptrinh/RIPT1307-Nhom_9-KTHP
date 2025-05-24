@@ -118,6 +118,36 @@ export default [
 		icon: 'AppstoreOutlined',
 	},
 	{
+		path: '/nganh-dao-tao',
+		name: 'Ngành đào tạo',
+		component: './NganhDaoTao',
+		icon: 'BulbOutlined',
+	},
+	{
+		path: '/hoc-ba',
+		name: 'Học bạ ',
+		component: './HocBa',
+		icon: 'ProfileOutlined',
+	},
+	{
+		path: '/thong-tin-hoc-tap',
+		name: 'Thông tin học tập ',
+		component: './ThongTinHocTap',
+		icon: 'TableOutlined',
+	},
+	{
+		path: '/thong-tin-nguyen-vong',
+		name: 'Thông tin nguyện vọng ',
+		component: './ThongTinNguyenVong',
+		icon: 'HeartOutlined',
+	},
+	{
+		path: '/ho-so',
+		name: 'Hồ sơ',
+		component: './HoSo',
+		icon: 'IdcardOutlined',
+	},
+	{
 		path: '/phuong-thuc-xet-tuyen',
 		name: 'Phương thức xét tuyển',
 		component: './PhuongThucXT',
@@ -129,6 +159,7 @@ export default [
 		component: './ToHop',
 		icon: 'ReadOutlined',
 	},
+
 
 	// {
 	// 	name: 'Public',

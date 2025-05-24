@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Form, Input, DatePicker, Switch, InputNumber } from 'antd';
+import { Button, Card, Form, Input, DatePicker, Switch, InputNumber, Space } from 'antd';
 import { useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
@@ -61,15 +61,15 @@ const ThongBaoTSForm: React.FC<ThongBaoTSFormProps> = ({ title = 'Thông báo tu
                         <InputNumber min={1} max={10} style={{ width: '100%' }} placeholder='Nhập mức ưu tiên' />
                     </Form.Item>
                     <Form.Item label='Trạng thái' name='isActive' valuePropName='checked'>
-                        <Switch checkedChildren='Hiển thị' unCheckedChildren='Ẩn' />
+                        <Switch />
                     </Form.Item>
-                    <div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-                        <Button.Group>
-                            <Button loading={formSubmiting} type='primary' htmlType='submit'>
-                                {!edit ? 'Thêm mới' : 'Cập nhật'}
-                            </Button>
-                            <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-                        </Button.Group>
+                    <div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+                        <Space>
+                        <Button loading={formSubmiting} type='primary' htmlType='submit'>
+                            {!edit ? 'Thêm mới' : 'Cập nhật'}
+                        </Button>
+                        <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
+                        </Space>
                     </div>
                 </Form>
             </Card>

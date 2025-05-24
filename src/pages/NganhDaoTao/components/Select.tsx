@@ -3,12 +3,12 @@ import { Select } from 'antd';
 import { useEffect } from 'react';
 import { useModel } from 'umi';
 
-const HeDaoTaoSelect = (
+const NganhDaoTaoSelect = (
 	props: { values?: string; onChange?: (val: string) => void; placeholder?: string },
 	hasDefault?: boolean,
 ) => {
 	const { values: value, onChange } = props;
-	const { danhSach, getAllModel } = useModel('hedaotao');
+	const { danhSach, getAllModel } = useModel('nganhdaotao');
 
 	useEffect(() => {
 		getAllModel().then((res) => {
@@ -29,11 +29,11 @@ const HeDaoTaoSelect = (
 			}))}
 			showSearch
 			optionFilterProp='label'
-			placeholder={props.placeholder ?? 'Chọn hệ đào tạo'}
+			placeholder={props.placeholder ?? 'Chọn ngành đào tạo'}
 			style={{ width: '100%' }}
 			showArrow
 		/>
 	);
 };
 
-export default HeDaoTaoSelect;
+export default NganhDaoTaoSelect;

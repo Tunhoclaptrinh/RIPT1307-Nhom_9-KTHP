@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Form, Input } from 'antd';
-import { useIntl, useModel } from 'umi';
+import { Button, Card, Form, Input,Space } from 'antd';
+import {  useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 
@@ -11,7 +11,6 @@ interface PhuongThucXTFormProps {
 const PhuongThucXTForm: React.FC<PhuongThucXTFormProps> = ({ title = 'phương thức xét tuyển' }) => {
     const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('phuongthucxt');
     const [form] = Form.useForm();
-    const intl = useIntl();
 
     // Reset form khi đóng/mở form
     React.useEffect(() => {
@@ -47,13 +46,13 @@ const PhuongThucXTForm: React.FC<PhuongThucXTFormProps> = ({ title = 'phương t
                         <Input.TextArea placeholder='Nhập nguyên tắc xét tuyển' rows={3} />
                     </Form.Item>
 
-                    <div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-                        <Button.Group>
+                    <div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+                        <Space>
                             <Button loading={formSubmiting} type='primary' htmlType='submit'>
-                                {!edit ? 'Thêm mới' : 'Cập nhật'}
+                            {!edit ? 'Thêm mới' : 'Cập nhật'}
                             </Button>
                             <Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-                        </Button.Group>
+                        </Space>
                     </div>
                 </Form>
             </Card>

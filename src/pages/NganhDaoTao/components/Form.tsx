@@ -5,15 +5,14 @@ import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { Space } from 'antd';
 
-interface HeDaoTaoFormProps {
+interface NganhDaoTaoFormProps {
 	title?: string;
 }
 
-const HeDaoTaoForm: React.FC<HeDaoTaoFormProps> = ({ title = 'hệ đào tạo' }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('hedaotao');
+const NganhDaoTaoForm: React.FC<NganhDaoTaoFormProps> = ({ title = 'ngành đào tạo' }) => {
+	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('nganhdaotao');
 	const [form] = Form.useForm();
 	const intl = useIntl();
-
 
 	// Reset form khi đóng/mở form
 	React.useEffect(() => {
@@ -24,7 +23,7 @@ const HeDaoTaoForm: React.FC<HeDaoTaoFormProps> = ({ title = 'hệ đào tạo' 
 		}
 	}, [record?.id, visibleForm]);
 
-	const onFinish = async (values: HeDaoTao.IRecord) => {
+	const onFinish = async (values: NganhDaoTao.IRecord) => {
 		try {
 			if (edit) {
 				await putModel(record?.id ?? '', values);
@@ -41,12 +40,42 @@ const HeDaoTaoForm: React.FC<HeDaoTaoFormProps> = ({ title = 'hệ đào tạo' 
 		<div>
 			<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
 				<Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
-					<Form.Item label='Mã hệ đào tạo' name='id' rules={[...rules.required]}>
-						<Input placeholder='Nhập mã hệ đào tạo' />
+					<Form.Item 
+						label='Mã ngành đào tạo' 
+						name='ma' 
+						rules={[...rules.required]}
+					>
+						<Input 
+							placeholder='Nhập mã ngành đào tạo' 
+						/>
 					</Form.Item>
 
-					<Form.Item label='Tên hệ đào tạo' name='ten' rules={[...rules.required]}>
-						<Input placeholder='Nhập tên hệ đào tạo' />
+					<Form.Item 
+						label='Tên ngành đào tạo' 
+						name='ten' 
+						rules={[...rules.required]}
+					>
+						<Input placeholder='Nhập tên ngành đào tạo' />
+					</Form.Item>
+
+					<Form.Item 
+						label='Mô tả ngành đào tạo' 
+						name='moTa' 
+						// rules={[...rules.required]}
+					>
+						<Input.TextArea 
+							placeholder='Nhập mô tả ngành đào tạo'
+							rows={4}
+							showCount
+							maxLength={500}
+						/>
+					</Form.Item>
+
+					<Form.Item 
+						label='Tổ hợp xét tuyển ID' 
+						name='toHopXetTuyenId'
+					>
+						<Input placeholder='Nhập ID tổ hợp xét tuyển (tùy chọn)' />
 					</Form.Item>
 
 					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
@@ -65,4 +94,4 @@ const HeDaoTaoForm: React.FC<HeDaoTaoFormProps> = ({ title = 'hệ đào tạo' 
 	);
 };
 
-export default HeDaoTaoForm;
+export default NganhDaoTaoForm;
