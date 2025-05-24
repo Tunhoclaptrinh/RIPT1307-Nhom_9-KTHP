@@ -52,6 +52,14 @@ export type TableBaseProps = {
 	/** Export dùng model khác? */
 	modelExportName?: any;
 
+	/** Component để hiển thị chi tiết bản ghi */
+	ViewForm?: React.FC;
+	/** Có hiển thị cột hành động "Xem chi tiết" không? Mặc định: true */
+	showViewAction?: boolean;
+
+	ViewModal?: React.ComponentType<any>; // Thêm dòng này
+	viewModalProps?: any; // Th
+
 	Form?: React.FC;
 	formType?: 'Modal' | 'Drawer';
 	columns: IColumn<any>[];

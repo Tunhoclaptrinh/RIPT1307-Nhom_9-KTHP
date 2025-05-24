@@ -37,7 +37,7 @@ const UsersPage = () => {
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
-						title='Bạn có chắc chắn muốn xóa hệ dào tạo này này?'
+						title='Bạn có chắc chắn muốn xóa hệ dào tạo này?'
 						placement='topRight'
 					>
 						<ButtonExtend tooltip='Xóa' danger type='link' icon={<DeleteOutlined />} />

@@ -18,14 +18,12 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 	const intl = useIntl();
 
 	// State để lưu giá trị địa chỉ đã chọn
-	const [selectedProvince, setSelectedProvince] = useState<string>();
-	const [selectedDistrict, setSelectedDistrict] = useState<string>();
-	const [selectedWard, setSelectedWard] = useState<string>();
-
-	// Thêm state loading
+	const [selectedProvince, setSelectedProvince] = useState<string | undefined>();
+	const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>();
+	const [selectedWard, setSelectedWard] = useState<string | undefined>();
 	const [submitting, setSubmitting] = useState(false);
 
-	// Reset form và cập nhật giá trị khi record thay đổi
+	// Reset form khi đóng modal hoặc khi mở form mới
 	useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
@@ -33,21 +31,41 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 			setSelectedDistrict(undefined);
 			setSelectedWard(undefined);
 		} else if (record?.id) {
+			// Trường hợp edit - populate form với dữ liệu có sẵn
 			const formData = {
 				...record,
 				ngayCap: record.ngayCap ? dayjs(record.ngayCap) : undefined,
 				ngaySinh: record.ngaySinh ? dayjs(record.ngaySinh) : undefined,
+				hoKhauThuongTru: {
+					tinh_ThanhPho: record.hoKhauThuongTru?.tinh_ThanhPho,
+					quanHuyen: record.hoKhauThuongTru?.quanHuyen,
+					xaPhuong: record.hoKhauThuongTru?.xaPhuong,
+					diaChi: record.hoKhauThuongTru?.diaChi,
+				},
 			};
 			form.setFieldsValue(formData);
 
-			// Cập nhật state địa chỉ
-			setSelectedProvince(record.hoKhauThuongTru?.tinh_ThanhPho);
-			setSelectedDistrict(record.hoKhauThuongTru?.quanHuyen);
-			setSelectedWard(record.hoKhauThuongTru?.xaPhuong);
-		}
-	}, [record?.id, visibleForm]);
+			// Cập nhật state địa chỉ - QUAN TRỌNG: phải set theo thứ tự
+			const province = record.hoKhauThuongTru?.tinh_ThanhPho;
+			const district = record.hoKhauThuongTru?.quanHuyen;
+			const ward = record.hoKhauThuongTru?.xaPhuong;
 
-	// Cập nhật hàm onFinish
+			setSelectedProvince(province);
+			// Delay để đảm bảo districts được load trước khi set district
+			if (province && district) {
+				setTimeout(() => {
+					setSelectedDistrict(district);
+					// Delay thêm để đảm bảo wards được load trước khi set ward
+					if (ward) {
+						setTimeout(() => {
+							setSelectedWard(ward);
+						}, 500);
+					}
+				}, 500);
+			}
+		}
+	}, [record?.id, visibleForm, form]);
+
 	const onFinish = async (values: any) => {
 		try {
 			setSubmitting(true);
@@ -69,6 +87,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 				await postModel(submitData);
 			}
 			setVisibleForm(false);
+			resetFieldsForm(form);
 		} catch (error) {
 			console.error('Form submission error:', error);
 		} finally {
@@ -77,37 +96,49 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 	};
 
 	const handleProvinceChange = (value: string) => {
+		console.log('Province changed:', value);
 		setSelectedProvince(value);
 		setSelectedDistrict(undefined);
 		setSelectedWard(undefined);
+
+		// Reset form fields
 		form.setFieldsValue({
 			hoKhauThuongTru: {
-				...form.getFieldValue('hoKhauThuongTru'),
 				tinh_ThanhPho: value,
 				quanHuyen: undefined,
 				xaPhuong: undefined,
+				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
 			},
 		});
 	};
 
 	const handleDistrictChange = (value: string) => {
+		console.log('District changed:', value);
 		setSelectedDistrict(value);
 		setSelectedWard(undefined);
+
+		// Update form field
 		form.setFieldsValue({
 			hoKhauThuongTru: {
-				...form.getFieldValue('hoKhauThuongTru'),
+				tinh_ThanhPho: selectedProvince,
 				quanHuyen: value,
 				xaPhuong: undefined,
+				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
 			},
 		});
 	};
 
 	const handleWardChange = (value: string) => {
+		console.log('Ward changed:', value);
 		setSelectedWard(value);
+
+		// Update form field
 		form.setFieldsValue({
 			hoKhauThuongTru: {
-				...form.getFieldValue('hoKhauThuongTru'),
+				tinh_ThanhPho: selectedProvince,
+				quanHuyen: selectedDistrict,
 				xaPhuong: value,
+				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
 			},
 		});
 	};
@@ -204,13 +235,13 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 							</Col>
 							<Col span={12}>
 								<Form.Item label='Quận/Huyện' name={['hoKhauThuongTru', 'quanHuyen']} rules={[...rules.required]}>
-									{/* <DistrictsSelect
+									<DistrictsSelect
 										provinceCode={selectedProvince}
 										placeholder='Chọn quận/huyện'
 										onChange={handleDistrictChange}
 										value={selectedDistrict}
-									/> */}
-									<Input placeholder='Nhập số nhà, tên đường...' />
+										disabled={!selectedProvince}
+									/>
 								</Form.Item>
 							</Col>
 						</Row>
@@ -218,13 +249,13 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 						<Row gutter={16}>
 							<Col span={12}>
 								<Form.Item label='Xã/Phường' name={['hoKhauThuongTru', 'xaPhuong']} rules={[...rules.required]}>
-									{/* <WardsSelect
+									<WardsSelect
 										districtCode={selectedDistrict}
 										placeholder='Chọn xã/phường'
 										onChange={handleWardChange}
 										value={selectedWard}
-									/> */}
-									<Input placeholder='Nhập số nhà, tên đường...' />
+										disabled={!selectedDistrict}
+									/>
 								</Form.Item>
 							</Col>
 							<Col span={12}>

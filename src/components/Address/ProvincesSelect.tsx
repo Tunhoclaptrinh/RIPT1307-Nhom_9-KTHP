@@ -9,22 +9,33 @@ interface ProvincesSelectProps {
 }
 
 const ProvincesSelect: React.FC<ProvincesSelectProps> = ({ value, onChange, placeholder = 'Chọn tỉnh/thành phố' }) => {
-	const { provinces, isLoading } = useAddress();
+	const { provinces, isLoading, setSelectedProvince } = useAddress();
+
+	const handleChange = (selectedValue: string) => {
+		// Cập nhật state trong hook
+		setSelectedProvince(selectedValue);
+		// Gọi onChange từ parent component
+		onChange?.(selectedValue);
+	};
+
+	console.log('ProvincesSelect - provinces:', provinces, 'value:', value);
 
 	return (
 		<Select
 			value={value}
-			onChange={onChange}
+			onChange={handleChange}
 			loading={isLoading}
 			showSearch
 			placeholder={placeholder}
 			optionFilterProp='children'
+			style={{ width: '100%' }}
 			filterOption={(input, option) =>
 				(option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
 			}
+			allowClear
 		>
 			{provinces.map((province) => (
-				<Select.Option key={province.id} value={province.id}>
+				<Select.Option key={province.code || province.id} value={province.code || province.id}>
 					{province.name}
 				</Select.Option>
 			))}

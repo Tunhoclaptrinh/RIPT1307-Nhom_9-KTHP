@@ -78,20 +78,31 @@ export interface ApiResponse<T> {
 }
 
 export interface BaseLocation {
-	id: string;
+	code: string;
+	id?: string; // Thêm id để tương thích
 	name: string;
-	type: number;
-	typeText: string;
+	type?: number; // Optional vì API không trả về field này
+	typeText?: string; // Tên loại địa phương (Tỉnh, Thành phố, Quận, Huyện, Phường, Xã)
+	division_type?: string; // Field từ API
 }
 
 export interface Province extends BaseLocation {
-	slug: string;
+	slug?: string; // Optional vì API không trả về field này
+	// Thêm các field từ API response
+	codename?: string;
+	phone_code?: number;
+	districts?: District[]; // Khi gọi với depth=2
 }
 
 export interface District extends BaseLocation {
-	provinceId: string;
+	provinceId?: string; // Optional vì không dùng
+	province_code?: string; // Field từ API
+	codename?: string;
+	wards?: Ward[]; // Khi gọi với depth=2
 }
 
 export interface Ward extends BaseLocation {
-	districtId: string;
+	districtId?: string; // Optional vì không dùng
+	district_code?: string; // Field từ API
+	codename?: string;
 }
