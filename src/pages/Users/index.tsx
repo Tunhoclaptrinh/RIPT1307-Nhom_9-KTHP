@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Popconfirm, Tag, Space } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
@@ -8,9 +8,35 @@ import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import UserForm from './components/Form';
+import ViewModal from './components/View'; // Thêm import ViewModal
+import ExpandText from '@/components/ExpandText';
 
 const UsersPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
+
+	// Thêm state để quản lý modal
+	const [viewModalVisible, setViewModalVisible] = useState(false);
+	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
+
+	// Hàm xử lý xem chi tiết
+	const onView = (record: User.IRecord) => {
+		setSelectedRecord(record);
+		setViewModalVisible(true);
+	};
+
+	// Hàm đóng modal
+	const onCloseModal = () => {
+		setViewModalVisible(false);
+		setSelectedRecord(undefined);
+	};
+
+	// Hàm chuyển sang chế độ edit
+	const onEditFromView = () => {
+		setViewModalVisible(false);
+		if (selectedRecord) {
+			handleEdit(selectedRecord);
+		}
+	};
 
 	const columns: IColumn<User.IRecord>[] = [
 		{
@@ -93,7 +119,7 @@ const UsersPage = () => {
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
-					<ButtonExtend tooltip='Xem chi tiết' onClick={() => handleView(record)} type='link' icon={<EyeOutlined />} />
+					<ButtonExtend tooltip='Xem chi tiết' onClick={() => onView(record)} type='link' icon={<EyeOutlined />} />
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
@@ -118,6 +144,14 @@ const UsersPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+			/>
+			{/* Modal xem chi tiết */}
+			<ViewModal
+				isVisible={viewModalVisible}
+				onClose={onCloseModal}
+				onEdit={onEditFromView}
+				record={selectedRecord}
+				title='người dùng'
 			/>
 		</div>
 	);
