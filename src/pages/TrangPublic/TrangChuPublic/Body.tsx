@@ -9,6 +9,7 @@ import {
 	InfoCircleOutlined,
 	UserOutlined,
 } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 import { primaryColor } from '@/services/base/constant';
 
 const { Title, Paragraph, Text } = Typography;
@@ -109,7 +110,13 @@ const TrangChuBody = () => {
 										<Button type='primary' size='large'>
 											Đăng Ký Xét Tuyển
 										</Button>
-										<Button size='large'>Tra Cứu Thông Tin</Button>
+										<Link
+											to={'/public/tra-cuu-public'}
+											key='detail'
+											style={{ color: 'inherit', textDecoration: 'none' }}
+										>
+											<Button size='large'>Tra Cứu Thông Tin</Button>{' '}
+										</Link>
 									</Space>
 								</Col>
 								<Col xs={24} md={12} style={{ textAlign: 'center' }}>
@@ -152,16 +159,24 @@ const TrangChuBody = () => {
 									</Card>
 								</Col>
 								<Col xs={24} md={8}>
-									<Card
-										style={{ height: '100%' }}
-										bodyStyle={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-									>
-										<SearchOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
-										<Title level={4}>Tra Cứu Thông Tin</Title>
-										<Paragraph>
-											Tra cứu thông tin tuyển sinh, ngành học, điểm chuẩn các năm nhanh chóng và chính xác.
-										</Paragraph>
-									</Card>
+									<Link to={'/public/tra-cuu-public'} key='detail'>
+										<Card
+											style={{ height: '100%' }}
+											bodyStyle={{
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'center',
+												textAlign: 'center',
+											}}
+										>
+											<SearchOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
+
+											<Title level={4}>Tra Cứu Thông Tin</Title>
+											<Paragraph>
+												Tra cứu thông tin tuyển sinh, ngành học, điểm chuẩn các năm nhanh chóng và chính xác.
+											</Paragraph>
+										</Card>
+									</Link>
 								</Col>
 								<Col xs={24} md={8}>
 									<Card
