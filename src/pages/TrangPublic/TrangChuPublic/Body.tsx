@@ -17,9 +17,9 @@ const { TabPane } = Tabs;
 const TrangChuBody = () => {
 	const [thongTinTuyenSinh, setThongTinTuyenSinh] = useState([]);
 	const [huongDanHoSo, setHuongDanHoSo] = useState([]);
-	const [faqItems, setFaqItems] = useState<FAQ.IRecord | undefined>(undefined);
-	const [lichTrinhTuyenSinh, setLichTrinhTuyenSinh] = useState<LichTrinhTS.IRecord | undefined>(undefined);
-	const [thongKeTuyenSinh, setThongKeTuyenSinh] = useState<ThongKeTS.IRecord | undefined>(undefined);
+	const [faqItems, setFaqItems] = useState<FAQ.IRecord>();
+	const [lichTrinhTuyenSinh, setLichTrinhTuyenSinh] = useState<LichTrinhTS.IRecord>();
+	const [thongKeTuyenSinh, setThongKeTuyenSinh] = useState<ThongKeTS.IRecord>();
 
 	const [loading, setLoading] = useState(true);
 
@@ -45,9 +45,9 @@ const TrangChuBody = () => {
 				const lichTrinhData = await lichTrinhRes.json();
 				const thongKeData = await thongKeRes.json();
 
-				setThongTinTuyenSinh(thongTinData.filter((item) => item.isActive));
+				setThongTinTuyenSinh(thongTinData.filter((item: any) => item.isActive));
 				setHuongDanHoSo(huongDanData);
-				setFaqItems(faqData.filter((item) => item.isActive));
+				setFaqItems(faqData.filter((item: any) => item.isActive));
 				setLichTrinhTuyenSinh(lichTrinhData);
 				setThongKeTuyenSinh(thongKeData[0] || {});
 			} catch (error) {
@@ -193,7 +193,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Trường đại học</span>}
-										value={thongKeTuyenSinh.soTruongDaiHoc || 150}
+										value={thongKeTuyenSinh?.soTruongDaiHoc || 150}
 										suffix='+'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -202,7 +202,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Ngành đào tạo</span>}
-										value={thongKeTuyenSinh.soNganhDaoTao || 2500}
+										value={thongKeTuyenSinh?.soNganhDaoTao || 2500}
 										suffix='+'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -211,7 +211,9 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Thí sinh đăng ký</span>}
-										value={thongKeTuyenSinh.soThiSinhDangKy ? Math.floor(thongKeTuyenSinh.soThiSinhDangKy / 1000) : 500}
+										value={
+											thongKeTuyenSinh?.soThiSinhDangKy ? Math.floor(thongKeTuyenSinh.soThiSinhDangKy / 1000) : 500
+										}
 										suffix='K+'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -220,7 +222,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Hồ sơ trực tuyến</span>}
-										value={thongKeTuyenSinh.tyLeHoSoTrucTuyen || 98}
+										value={thongKeTuyenSinh?.tyLeHoSoTrucTuyen || 98}
 										suffix='%'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -274,7 +276,7 @@ const TrangChuBody = () => {
 												<List.Item.Meta
 													title={
 														<Text strong style={{ color: primaryColor, fontSize: 16 }}>
-															{item.title}
+															{item.title || 'No title'}
 														</Text>
 													}
 													description={
