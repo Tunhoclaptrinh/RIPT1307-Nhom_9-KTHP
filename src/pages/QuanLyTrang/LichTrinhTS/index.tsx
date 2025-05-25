@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 import moment from 'moment';
 import LichTrinhTSForm from './components/Form';
-import LichTrinhTSDetail from './components/Detail'; // Import modal mới
+import LichTrinhTSDetail from './components/Detail';
 
 const LichTrinhTSPage = () => {
 	const { handleEdit, handleView, deleteModel } = useModel('quanlytrang.lichtrinhts');
@@ -39,6 +39,7 @@ const LichTrinhTSPage = () => {
 			handleEdit(selectedRecord);
 		}
 	};
+
 	const getTypeColor = (type: string) => {
 		switch (type) {
 			case 'dangky':
