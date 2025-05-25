@@ -9,7 +9,7 @@ import moment from 'moment';
 import TinTucForm from './components/Form';
 
 const TinTucPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('tintuc');
+	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.tintuc');
 
 	const columns: IColumn<TinTuc.IRecord>[] = [
 		{
@@ -124,7 +124,7 @@ const TinTucPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='tintuc'
+				modelName='quanlytrang.tintuc'
 				title='Quản lý tin tức'
 				Form={TinTucForm}
 				widthDrawer={650}

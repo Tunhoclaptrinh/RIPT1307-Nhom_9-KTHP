@@ -8,7 +8,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import FAQForm from './components/Form';
 
 const FAQPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('faq');
+	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.faq');
 
 	const columns: IColumn<FAQ.IRecord>[] = [
 		{
@@ -104,7 +104,7 @@ const FAQPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='faq'
+				modelName='quanlytrang.faq'
 				title='Câu hỏi thường gặp'
 				Form={FAQForm}
 				widthDrawer={600}

@@ -21,7 +21,7 @@ interface HuongDanHSRecord {
 }
 
 const HuongDanHSPage = () => {
-	const { handleEdit, deleteModel } = useModel('huongdanhs');
+	const { handleEdit, deleteModel } = useModel('quanlytrang.huongdanhs');
 	const [detailModalVisible, setDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<HuongDanHSRecord | undefined>();
 
@@ -145,7 +145,7 @@ const HuongDanHSPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='huongdanhs'
+				modelName='quanlytrang.huongdanhs'
 				title='Hướng dẫn hồ sơ'
 				Form={HuongDanHSForm}
 				widthDrawer={800}

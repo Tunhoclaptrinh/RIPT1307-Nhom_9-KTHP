@@ -10,7 +10,7 @@ import ThongBaoTSForm from './components/Form';
 import ThongBaoTSDetail from './components/Detail';
 
 const ThongBaoTSPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('thongbaots');
+	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.thongbaots');
 	const [detailModalVisible, setDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<ThongBaoTS.IRecord | undefined>();
 
@@ -120,7 +120,7 @@ const ThongBaoTSPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='thongbaots'
+				modelName='quanlytrang.thongbaots'
 				title='Thông báo tuyển sinh'
 				Form={ThongBaoTSForm}
 				widthDrawer={800}

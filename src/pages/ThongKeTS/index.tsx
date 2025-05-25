@@ -9,7 +9,7 @@ import moment from 'moment';
 import ThongKeTSForm from './components/Form';
 
 const ThongKeTSPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('thongkets');
+	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.thongkets');
 
 	const columns: IColumn<ThongKeTS.IRecord>[] = [
 		{
@@ -104,7 +104,7 @@ const ThongKeTSPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='thongkets'
+				modelName='quanlytrang.thongkets'
 				title='Thống kê tuyển sinh'
 				Form={ThongKeTSForm}
 				widthDrawer={500}

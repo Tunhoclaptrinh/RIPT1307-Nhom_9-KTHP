@@ -17,7 +17,7 @@ import LichTrinhTSForm from './components/Form';
 import LichTrinhTSDetail from './components/Detail'; // Import modal mới
 
 const LichTrinhTSPage = () => {
-	const { handleEdit, handleView, deleteModel } = useModel('lichtrinhts');
+	const { handleEdit, handleView, deleteModel } = useModel('quanlytrang.lichtrinhts');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<LichTrinhTS.IRecord | undefined>();
 
@@ -204,7 +204,7 @@ const LichTrinhTSPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='lichtrinhts'
+				modelName='quanlytrang.lichtrinhts'
 				title='Lịch trình tuyển sinh'
 				Form={LichTrinhTSForm}
 				widthDrawer={800}
