@@ -6,10 +6,11 @@ import rules from '@/utils/rules';
 import { LockOutlined, UserOutlined, MailOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Tabs, message, Checkbox, Row, Col } from 'antd';
 import React, { useState } from 'react';
-import { history, useIntl, Link } from 'umi';
+import { history, useIntl, Link, useModel } from 'umi';
 import styles from './index.less';
 
 const SignUp: React.FC = () => {
+	const { dangKy } = useModel('users');
 	const [submitting, setSubmitting] = useState(false);
 	const [form] = Form.useForm();
 	const intl = useIntl();
@@ -21,25 +22,8 @@ const SignUp: React.FC = () => {
 				message.error('Mật khẩu và xác nhận mật khẩu không khớp');
 				return;
 			}
-
 			setSubmitting(true);
-
-			// Đây là bước gọi API đăng ký - cần được cài đặt ở phía backend
-			// const msg = await adminRegister({
-			// 	username: values.username,
-			// 	password: values.password,
-			// 	fullName: values.fullName,
-			// 	email: values.email,
-			// 	phone: values.phone,
-			// 	dateOfBirth: values.dateOfBirth,
-			// 	idNumber: values.idNumber,
-			// 	terms: values.terms,
-			// });
-
-			// if (msg?.status === 200) {
-			// 	message.success('Đăng ký tài khoản thành công');
-			// 	history.push('/user/login');
-			// }
+			await dangKy(values);
 		} catch (error) {
 			message.error('Đăng ký tài khoản thất bại');
 		}
@@ -96,16 +80,6 @@ const SignUp: React.FC = () => {
 								</Form.Item>
 							</Col>
 
-							{/* <Col span={24} md={12}>
-								<Form.Item name='username' label='Tên đăng nhập' rules={[...rules.required]}>
-									<Input
-										placeholder='Nhập tên đăng nhập'
-										prefix={<UserOutlined className={styles.prefixIcon} />}
-										size='large'
-									/>
-								</Form.Item>
-							</Col> */}
-
 							<Col span={24}>
 								<Form.Item name='password' label='Mật khẩu' rules={[...rules.required, ...rules.password]}>
 									<Input.Password
@@ -141,7 +115,7 @@ const SignUp: React.FC = () => {
 							</Col>
 
 							<Col span={24} md={12}>
-								<Form.Item name='phone' label='Số điện thoại' rules={[...rules.required]}>
+								<Form.Item name='soDT' label='Số điện thoại' rules={[...rules.required]}>
 									<Input
 										placeholder='Nhập số điện thoại'
 										prefix={<PhoneOutlined className={styles.prefixIcon} />}
