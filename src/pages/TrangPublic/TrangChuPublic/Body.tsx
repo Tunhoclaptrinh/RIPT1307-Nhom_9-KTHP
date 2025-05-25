@@ -15,16 +15,32 @@ import { primaryColor } from '@/services/base/constant';
 const { Title, Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
 
+type ThongTinTuyenSinhItem = {
+	id?: string | number;
+	title: string;
+	date?: string;
+	summary?: string;
+	[key: string]: any;
+};
+
+type HuongDanHoSoItem = {
+	id?: string | number;
+	title?: string;
+	date?: string;
+	summary?: string;
+	[key: string]: any;
+};
+
 const TrangChuBody = () => {
-	const [thongTinTuyenSinh, setThongTinTuyenSinh] = useState([]);
-	const [huongDanHoSo, setHuongDanHoSo] = useState([]);
-	const [faqItems, setFaqItems] = useState<FAQ.IRecord>();
-	const [lichTrinhTuyenSinh, setLichTrinhTuyenSinh] = useState<LichTrinhTS.IRecord>();
-	const [thongKeTuyenSinh, setThongKeTuyenSinh] = useState<ThongKeTS.IRecord>();
+	const [thongTinTuyenSinh, setThongTinTuyenSinh] = useState<ThongTinTuyenSinhItem[]>([]);
+	const [huongDanHoSo, setHuongDanHoSo] = useState<HuongDanHoSoItem[]>([]);
+	const [faqItems, setFaqItems] = useState<any[]>([]);
+	const [lichTrinhTuyenSinh, setLichTrinhTuyenSinh] = useState<any[]>([]);
+	const [thongKeTuyenSinh, setThongKeTuyenSinh] = useState<any>({});
 
 	const [loading, setLoading] = useState(true);
 
-	const BASE_API_URL = 'http://localhost:3001';
+	const BASE_API_URL = 'http://localhost:3000';
 
 	// Fetch data from APIs
 	useEffect(() => {
