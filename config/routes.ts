@@ -159,6 +159,13 @@ export default [
 		component: './ToHop',
 		icon: 'ReadOutlined',
 	},
+	{
+		path: '/dang-ky-tuyen-sinh',
+		name: 'Đăng ký tuyển sinh',
+		component: './UniversityRegistrationForm',
+		icon: 'ReadOutlined',
+		layout: false,
+	},
 
 	// {
 	// 	name: 'Public',

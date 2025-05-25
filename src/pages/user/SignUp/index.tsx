@@ -1,12 +1,10 @@
-import Footer from '@/components/Footer';
 import MyDatePicker from '@/components/MyDatePicker';
-// import { adminRegister } from '@/services/base/api';
 import { keycloakAuthority } from '@/utils/ip';
 import rules from '@/utils/rules';
 import { LockOutlined, UserOutlined, MailOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Tabs, message, Checkbox, Row, Col } from 'antd';
 import React, { useState } from 'react';
-import { history, useIntl, Link, useModel } from 'umi';
+import { useIntl, Link, useModel } from 'umi';
 import styles from './index.less';
 
 const SignUp: React.FC = () => {
@@ -178,10 +176,6 @@ const SignUp: React.FC = () => {
 					</div>
 				</div>
 			</div>
-
-			{/* <div className='login-footer'>
-				<Footer />
-			</div> */}
 		</div>
 	);
 };
