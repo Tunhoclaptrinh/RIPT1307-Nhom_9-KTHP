@@ -1,4 +1,5 @@
-import { Row, Col, Button, Card, Tabs, Typography, Statistic, List, Space, Timeline } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Row, Col, Button, Card, Tabs, Typography, Statistic, List, Space, Timeline, Spin, message } from 'antd';
 import {
 	SearchOutlined,
 	CalendarOutlined,
@@ -14,76 +15,76 @@ const { Title, Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
 
 const TrangChuBody = () => {
-	const thongTinTuyenSinh = [
-		{
-			id: 1,
-			title: 'Thông báo tuyển sinh năm học 2025-2026',
-			date: '15/05/2025',
-			summary: 'Các thông tin chi tiết về kỳ tuyển sinh đại học năm học 2025-2026.',
-		},
-		{
-			id: 2,
-			title: 'Hướng dẫn đăng ký xét tuyển trực tuyến',
-			date: '10/05/2025',
-			summary: 'Cách thức đăng ký xét tuyển trực tuyến và các bước cần thực hiện.',
-		},
-		{
-			id: 3,
-			title: 'Danh sách các ngành tuyển sinh mới',
-			date: '05/05/2025',
-			summary: 'Cập nhật thông tin về các ngành học mới được mở trong năm học 2025-2026.',
-		},
-		{
-			id: 4,
-			title: 'Lịch thi và xét tuyển chi tiết',
-			date: '01/05/2025',
-			summary: 'Thời gian biểu chi tiết cho các đợt thi và xét tuyển trong năm 2025.',
-		},
-	];
+	const [thongTinTuyenSinh, setThongTinTuyenSinh] = useState([]);
+	const [huongDanHoSo, setHuongDanHoSo] = useState([]);
+	const [faqItems, setFaqItems] = useState<FAQ.IRecord | undefined>(undefined);
+	const [lichTrinhTuyenSinh, setLichTrinhTuyenSinh] = useState<LichTrinhTS.IRecord | undefined>(undefined);
+	const [thongKeTuyenSinh, setThongKeTuyenSinh] = useState<ThongKeTS.IRecord | undefined>(undefined);
 
-	const huongDanHoSo = [
-		{
-			id: 1,
-			title: 'Hồ sơ đăng ký xét tuyển đại học',
-			date: '12/05/2025',
-			summary: 'Danh sách giấy tờ cần thiết và cách thức chuẩn bị hồ sơ xét tuyển đại học.',
-		},
-		{
-			id: 2,
-			title: 'Hướng dẫn xác nhận nhập học trực tuyến',
-			date: '08/05/2025',
-			summary: 'Các bước cần thiết để xác nhận nhập học sau khi trúng tuyển.',
-		},
-		{
-			id: 3,
-			title: 'Quy định về lệ phí xét tuyển',
-			date: '05/05/2025',
-			summary: 'Thông tin về mức phí và phương thức nộp lệ phí xét tuyển.',
-		},
-	];
+	const [loading, setLoading] = useState(true);
 
-	const faqItems = [
-		{
-			question: 'Tôi có thể đăng ký xét tuyển vào nhiều trường cùng lúc không?',
-			answer:
-				'Có, bạn có thể đăng ký xét tuyển vào nhiều trường trong cùng một đợt xét tuyển, tuy nhiên cần tuân thủ quy định về số nguyện vọng tối đa.',
-		},
-		{
-			question: 'Tôi cần chuẩn bị những giấy tờ gì khi đăng ký xét tuyển?',
-			answer:
-				'Bạn cần chuẩn bị: Phiếu đăng ký xét tuyển, bản sao công chứng học bạ THPT, bản sao công chứng bằng tốt nghiệp THPT hoặc giấy chứng nhận tốt nghiệp tạm thời, các minh chứng ưu tiên (nếu có).',
-		},
-		{
-			question: 'Thời hạn đăng ký xét tuyển năm 2025 là khi nào?',
-			answer:
-				'Thời hạn đăng ký xét tuyển đợt 1 năm 2025 là từ ngày 01/06/2025 đến hết ngày 30/06/2025. Các đợt bổ sung sẽ được thông báo sau trên hệ thống.',
-		},
-		{
-			question: 'Làm thế nào để tôi biết được kết quả xét tuyển?',
-			answer:
-				'Kết quả xét tuyển sẽ được công bố trên hệ thống này. Bạn có thể đăng nhập vào tài khoản cá nhân để kiểm tra kết quả hoặc đăng ký nhận thông báo qua email/SMS.',
-		},
-	];
+	const BASE_API_URL = 'http://localhost:3001';
+
+	// Fetch data from APIs
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				setLoading(true);
+
+				const [thongTinRes, huongDanRes, faqRes, lichTrinhRes, thongKeRes] = await Promise.all([
+					fetch(`${BASE_API_URL}/thongBaoTuyenSinh`),
+					fetch(`${BASE_API_URL}/huongDanHoSo`),
+					fetch(`${BASE_API_URL}/faq`),
+					fetch(`${BASE_API_URL}/lichTrinhTuyenSinh`),
+					fetch(`${BASE_API_URL}/thongKeTuyenSinh`),
+				]);
+
+				const thongTinData = await thongTinRes.json();
+				const huongDanData = await huongDanRes.json();
+				const faqData = await faqRes.json();
+				const lichTrinhData = await lichTrinhRes.json();
+				const thongKeData = await thongKeRes.json();
+
+				setThongTinTuyenSinh(thongTinData.filter((item) => item.isActive));
+				setHuongDanHoSo(huongDanData);
+				setFaqItems(faqData.filter((item) => item.isActive));
+				setLichTrinhTuyenSinh(lichTrinhData);
+				setThongKeTuyenSinh(thongKeData[0] || {});
+			} catch (error) {
+				console.error('Error fetching data:', error);
+				message.error('Có lỗi xảy ra khi tải dữ liệu');
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchData();
+	}, []);
+
+	const getTimelineIcon = (iconType: any) => {
+		switch (iconType) {
+			case 'calendar':
+				return <CalendarOutlined style={{ fontSize: 16, color: primaryColor }} />;
+			case 'check-circle':
+				return <CheckCircleOutlined style={{ fontSize: 16, color: primaryColor }} />;
+			case 'user':
+				return <UserOutlined style={{ fontSize: 16, color: primaryColor }} />;
+			default:
+				return <CalendarOutlined style={{ fontSize: 16, color: primaryColor }} />;
+		}
+	};
+
+	const formatFileSize = (size: any) => {
+		return size || 'N/A';
+	};
+
+	if (loading) {
+		return (
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+				<Spin size='large' />
+			</div>
+		);
+	}
 
 	return (
 		<div>
@@ -128,7 +129,6 @@ const TrangChuBody = () => {
 			<div
 				style={{
 					padding: '40px 0',
-					// background: '#fff',
 					boxShadow: '0 8px 24px rgba(255, 182, 193, 0.3)',
 				}}
 			>
@@ -180,6 +180,7 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
+
 			{/* Statistics */}
 			<div style={{ background: primaryColor, padding: '40px 0', color: '#fff' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -192,7 +193,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Trường đại học</span>}
-										value={150}
+										value={thongKeTuyenSinh.soTruongDaiHoc || 150}
 										suffix='+'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -201,7 +202,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Ngành đào tạo</span>}
-										value={2500}
+										value={thongKeTuyenSinh.soNganhDaoTao || 2500}
 										suffix='+'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -210,7 +211,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Thí sinh đăng ký</span>}
-										value={500}
+										value={thongKeTuyenSinh.soThiSinhDangKy ? Math.floor(thongKeTuyenSinh.soThiSinhDangKy / 1000) : 500}
 										suffix='K+'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -219,7 +220,7 @@ const TrangChuBody = () => {
 								<Col xs={12} md={6}>
 									<Statistic
 										title={<span style={{ color: '#fff' }}>Hồ sơ trực tuyến</span>}
-										value={98}
+										value={thongKeTuyenSinh.tyLeHoSoTrucTuyen || 98}
 										suffix='%'
 										valueStyle={{ color: '#fff', fontSize: 36 }}
 										style={{ textAlign: 'center' }}
@@ -230,6 +231,7 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
+
 			{/* Information Tabs */}
 			<div style={{ padding: '40px 0', background: '#f5f5f5' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -292,6 +294,7 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
+
 			{/* Timeline */}
 			<div style={{ padding: '40px 0', background: '#fff' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -301,59 +304,23 @@ const TrangChuBody = () => {
 								Lịch Trình Tuyển Sinh 2025
 							</Title>
 							<Timeline mode='alternate'>
-								<Timeline.Item
-									dot={<CalendarOutlined style={{ fontSize: 16, color: primaryColor }} />}
-									color={primaryColor}
-								>
-									<Title level={4} style={{ color: primaryColor }}>
-										Đăng ký xét tuyển đợt 1
-									</Title>
-									<Paragraph>01/06/2025 - 30/06/2025</Paragraph>
-									<Paragraph>
-										Thí sinh đăng ký xét tuyển đợt 1 trên hệ thống, hoàn thiện hồ sơ và nộp lệ phí xét tuyển.
-									</Paragraph>
-								</Timeline.Item>
-								<Timeline.Item
-									dot={<CheckCircleOutlined style={{ fontSize: 16, color: primaryColor }} />}
-									color={primaryColor}
-								>
-									<Title level={4} style={{ color: primaryColor }}>
-										Công bố kết quả đợt 1
-									</Title>
-									<Paragraph>15/07/2025 - 20/07/2025</Paragraph>
-									<Paragraph>
-										Thí sinh nhận kết quả xét tuyển đợt 1 và tiến hành xác nhận nhập học nếu trúng tuyển.
-									</Paragraph>
-								</Timeline.Item>
-								<Timeline.Item
-									dot={<CalendarOutlined style={{ fontSize: 16, color: primaryColor }} />}
-									color={primaryColor}
-								>
-									<Title level={4} style={{ color: primaryColor }}>
-										Đăng ký xét tuyển đợt bổ sung
-									</Title>
-									<Paragraph>01/08/2025 - 15/08/2025</Paragraph>
-									<Paragraph>
-										Đăng ký xét tuyển đợt bổ sung cho các trường còn chỉ tiêu và các thí sinh chưa trúng tuyển đợt 1.
-									</Paragraph>
-								</Timeline.Item>
-								<Timeline.Item
-									dot={<UserOutlined style={{ fontSize: 16, color: primaryColor }} />}
-									color={primaryColor}
-								>
-									<Title level={4} style={{ color: primaryColor }}>
-										Nhập học
-									</Title>
-									<Paragraph>01/09/2025 - 15/09/2025</Paragraph>
-									<Paragraph>
-										Thí sinh nhận kết quả và làm thủ tục nhập học chính thức tại các trường đại học.
-									</Paragraph>
-								</Timeline.Item>
+								{lichTrinhTuyenSinh.map((item, index) => (
+									<Timeline.Item key={item.id || index} dot={getTimelineIcon(item.icon)} color={primaryColor}>
+										<Title level={4} style={{ color: primaryColor }}>
+											{item.title}
+										</Title>
+										<Paragraph>
+											{item.startDate} {item.endDate && `- ${item.endDate}`}
+										</Paragraph>
+										<Paragraph>{item.description}</Paragraph>
+									</Timeline.Item>
+								))}
 							</Timeline>
 						</Col>
 					</Row>
 				</div>
 			</div>
+
 			{/* FAQ Section */}
 			<div style={{ padding: '40px 0', background: '#f5f5f5' }}>
 				<div style={{ margin: '0 20px' }}>
@@ -363,8 +330,8 @@ const TrangChuBody = () => {
 								Câu Hỏi Thường Gặp
 							</Title>
 							<Row gutter={[24, 24]}>
-								{faqItems.map((item, index) => (
-									<Col xs={24} md={12} key={index}>
+								{faqItems.slice(0, 4).map((item) => (
+									<Col xs={24} md={12} key={item.id}>
 										<Card>
 											<Space align='start'>
 												<QuestionCircleOutlined style={{ color: primaryColor, fontSize: 20, marginTop: 4 }} />
@@ -386,6 +353,7 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
+
 			{/* CTA Section */}
 			<div style={{ background: primaryColor, padding: '60px 0', color: '#fff' }}>
 				<div style={{ margin: '0 20px' }}>
