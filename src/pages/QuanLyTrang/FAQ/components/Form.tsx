@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Col, Form, Input, Row, Select, Switch } from 'antd';
-import { useModel } from 'umi';
+import { Button, Card, Col, Form, Input, Row, Select, Space, Switch } from 'antd';
+import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 
@@ -11,6 +11,7 @@ interface FAQFormProps {
 const FAQForm: React.FC<FAQFormProps> = ({ title = 'Câu hỏi thường gặp' }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('quanlytrang.faq');
 	const [form] = Form.useForm();
+	const intl = useIntl();
 
 	React.useEffect(() => {
 		if (!visibleForm) {
@@ -69,13 +70,15 @@ const FAQForm: React.FC<FAQFormProps> = ({ title = 'Câu hỏi thường gặp' 
 							</Form.Item>
 						</Col>
 					</Row>
-					<div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-						<Button.Group>
-							<Button loading={formSubmiting} type='primary' htmlType='submit'>
-								{!edit ? 'Thêm mới' : 'Cập nhật'}
+					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+						<Space>
+							<Button loading={formSubmiting} htmlType='submit' type='primary'>
+								{!edit
+									? intl.formatMessage({ id: 'global.button.themmoi' })
+									: intl.formatMessage({ id: 'global.button.luulai' })}
 							</Button>
-							<Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-						</Button.Group>
+							<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+						</Space>
 					</div>
 				</Form>
 			</Card>

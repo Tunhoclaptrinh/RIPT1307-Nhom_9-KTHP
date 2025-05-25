@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Form, InputNumber, DatePicker } from 'antd';
-import { useModel } from 'umi';
+import { Button, Card, Col, DatePicker, Form, InputNumber, Row, Space } from 'antd';
+import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import moment from 'moment';
@@ -13,6 +13,7 @@ const ThongKeTSForm: React.FC<ThongKeTSFormProps> = ({ title = 'Thống kê tuy�
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } =
 		useModel('quanlytrang.thongkets');
 	const [form] = Form.useForm();
+	const intl = useIntl();
 
 	React.useEffect(() => {
 		if (!visibleForm) {
@@ -43,38 +44,58 @@ const ThongKeTSForm: React.FC<ThongKeTSFormProps> = ({ title = 'Thống kê tuy�
 	};
 
 	return (
-		<div>
-			<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
-				<Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
-					<Form.Item label='Năm' name='year' rules={[...rules.required]}>
-						<InputNumber min={2000} max={2100} style={{ width: '100%' }} placeholder='Nhập năm' />
-					</Form.Item>
-					<Form.Item label='Số trường ĐH' name='soTruongDaiHoc' rules={[...rules.required]}>
-						<InputNumber min={0} style={{ width: '100%' }} placeholder='Nhập số trường ĐH' />
-					</Form.Item>
-					<Form.Item label='Số ngành đào tạo' name='soNganhDaoTao' rules={[...rules.required]}>
-						<InputNumber min={0} style={{ width: '100%' }} placeholder='Nhập số ngành đào tạo' />
-					</Form.Item>
-					<Form.Item label='Số thí sinh đăng ký' name='soThiSinhDangKy' rules={[...rules.required]}>
-						<InputNumber min={0} style={{ width: '100%' }} placeholder='Nhập số thí sinh đăng ký' />
-					</Form.Item>
-					<Form.Item label='Tỷ lệ hồ sơ trực tuyến (%)' name='tyLeHoSoTrucTuyen' rules={[...rules.required]}>
-						<InputNumber min={0} max={100} style={{ width: '100%' }} placeholder='Nhập tỷ lệ (%)' />
-					</Form.Item>
-					<Form.Item label='Cập nhật lần cuối' name='lastUpdated' rules={[...rules.required]}>
-						<DatePicker format='DD/MM/YYYY' style={{ width: '100%' }} placeholder='Chọn ngày cập nhật' />
-					</Form.Item>
-					<div className='form-actions' style={{ marginTop: 24, textAlign: 'right' }}>
-						<Button.Group>
-							<Button loading={formSubmiting} type='primary' htmlType='submit'>
-								{!edit ? 'Thêm mới' : 'Cập nhật'}
-							</Button>
-							<Button onClick={() => setVisibleForm(false)}>Hủy</Button>
-						</Button.Group>
-					</div>
-				</Form>
-			</Card>
-		</div>
+		<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
+			<Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
+				<Row gutter={16}>
+					<Col span={24} md={12}>
+						<Form.Item label='Năm' name='year' rules={[...rules.required]}>
+							<InputNumber min={2000} max={2100} style={{ width: '100%' }} placeholder='Nhập năm' />
+						</Form.Item>
+					</Col>
+					<Col span={24} md={12}>
+						<Form.Item label='Cập nhật lần cuối' name='lastUpdated' rules={[...rules.required]}>
+							<DatePicker format='DD/MM/YYYY' style={{ width: '100%' }} placeholder='Chọn ngày cập nhật' />
+						</Form.Item>
+					</Col>
+				</Row>
+				<Row gutter={16}>
+					<Col span={24} md={12}>
+						<Form.Item label='Số trường ĐH' name='soTruongDaiHoc' rules={[...rules.required]}>
+							<InputNumber min={0} style={{ width: '100%' }} placeholder='Nhập số trường ĐH' />
+						</Form.Item>
+					</Col>
+					<Col span={24} md={12}>
+						<Form.Item label='Số ngành đào tạo' name='soNganhDaoTao' rules={[...rules.required]}>
+							<InputNumber min={0} style={{ width: '100%' }} placeholder='Nhập số ngành đào tạo' />
+						</Form.Item>
+					</Col>
+				</Row>
+				<Row gutter={16}>
+					<Col span={24} md={12}>
+						<Form.Item label='Số thí sinh đăng ký' name='soThiSinhDangKy' rules={[...rules.required]}>
+							<InputNumber min={0} style={{ width: '100%' }} placeholder='Nhập số thí sinh đăng ký' />
+						</Form.Item>
+					</Col>
+					<Col span={24} md={12}>
+						<Form.Item label='Tỷ lệ hồ sơ trực tuyến (%)' name='tyLeHoSoTrucTuyen' rules={[...rules.required]}>
+							<InputNumber min={0} max={100} style={{ width: '100%' }} placeholder='Nhập tỷ lệ (%)' />
+						</Form.Item>
+					</Col>
+				</Row>
+				<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+					<Space>
+						<Button loading={formSubmiting} htmlType='submit' type='primary'>
+							{!edit
+								? intl.formatMessage({ id: 'global.button.themmoi', defaultMessage: 'Thêm mới' })
+								: intl.formatMessage({ id: 'global.button.luulai', defaultMessage: 'Lưu lại' })}
+						</Button>
+						<Button onClick={() => setVisibleForm(false)}>
+							{intl.formatMessage({ id: 'global.button.huy', defaultMessage: 'Hủy' })}
+						</Button>
+					</Space>
+				</div>
+			</Form>
+		</Card>
 	);
 };
 

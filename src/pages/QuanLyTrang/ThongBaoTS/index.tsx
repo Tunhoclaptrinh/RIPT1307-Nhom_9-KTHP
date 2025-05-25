@@ -46,7 +46,7 @@ const ThongBaoTSPage = () => {
 			sortable: false,
 			filterType: 'string',
 			render: (summary: string) => (
-				<Popover content={<div style={{ maxWidth: 400 }}>{summary}</div>} title='Chi tiết mô tả' trigger='click'>
+				<Popover content={<div style={{ maxWidth: 400 }}>{summary}</div>} title='Tóm tắt' trigger='click'>
 					<div
 						style={{
 							overflow: 'hidden',

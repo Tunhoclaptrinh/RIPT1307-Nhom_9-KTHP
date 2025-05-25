@@ -1,20 +1,39 @@
-import React from 'react';
-import { Popconfirm, Tag, Space, Badge } from 'antd';
+import React, { useState } from 'react';
+import { Popconfirm, Tag, Space, Badge, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import FAQForm from './components/Form';
+import FAQDetail from './components/Detail';
 
 const FAQPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.faq');
+	const [detailModalVisible, setDetailModalVisible] = useState(false);
+	const [selectedRecord, setSelectedRecord] = useState<FAQ.IRecord | undefined>();
+
+	const onOpenDetailModal = (record: FAQ.IRecord) => {
+		setSelectedRecord(record);
+		setDetailModalVisible(true);
+	};
+
+	const onCloseDetailModal = () => {
+		setDetailModalVisible(false);
+	};
+
+	const onEditFromView = () => {
+		setDetailModalVisible(false);
+		if (selectedRecord) {
+			handleEdit(selectedRecord);
+		}
+	};
 
 	const columns: IColumn<FAQ.IRecord>[] = [
 		{
 			title: 'Câu hỏi',
 			dataIndex: 'question',
-			width: 400,
+			width: 350,
 			sortable: true,
 			filterType: 'string',
 			render: (question: string) => <div style={{ fontWeight: 500 }}>{question}</div>,
@@ -22,20 +41,23 @@ const FAQPage = () => {
 		{
 			title: 'Trả lời',
 			dataIndex: 'answer',
-			width: 500,
+			width: 400,
 			sortable: false,
 			filterType: 'string',
 			render: (answer: string) => (
-				<div
-					style={{
-						overflow: 'hidden',
-						textOverflow: 'ellipsis',
-						whiteSpace: 'nowrap',
-						maxWidth: '480px',
-					}}
-				>
-					{answer}
-				</div>
+				<Popover content={<div style={{ maxWidth: 400 }}>{answer}</div>} title='Chi tiết trả lời' trigger='click'>
+					<div
+						style={{
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+							maxWidth: '380px',
+							cursor: 'pointer',
+						}}
+					>
+						{answer}
+					</div>
+				</Popover>
 			),
 		},
 		{
@@ -62,13 +84,23 @@ const FAQPage = () => {
 			},
 		},
 		{
+			title: 'Ưu tiên',
+			width: 100,
+			sortable: true,
+			filterType: 'number',
+			align: 'center',
+			render: (priority: number) => (
+				<Badge count={priority} color={priority === 1 ? 'red' : priority === 2 ? 'orange' : 'blue'} showZero />
+			),
+		},
+		{
 			title: 'Lượt xem',
 			dataIndex: 'viewCount',
 			width: 100,
 			sortable: true,
 			filterType: 'number',
 			align: 'center',
-			render: (viewCount: number) => <Badge count={viewCount} color='blue' showZero overflowCount={9999} />,
+			render: (viewCount: number) => viewCount,
 		},
 		{
 			title: 'Trạng thái',
@@ -86,7 +118,12 @@ const FAQPage = () => {
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
-					<ButtonExtend tooltip='Xem chi tiết' onClick={() => handleView(record)} type='link' icon={<EyeOutlined />} />
+					<ButtonExtend
+						tooltip='Xem chi tiết'
+						onClick={() => onOpenDetailModal(record)}
+						type='link'
+						icon={<EyeOutlined />}
+					/>
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
@@ -111,6 +148,12 @@ const FAQPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+			/>
+			<FAQDetail
+				isVisible={detailModalVisible}
+				onClose={onCloseDetailModal}
+				record={selectedRecord}
+				onEdit={onEditFromView}
 			/>
 		</div>
 	);

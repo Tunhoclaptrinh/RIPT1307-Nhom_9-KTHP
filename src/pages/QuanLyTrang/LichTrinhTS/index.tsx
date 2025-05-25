@@ -144,6 +144,7 @@ const LichTrinhTSPage = () => {
 		{
 			title: 'Ngày bắt đầu',
 			dataIndex: 'startDate',
+			align: 'center',
 			width: 120,
 			sortable: true,
 			filterType: 'date',
@@ -152,6 +153,7 @@ const LichTrinhTSPage = () => {
 		{
 			title: 'Ngày kết thúc',
 			dataIndex: 'endDate',
+			align: 'center',
 			width: 120,
 			sortable: true,
 			filterType: 'date',

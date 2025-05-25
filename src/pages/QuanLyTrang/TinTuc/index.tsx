@@ -1,5 +1,5 @@
-import React from 'react';
-import { Popconfirm, Tag, Space, Badge, Image } from 'antd';
+import React, { useState } from 'react';
+import { Popconfirm, Tag, Space, Image, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -7,9 +7,61 @@ import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import TinTucForm from './components/Form';
+import TinTucDetail from './components/Detail';
+
+const getCategoryColor = (category: string) => {
+	switch (category) {
+		case 'thi-cu':
+			return 'blue';
+		case 'tuyen-sinh':
+			return 'green';
+		case 'hoc-tap':
+			return 'orange';
+		case 'su-kien':
+			return 'purple';
+		default:
+			return 'default';
+	}
+};
+
+const getCategoryText = (category: string) => {
+	switch (category) {
+		case 'thi-cu':
+			return 'Thi cử';
+		case 'tuyen-sinh':
+			return 'Tuyển sinh';
+		case 'hoc-tap':
+			return 'Học tập';
+		case 'su-kien':
+			return 'Sự kiện';
+		default:
+			return category;
+	}
+};
 
 const TinTucPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.tintuc');
+	const { handleEdit, handleView, deleteModel } = useModel('quanlytrang.tintuc');
+	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
+	const [selectedRecord, setSelectedRecord] = useState<TinTuc.IRecord | undefined>();
+
+	// Hàm xử lý mở modal mở rộng
+	const onOpenExtendedModal = (record: TinTuc.IRecord) => {
+		setSelectedRecord(record);
+		setExtendedModalVisible(true);
+	};
+
+	// Hàm đóng
+	const onCloseExtendedModal = () => {
+		setExtendedModalVisible(false);
+	};
+
+	// Hàm chuyển sang chế độ edit
+	const onEditFromView = () => {
+		setExtendedModalVisible(false);
+		if (selectedRecord) {
+			handleEdit(selectedRecord);
+		}
+	};
 
 	const columns: IColumn<TinTuc.IRecord>[] = [
 		{
@@ -44,16 +96,19 @@ const TinTucPage = () => {
 			sortable: false,
 			filterType: 'string',
 			render: (summary: string) => (
-				<div
-					style={{
-						overflow: 'hidden',
-						textOverflow: 'ellipsis',
-						whiteSpace: 'nowrap',
-						maxWidth: '330px',
-					}}
-				>
-					{summary}
-				</div>
+				<Popover content={<div style={{ maxWidth: 400 }}>{summary}</div>} title='Tóm tắt' trigger='click'>
+					<div
+						style={{
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							whiteSpace: 'nowrap',
+							maxWidth: '380px',
+							cursor: 'pointer',
+						}}
+					>
+						{summary}
+					</div>
+				</Popover>
 			),
 		},
 		{
@@ -63,16 +118,7 @@ const TinTucPage = () => {
 			sortable: true,
 			filterType: 'select',
 			align: 'center',
-			render: (category: string) => {
-				const categoryMap: { [key: string]: { color: string; text: string } } = {
-					'thi-cu': { color: 'blue', text: 'Thi cử' },
-					'tuyen-sinh': { color: 'green', text: 'Tuyển sinh' },
-					'hoc-tap': { color: 'orange', text: 'Học tập' },
-					'su-kien': { color: 'purple', text: 'Sự kiện' },
-				};
-				const categoryInfo = categoryMap[category] || { color: 'default', text: category };
-				return <Tag color={categoryInfo.color}>{categoryInfo.text}</Tag>;
-			},
+			render: (category: string) => <Tag color={getCategoryColor(category)}>{getCategoryText(category)}</Tag>,
 		},
 		{
 			title: 'Tác giả',
@@ -106,7 +152,12 @@ const TinTucPage = () => {
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
-					<ButtonExtend tooltip='Xem chi tiết' onClick={() => handleView(record)} type='link' icon={<EyeOutlined />} />
+					<ButtonExtend
+						tooltip='Xem chi tiết'
+						onClick={() => onOpenExtendedModal(record)}
+						type='link'
+						icon={<EyeOutlined />}
+					/>
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
@@ -131,6 +182,12 @@ const TinTucPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+			/>
+			<TinTucDetail
+				isVisible={extendedModalVisible}
+				onClose={onCloseExtendedModal}
+				record={selectedRecord}
+				onEdit={onEditFromView}
 			/>
 		</div>
 	);
