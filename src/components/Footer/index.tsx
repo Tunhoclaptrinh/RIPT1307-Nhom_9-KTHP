@@ -79,7 +79,7 @@ const Footer = () => {
 						{/* Logo and social icons */}
 						<Row gutter={[16, 20]}>
 							<Col xs={24} md={16} lg={18}>
-								<img className='logo' src='./logo-full.svg' alt='Học viện Công nghệ Bưu chính Viễn thông Logo' />
+								<img className='logo' src='./../logo-full.svg' alt='Học viện Công nghệ Bưu chính Viễn thông Logo' />
 							</Col>
 							<Col xs={24} md={8} lg={6}>
 								<div className='social-icons-row' aria-label='Social Media Links'>

@@ -2,8 +2,8 @@ import MyDatePicker from '@/components/MyDatePicker';
 import { SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, message, Row } from 'antd';
 import { useModel } from 'umi';
-import Footer from '../../components/Footer';
-import Header from '../../components/Header';
+import Footer from '../../../components/Footer';
+import Header from '../../../components/Header';
 import KetQuaVanBang from './components/KetQua';
 import rules from '@/utils/rules';
 

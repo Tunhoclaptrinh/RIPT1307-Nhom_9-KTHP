@@ -4,7 +4,7 @@ import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import moment from 'moment';
-import UploadFile from '../../../components/Upload/UploadFile'; // Import the UploadFile component
+import UploadFile from '../../../../components/Upload/UploadFile'; // Import the UploadFile component
 
 interface HuongDanHSFormProps {
 	title?: string;
@@ -12,7 +12,7 @@ interface HuongDanHSFormProps {
 
 const HuongDanHSForm: React.FC<HuongDanHSFormProps> = ({ title = 'Hướng dẫn hồ sơ' }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm, ...rest } =
-		useModel('huongdanhs');
+		useModel('quanlytrang.huongdanhs');
 	const categories: string[] = (rest as any).categories || [];
 	const [form] = Form.useForm();
 	const [fileList, setFileList] = React.useState<any[]>([]);

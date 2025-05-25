@@ -9,7 +9,7 @@ interface FAQFormProps {
 }
 
 const FAQForm: React.FC<FAQFormProps> = ({ title = 'Câu hỏi thường gặp' }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('faq');
+	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('quanlytrang.faq');
 	const [form] = Form.useForm();
 
 	React.useEffect(() => {

@@ -10,7 +10,8 @@ interface LichTrinhTSFormProps {
 }
 
 const LichTrinhTSForm: React.FC<LichTrinhTSFormProps> = ({ title = 'Lịch trình tuyển sinh' }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('lichtrinhts');
+	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } =
+		useModel('quanlytrang.lichtrinhts');
 	const [form] = Form.useForm();
 	const intl = useIntl();
 

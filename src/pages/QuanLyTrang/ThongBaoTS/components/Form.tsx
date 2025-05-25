@@ -10,7 +10,8 @@ interface ThongBaoTSFormProps {
 }
 
 const ThongBaoTSForm: React.FC<ThongBaoTSFormProps> = ({ title = 'Thông báo tuyển sinh' }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongbaots');
+	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } =
+		useModel('quanlytrang.thongbaots');
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
