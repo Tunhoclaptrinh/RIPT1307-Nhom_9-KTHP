@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Form, Input, Select, Switch, DatePicker, InputNumber, Row, Col } from 'antd';
 import { useModel, useIntl } from 'umi';
 import { resetFieldsForm } from '@/utils/utils';
@@ -6,25 +6,33 @@ import rules from '@/utils/rules';
 import moment from 'moment';
 import { Space } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 
 const { Option } = Select;
-
 
 interface ThongTinHocTapFormProps {
   title?: string;
 }
 
 const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông tin học tập' }) => {
-  const { record, setVisibleForm, edit, postModel, putModel,formSubmiting,  visibleForm } = useModel('thongtinhoctap');
+  const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
   const [form] = Form.useForm();
   const intl = useIntl();
 
-  // Reset form when opening/closing
+  // State for address selection
+  const [selectedProvince, setSelectedProvince] = useState<string>();
+  const [selectedDistrict, setSelectedDistrict] = useState<string>();
+  const [selectedWard, setSelectedWard] = useState<string>();
+
+  // Reset form and update values when record changes
   React.useEffect(() => {
     if (!visibleForm) {
       resetFieldsForm(form);
+      setSelectedProvince(undefined);
+      setSelectedDistrict(undefined);
+      setSelectedWard(undefined);
     } else if (record?.id) {
-      form.setFieldsValue({
+      const formData = {
         ...record,
         thongTinTHPT: {
           ...record.thongTinTHPT,
@@ -40,7 +48,13 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
               nam: record.giaiHSG.nam ? moment(record.giaiHSG.nam) : null,
             }
           : undefined,
-      });
+      };
+      form.setFieldsValue(formData);
+
+      // Update address state
+      setSelectedProvince(record.thongTinTHPT?.tinh_ThanhPho);
+      setSelectedDistrict(record.thongTinTHPT?.quanHuyen);
+      setSelectedWard(record.thongTinTHPT?.xaPhuong);
     }
   }, [record?.id, visibleForm, form]);
 
@@ -53,6 +67,9 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
           namTotNghiep: values.thongTinTHPT.daTotNghiep && values.thongTinTHPT.namTotNghiep 
             ? moment(values.thongTinTHPT.namTotNghiep).format('YYYY') 
             : '',
+          tinh_ThanhPho: values.thongTinTHPT?.tinh_ThanhPho,
+          quanHuyen: values.thongTinTHPT?.quanHuyen,
+          xaPhuong: values.thongTinTHPT?.xaPhuong,
         },
         diemDGTD: values.hasDGTD ? values.diemDGTD : undefined,
         diemDGNL: values.hasDGNL ? values.diemDGNL : undefined,
@@ -71,6 +88,43 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
     } catch (error) {
       console.error('Form submission error:', error);
     }
+  };
+
+  // Handle address changes
+  const handleProvinceChange = (value: string) => {
+    setSelectedProvince(value);
+    setSelectedDistrict(undefined);
+    setSelectedWard(undefined);
+    form.setFieldsValue({
+      thongTinTHPT: {
+        ...form.getFieldValue('thongTinTHPT'),
+        tinh_ThanhPho: value,
+        quanHuyen: undefined,
+        xaPhuong: undefined,
+      },
+    });
+  };
+
+  const handleDistrictChange = (value: string) => {
+    setSelectedDistrict(value);
+    setSelectedWard(undefined);
+    form.setFieldsValue({
+      thongTinTHPT: {
+        ...form.getFieldValue('thongTinTHPT'),
+        quanHuyen: value,
+        xaPhuong: undefined,
+      },
+    });
+  };
+
+  const handleWardChange = (value: string) => {
+    setSelectedWard(value);
+    form.setFieldsValue({
+      thongTinTHPT: {
+        ...form.getFieldValue('thongTinTHPT'),
+        xaPhuong: value,
+      },
+    });
   };
 
   // Watch switch states to apply conditional rules
@@ -98,22 +152,46 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="Tỉnh/Thành phố" name={['thongTinTHPT', 'tinh_ThanhPho']} rules={[...rules.required]}>
-                  <Input placeholder="Nhập tỉnh/thành phố" />
+                <Form.Item
+                  label="Tỉnh/Thành phố"
+                  name={['thongTinTHPT', 'tinh_ThanhPho']}
+                  rules={[...rules.required]}
+                >
+                  <ProvincesSelect
+                    placeholder="Chọn tỉnh/thành phố"
+                    onChange={handleProvinceChange}
+                    value={selectedProvince}
+                  />
                 </Form.Item>
               </Col>
-
             </Row>
-            
             <Row gutter={16}>
               <Col span={8}>
-                <Form.Item label="Quận/Huyện" name={['thongTinTHPT', 'quanHuyen']} rules={[...rules.required]}>
-                  <Input placeholder="Nhập quận/huyện" />
+                <Form.Item
+                  label="Quận/Huyện"
+                  name={['thongTinTHPT', 'quanHuyen']}
+                  rules={[...rules.required]}
+                >
+                  <DistrictsSelect
+                    provinceCode={selectedProvince}
+                    placeholder="Chọn quận/huyện"
+                    onChange={handleDistrictChange}
+                    value={selectedDistrict}
+                  />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="Xã/Phường" name={['thongTinTHPT', 'xaPhuong']} rules={[...rules.required]}>
-                  <Input placeholder="Nhập xã/phường" />
+                <Form.Item
+                  label="Xã/Phường"
+                  name={['thongTinTHPT', 'xaPhuong']}
+                  rules={[...rules.required]}
+                >
+                  <WardsSelect
+                    districtCode={selectedDistrict}
+                    placeholder="Chọn xã/phường"
+                    onChange={handleWardChange}
+                    value={selectedWard}
+                  />
                 </Form.Item>
               </Col>
               <Col span={8}>
@@ -127,7 +205,6 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
                 </Form.Item>
               </Col>
             </Row>
-            
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item label="Địa chỉ" name={['thongTinTHPT', 'diaChi']}>
@@ -143,7 +220,6 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = ({ title = 'thông
                 </Form.Item>
               </Col>
             </Row>
-            
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item label="Đã tốt nghiệp" name={['thongTinTHPT', 'daTotNghiep']} valuePropName="checked">

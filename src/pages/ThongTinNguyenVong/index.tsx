@@ -12,18 +12,16 @@ const ThongTinNguyenVongPage = () => {
 
   const columns: IColumn<ThongTinNguyenVong.IRecord>[] = [
     {
-      title: 'Mã Nguyện Vọng',
-      dataIndex: 'id',
-      width: 150,
-      sortable: true,
-      filterType: 'number',
-    },
-    {
       title: 'Thứ tự nguyện vọng',
+      defaultSortOrder: 'ascend', 
       dataIndex: 'thuTuNV',
       width: 150,
       sortable: true,
       filterType: 'number',
+      align:'center',
+      sorter: (a, b) => a.thuTuNV - b.thuTuNV, 
+      render: (text) => <strong>{text}</strong>,
+
     },
     {
       title: 'Tên nguyện vọng',
@@ -31,14 +29,21 @@ const ThongTinNguyenVongPage = () => {
       width: 200,
       sortable: true,
       filterType: 'string',
+      render: (text) => <strong>{text}</strong>,
     },
     {
       title: 'Phương thức xét tuyển',
-      dataIndex: 'phuongThucId',
-      width: 180,
-      sortable: true,
-      filterType: 'string',
+      dataIndex: 'phuongThucXT',
+      width: 200,
+    //   render: (phuongThucXT: string[]) => (
+    //     <Space>
+    //       {phuongThucXT?.map((item, index) => (
+    //         <Tag key={index}>{item}</Tag>
+    //       ))}
+    //     </Space>
+    //   ),
     },
+
     {
       title: 'Điểm chưa ưu tiên',
       dataIndex: 'diemChuaUT',
@@ -74,18 +79,7 @@ const ThongTinNguyenVongPage = () => {
       sortable: true,
       filterType: 'number',
     },
-    {
-      title: 'Phương thức xét tuyển (Array)',
-      dataIndex: 'phuongThucXT',
-      width: 200,
-    //   render: (phuongThucXT: string[]) => (
-    //     <Space>
-    //       {phuongThucXT?.map((item, index) => (
-    //         <Tag key={index}>{item}</Tag>
-    //       ))}
-    //     </Space>
-    //   ),
-    },
+
     // {
     //   title: 'Thao tác',
     //   align: 'center',
@@ -140,12 +134,14 @@ const ThongTinNguyenVongPage = () => {
     <div>
       <TableBase
         columns={columns}
+        addStt={false}
         modelName="thongtinnguyenvong"
         title="Quản lý thông tin nguyện vọng"
         Form={ThongTinNguyenVongForm}
-        widthDrawer={500}
+        widthDrawer={700}
         buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
         deleteMany
+        rowSortable//kéo thả sắp xếp=> siêu xem xets 
         rowSelection
       />
     </div>
