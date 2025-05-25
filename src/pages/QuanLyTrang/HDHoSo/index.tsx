@@ -64,7 +64,7 @@ const HuongDanHSPage = () => {
 			sortable: false,
 			filterType: 'string',
 			render: (summary: string) => (
-				<Popover content={<div style={{ maxWidth: 360 }}>{summary}</div>} title='Chi tiết mô tả' trigger='click'>
+				<Popover content={<div style={{ maxWidth: 360 }}>{summary}</div>} title='Tóm tắt' trigger='click'>
 					<div
 						style={{
 							overflow: 'hidden',
@@ -82,6 +82,7 @@ const HuongDanHSPage = () => {
 		{
 			title: 'Ngày đăng',
 			dataIndex: 'date',
+			align: 'center',
 			width: 120,
 			sortable: true,
 			filterType: 'date',

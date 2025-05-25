@@ -1,5 +1,5 @@
-import React from 'react';
-import { Popconfirm, Tag, Space, Statistic } from 'antd';
+import React, { useState } from 'react';
+import { Popconfirm, Space, Statistic } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -7,9 +7,28 @@ import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import ThongKeTSForm from './components/Form';
+import ThongKeTSDetail from './components/Detail';
 
 const ThongKeTSPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('quanlytrang.thongkets');
+	const { handleEdit, handleView, deleteModel } = useModel('quanlytrang.thongkets');
+	const [detailModalVisible, setDetailModalVisible] = useState(false);
+	const [selectedRecord, setSelectedRecord] = useState<ThongKeTS.IRecord | undefined>();
+
+	const onOpenDetailModal = (record: ThongKeTS.IRecord) => {
+		setSelectedRecord(record);
+		setDetailModalVisible(true);
+	};
+
+	const onCloseDetailModal = () => {
+		setDetailModalVisible(false);
+	};
+
+	const onEditFromView = () => {
+		setDetailModalVisible(false);
+		if (selectedRecord) {
+			handleEdit(selectedRecord);
+		}
+	};
 
 	const columns: IColumn<ThongKeTS.IRecord>[] = [
 		{
@@ -86,7 +105,12 @@ const ThongKeTSPage = () => {
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
-					<ButtonExtend tooltip='Xem chi tiết' onClick={() => handleView(record)} type='link' icon={<EyeOutlined />} />
+					<ButtonExtend
+						tooltip='Xem chi tiết'
+						onClick={() => onOpenDetailModal(record)}
+						type='link'
+						icon={<EyeOutlined />}
+					/>
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
@@ -111,6 +135,12 @@ const ThongKeTSPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+			/>
+			<ThongKeTSDetail
+				isVisible={detailModalVisible}
+				onClose={onCloseDetailModal}
+				record={selectedRecord}
+				onEdit={onEditFromView}
 			/>
 		</div>
 	);
