@@ -1,195 +1,156 @@
-import Footer from '@/components/Footer';
-import LoginWithKeycloak from '@/pages/user/Login/KeycloakLogin';
-import { adminlogin, getUserInfo } from '@/services/base/api';
-import { keycloakAuthority } from '@/utils/ip';
-import rules from '@/utils/rules';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Tabs, message } from 'antd';
 import React, { useState } from 'react';
-// import Recaptcha from 'react-recaptcha';
-import { history, useIntl, useModel } from 'umi';
+import { Button, Form, Input, message, Row, Col } from 'antd';
+import { LockOutlined, MailOutlined } from '@ant-design/icons';
+import { useModel, useIntl, history } from 'umi';
 import styles from './index.less';
 
+// Giả lập dữ liệu từ db.json
+const users = [
+  {
+    id: 'user_001',
+    password: 'hashedpassword123',
+    username: 'nguyenvana',
+    soCCCD: '001234567890',
+    email: 'nguyenvana@email.com',
+    ho: 'Nguyễn Văn',
+    ten: 'An',
+  },
+  {
+    id: 'user_002',
+    password: 'hashedpassword456',
+    username: 'tranthib',
+    soCCCD: '001234567891',
+    email: 'tranthib@email.com',
+    ho: 'Trần Thị',
+    ten: 'Bình',
+  },
+  {
+    id: 'a46a',
+    email: 'lehaianhp280620051@gmail.com',
+    ho: 'Lê Hải',
+    ten: 'An',
+    password: 'http://localhost:8000/user/signup',
+    soCCCD: '123',
+  },
+  {
+    id: '94fb',
+    email: 'lehaianhp280620051@gmail.com',
+    ho: 'Lê Hải',
+    ten: 'An',
+    password: '1234',
+    soCCCD: '123',
+  },
+  {
+    id: 'ae4d',
+    email: 'lehaianhp280620051@gmail.com',
+    ho: 'Lê Hải',
+    ten: 'An',
+    password: '1234',
+    soCCCD: '123',
+  },
+];
+
 const Login: React.FC = () => {
-	const [count, setCount] = useState<number>(Number(localStorage?.getItem('failed')) || 0);
-	const [submitting, setSubmitting] = useState(false);
-	const [type, setType] = useState<string>('account');
-	const { initialState, setInitialState } = useModel('@@initialState');
-	const [isVerified, setIsverified] = useState<boolean>(true);
-	const [visibleCaptcha, setVisibleCaptcha] = useState<boolean>(false);
-	// const [visibleCaptcha2, setVisibleCaptcha2] = useState<boolean>(false);
-	// const recaptchaRef = useRef(null);
-	const intl = useIntl();
-	const [form] = Form.useForm();
+  const { setInitialState } = useModel('@@initialState');
+  const [submitting, setSubmitting] = useState(false);
+  const [form] = Form.useForm();
+  const intl = useIntl();
 
-	/**
-	 * Xử lý token, get info sau khi đăng nhập
-	 */
-	const handleRole = async (role: { access_token: string; refresh_token: string }) => {
-		// Tobe removed
-		localStorage.setItem('token', role?.access_token);
-		localStorage.setItem('refreshToken', role?.refresh_token);
+  const handleSubmit = async (values: any) => {
+    try {
+      setSubmitting(true);
+      const { login, password } = values;
 
-		// const decoded = jwt_decode(role?.access_token) as any;
-		const info = await getUserInfo();
-		setInitialState({
-			...initialState,
-			currentUser: info?.data?.data,
-			// authorizedPermissions: decoded?.authorization?.permissions,
-		});
+      // Tìm user với email hoặc soCCCD khớp
+      const user = users.find(
+        (u) => (u.email === login || u.soCCCD === login) && u.password === password
+      );
 
-		const defaultloginSuccessMessage = intl.formatMessage({
-			id: 'pages.login.success',
-			defaultMessage: 'success',
-		});
-		message.success(defaultloginSuccessMessage);
-		history.push('/dashboard');
-	};
+      if (user) {
+        // Lưu thông tin user vào initialState
+        await setInitialState({
+          currentUser: {
+            id: user.id,
+            fullName: `${user.ho} ${user.ten}`,
+            email: user.email,
+            soCCCD: user.soCCCD,
+          },
+        });
+        message.success('Đăng nhập thành công');
+        history.push('/public/dash-board'); // Chuyển hướng đến trang Dashboard của thí sinh
+      } else {
+        throw new Error('Invalid credentials');
+      }
+    } catch (error) {
+      message.error('Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-	const handleSubmit = async (values: { login: string; password: string }) => {
-		try {
-			if (!isVerified) {
-				message.error('Vui lòng xác thực Captcha');
-				return;
-			}
-			setSubmitting(true);
-			const msg = await adminlogin({ ...values, username: values?.login ?? '' });
-			if (msg.status === 200 && msg?.data?.data?.accessToken) {
-				handleRole(msg?.data?.data);
-				localStorage.removeItem('failed');
-			}
-		} catch (error) {
-			if (count >= 4) {
-				setIsverified(false);
-				setVisibleCaptcha(!visibleCaptcha);
-				// setVisibleCaptcha2(true);
-			}
-			setCount(count + 1);
-			localStorage.setItem('failed', (count + 1).toString());
-			const defaultloginFailureMessage = intl.formatMessage({
-				id: 'pages.login.failure',
-				defaultMessage: 'failure',
-			});
-			message.error(defaultloginFailureMessage);
-		}
-		setSubmitting(false);
-	};
+  return (
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.top}>
+          <div className={styles.header}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <img alt="logo" className={styles.logo} src="/logo-full.svg" />
+            </div>
+          </div>
+        </div>
 
-	// const verifyCallback = (response: any) => {
-	// 	if (response) setIsverified(true);
-	// 	else setIsverified(false);
-	// };
+        <div className={styles.main}>
+          <span
+            style={{ fontWeight: 600, color: '#000', marginBottom: 30, textAlign: 'center' }}
+            className={styles.desc}
+          >
+            Đăng nhập vào hệ thống
+          </span>
+          <Form form={form} onFinish={handleSubmit} layout="vertical" style={{ marginTop: 10 }}>
+            <Row gutter={[16, 0]}>
+              <Col span={24}>
+                <Form.Item
+                  name="login"
+                  label="Email hoặc Số CMND/CCCD"
+                  rules={[{ required: true, message: 'Vui lòng nhập email hoặc số CMND/CCCD' }]}
+                >
+                  <Input
+                    placeholder="Nhập email hoặc số CMND/CCCD"
+                    prefix={<MailOutlined className={styles.prefixIcon} />}
+                    size="large"
+                  />
+                </Form.Item>
+              </Col>
 
-	return (
-		<div className={styles.container}>
-			<div className={styles.content}>
-				<div className={styles.top}>
-					<div className={styles.header}>
-						<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-							<img alt='logo' className={styles.logo} src='/logo-full.svg' />
-						</div>
-					</div>
-				</div>
+              <Col span={24}>
+                <Form.Item
+                  name="password"
+                  label="Mật khẩu"
+                  rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                >
+                  <Input.Password
+                    placeholder="Nhập mật khẩu"
+                    prefix={<LockOutlined className={styles.prefixIcon} />}
+                    size="large"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
-				<div className={styles.main}>
-					<Tabs activeKey={type} onChange={setType}>
-						<Tabs.TabPane
-							key='account'
-							tab={intl.formatMessage({
-								id: 'pages.login.accountLogin.tab',
-								defaultMessage: 'tab',
-							})}
-						/>
-						{/* <Tabs.TabPane
-              key="accountAdmin"
-              tab={intl.formatMessage({
-                id: 'pages.login.accountLoginAdmin.tab',
-                defaultMessage: 'tab',
-              })}
-            /> */}
-					</Tabs>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block size="large" loading={submitting}>
+                Đăng nhập
+              </Button>
+            </Form.Item>
+          </Form>
 
-					{type === 'account' ? (
-						<LoginWithKeycloak />
-					) : type === 'accountAdmin' ? (
-						<Form
-							form={form}
-							onFinish={async (values) => handleSubmit(values as { login: string; password: string })}
-							layout='vertical'
-						>
-							<Form.Item label='' name='login' rules={[...rules.required]}>
-								<Input
-									placeholder={intl.formatMessage({
-										id: 'pages.login.username.placeholder',
-										defaultMessage: 'Nhập tên đăng nhập',
-									})}
-									prefix={<UserOutlined className={styles.prefixIcon} />}
-									size='large'
-								/>
-							</Form.Item>
-							<Form.Item label='' name='password' rules={[...rules.required]}>
-								<Input.Password
-									placeholder={intl.formatMessage({
-										id: 'pages.login.password.placeholder',
-										defaultMessage: 'Nhập mật khẩu',
-									})}
-									prefix={<LockOutlined className={styles.prefixIcon} />}
-									size='large'
-								/>
-							</Form.Item>
-
-							<Button type='primary' block size='large' loading={submitting}>
-								{intl.formatMessage({
-									id: 'pages.login.submit',
-									defaultMessage: 'submit',
-								})}
-							</Button>
-						</Form>
-					) : null}
-
-					<br />
-					<div style={{ textAlign: 'center' }}>
-						<Button
-							onClick={() => {
-								window.open(keycloakAuthority + '/login-actions/reset-credentials');
-							}}
-							type='link'
-						>
-							Quên mật khẩu?
-						</Button>
-
-						{/* {type === 'accountAdmin' && visibleCaptcha && count >= 5 && (
-              <Recaptcha
-                ref={recaptchaRef}
-                size="normal"
-                sitekey="6LelHsEeAAAAAJmsVdeC2EPNCAVEtfRBUGSKireh"
-                render="explicit"
-                hl="vi"
-                // onloadCallback={callback}
-                verifyCallback={verifyCallback}
-              />
-            )}
-
-            {type === 'accountAdmin' && !visibleCaptcha && visibleCaptcha2 && count >= 5 && (
-              <Recaptcha
-                ref={recaptchaRef}
-                size="normal"
-                sitekey="6LelHsEeAAAAAJmsVdeC2EPNCAVEtfRBUGSKireh"
-                render="explicit"
-                hl="vi"
-                // onloadCallback={callback}
-                verifyCallback={verifyCallback}
-              />
-            )} */}
-					</div>
-				</div>
-			</div>
-
-			{/* <div className='login-footer'>
-				<Footer />
-			</div> */}
-		</div>
-	);
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            Chưa có tài khoản? <a href="/user/signup">Đăng ký ngay</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Login;

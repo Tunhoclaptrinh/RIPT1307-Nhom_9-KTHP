@@ -36,6 +36,20 @@ const rules = {
 			message: 'Tên chỉ bao gồm chữ cái',
 		},
 	],
+	emailOrCCCD: [
+    {
+      validator: (_, value) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const cccdRegex = /^\d{12}$/; // Assuming CCCD is a 12-digit number
+        if (!value) {
+          return Promise.reject(new Error('Vui lòng nhập email hoặc CCCD'));
+        }
+        if (emailRegex.test(value) || cccdRegex.test(value)) {
+          return Promise.resolve();
+        }
+        return Promise.reject(new Error('Vui lòng nhập email hoặc CCCD hợp lệ'));
+      },
+    },],
 	text: [
 		{
 			whitespace: true,

@@ -40,7 +40,7 @@ const TrangChuBody = () => {
 
 	const [loading, setLoading] = useState(true);
 
-	const BASE_API_URL = 'http://localhost:3001';
+	const BASE_API_URL = 'http://localhost:3000';
 
 	// Fetch data from APIs
 	useEffect(() => {

@@ -47,13 +47,6 @@ const UsersPage = () => {
 			render: (ho, record) => `${ho} ${record.ten}`,
 		},
 		{
-			title: 'Username',
-			dataIndex: 'username',
-			width: 120,
-			sortable: true,
-			filterType: 'string',
-		},
-		{
 			title: 'Email',
 			dataIndex: 'email',
 			width: 200,
