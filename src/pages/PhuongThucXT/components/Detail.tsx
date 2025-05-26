@@ -34,8 +34,9 @@ const PhuongThucXTDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdi
 				labelStyle={{ fontWeight: 600, width: 180 }}
 				contentStyle={{ whiteSpace: 'pre-wrap' }}
 			>
-				<Descriptions.Item label='ID'>{record.id}</Descriptions.Item>
-				<Descriptions.Item label='Tên phương thức'>{record.ten}</Descriptions.Item>
+				<Descriptions.Item label='Tên phương thức' span={2}>
+					{record.ten}
+				</Descriptions.Item>
 				<Descriptions.Item label='Nguyên tắc' span={2}>
 					{record.nguyenTac || 'Không có'}
 				</Descriptions.Item>

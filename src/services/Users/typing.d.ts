@@ -13,6 +13,7 @@ declare module User {
 		gioiTinh: 'nam' | 'nữ' | 'khác';
 		email: string;
 		soDT: string;
+		password?: string;
 	}
 
 	export type HoKhauThuongTru = {

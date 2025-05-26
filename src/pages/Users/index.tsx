@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space } from 'antd';
+import { Popconfirm, Tag, Space, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -7,29 +7,68 @@ import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import UserForm from './components/Form';
-import UserDetail from './components/Detail'; // Thêm import ViewModal
+import UserDetail from './components/Detail';
 import ExpandText from '@/components/ExpandText';
+
+// PasswordCell component (unchanged)
+const PasswordCell = ({ password }: { password: string }) => {
+	const content = (
+		<div style={{ padding: '8px', maxWidth: '200px' }}>
+			<div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Mật khẩu:</div>
+			<div
+				style={{
+					fontFamily: 'monospace',
+					fontSize: '14px',
+					padding: '4px 8px',
+					backgroundColor: '#f5f5f5',
+					borderRadius: '4px',
+					wordBreak: 'break-all',
+				}}
+			>
+				{password || 'Không có mật khẩu'}
+			</div>
+		</div>
+	);
+
+	return (
+		<Popover content={content} trigger='click' placement='top'>
+			<span
+				style={{
+					cursor: 'pointer',
+					userSelect: 'none',
+					padding: '2px 6px',
+					backgroundColor: '#f0f0f0',
+					borderRadius: '4px',
+					border: '1px dashed #d9d9d9',
+					display: 'inline-block',
+					minWidth: '80px',
+					textAlign: 'center',
+					fontSize: '12px',
+					transition: 'all 0.2s',
+				}}
+				title='Click để xem mật khẩu'
+			>
+				••••••••
+			</span>
+		</Popover>
+	);
+};
 
 const UsersPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
-
-	// Thêm state để quản lý modal
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
 
-	// Hàm xử lý xem chi tiết
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);
 	};
 
-	// Hàm đóng modal
 	const onCloseModal = () => {
 		setViewModalVisible(false);
 		setSelectedRecord(undefined);
 	};
 
-	// Hàm chuyển sang chế độ edit
 	const onEditFromView = () => {
 		setViewModalVisible(false);
 		if (selectedRecord) {
@@ -59,6 +98,13 @@ const UsersPage = () => {
 			width: 200,
 			sortable: true,
 			filterType: 'string',
+		},
+		{
+			title: 'Mật khẩu',
+			dataIndex: 'password',
+			width: 100,
+			align: 'center',
+			render: (password) => <PasswordCell password={password} />,
 		},
 		{
 			title: 'Số CCCD',
@@ -145,13 +191,15 @@ const UsersPage = () => {
 				rowSelection
 			/>
 			{/* Modal xem chi tiết */}
-			<UserDetail
-				isVisible={viewModalVisible}
-				onClose={onCloseModal}
-				onEdit={onEditFromView}
-				record={selectedRecord}
-				title='người dùng'
-			/>
+			{selectedRecord && (
+				<UserDetail
+					isVisible={viewModalVisible}
+					onClose={onCloseModal}
+					onEdit={onEditFromView}
+					record={selectedRecord}
+					title='người dùng'
+				/>
+			)}
 		</div>
 	);
 };

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Card, Col, DatePicker, Form, Input, Row, Select } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
-import dayjs from 'dayjs';
+import moment from 'moment';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 const { Option } = Select;
 import { Space } from 'antd';
@@ -23,6 +23,9 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 	const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>();
 	const [selectedWard, setSelectedWard] = useState<string | undefined>();
 	const [submitting, setSubmitting] = useState(false);
+	const [resetPasswordModalVisible, setResetPasswordModalVisible] = useState(false);
+	const [newPassword, setNewPassword] = useState('');
+	const [showPassword, setShowPassword] = useState(false);
 
 	// Reset form khi đóng modal hoặc khi mở form mới
 	React.useEffect(() => {
@@ -35,8 +38,8 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 			// Trường hợp edit - populate form với dữ liệu có sẵn
 			const formData = {
 				...record,
-				ngayCap: record.ngayCap ? dayjs(record.ngayCap) : undefined,
-				ngaySinh: record.ngaySinh ? dayjs(record.ngaySinh) : undefined,
+				ngayCap: record.ngayCap ? moment(record.ngayCap) : undefined,
+				ngaySinh: record.ngaySinh ? moment(record.ngaySinh) : undefined,
 				hoKhauThuongTru: {
 					tinh_ThanhPho: record.hoKhauThuongTru?.tinh_ThanhPho,
 					quanHuyen: record.hoKhauThuongTru?.quanHuyen,
@@ -82,8 +85,17 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 				},
 			};
 
+			// Nếu không có mật khẩu và đang tạo mới, sử dụng CCCD làm mật khẩu mặc định
+			if (!edit && (!values.password || values.password.trim() === '')) {
+				submitData.password = values.soCCCD;
+			}
+
 			if (edit) {
-				await putModel(record?.id ?? '', submitData);
+				// Fix TypeScript error: Kiểm tra record?.id trước khi sử dụng
+				if (!record?.id) {
+					throw new Error('Record ID is required for editing');
+				}
+				await putModel(record.id, submitData);
 			} else {
 				await postModel(submitData);
 			}
@@ -113,6 +125,78 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		});
 	};
 
+	// Hàm reset mật khẩu về CCCD
+	const handleResetPassword = async () => {
+		if (!record?.soCCCD) {
+			message.error('Không tìm thấy số CCCD để reset mật khẩu');
+			return;
+		}
+
+		if (!record?.id) {
+			message.error('Không tìm thấy ID người dùng');
+			return;
+		}
+
+		try {
+			// Lấy dữ liệu hiện tại của người dùng từ record
+			const currentData = {
+				...record,
+				password: record.soCCCD, // Chỉ cập nhật mật khẩu
+				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
+				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
+				hoKhauThuongTru: {
+					tinh_ThanhPho: record.hoKhauThuongTru?.tinh_ThanhPho,
+					quanHuyen: record.hoKhauThuongTru?.quanHuyen,
+					xaPhuong: record.hoKhauThuongTru?.xaPhuong,
+					diaChi: record.hoKhauThuongTru?.diaChi,
+				},
+			};
+
+			await putModel(record.id, currentData);
+			message.success('Reset mật khẩu thành công! Mật khẩu mới là số CCCD');
+			setResetPasswordModalVisible(false);
+		} catch (error) {
+			console.error('Reset password error:', error);
+			message.error('Reset mật khẩu thất bại');
+		}
+	};
+	// Hàm đổi mật khẩu thành mật khẩu mới
+	const handleChangePassword = async () => {
+		if (!newPassword || newPassword.trim() === '') {
+			message.error('Vui lòng nhập mật khẩu mới');
+			return;
+		}
+
+		if (!record?.id) {
+			message.error('Không tìm thấy ID người dùng');
+			return;
+		}
+
+		try {
+			// Lấy dữ liệu hiện tại của người dùng từ record
+			const currentData = {
+				...record,
+				password: newPassword.trim(), // Chỉ cập nhật mật khẩu mới
+				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
+				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
+				hoKhauThuongTru: {
+					tinh_ThanhPho: record.hoKhauThuongTru?.tinh_ThanhPho,
+					quanHuyen: record.hoKhauThuongTru?.quanHuyen,
+					xaPhuong: record.hoKhauThuongTru?.xaPhuong,
+					diaChi: record.hoKhauThuongTru?.diaChi,
+				},
+			};
+
+			await putModel(record.id, currentData);
+			message.success('Đổi mật khẩu thành công!');
+			setResetPasswordModalVisible(false);
+			setNewPassword('');
+		} catch (error) {
+			console.error('Change password error:', error);
+			message.error('Đổi mật khẩu thất bại');
+		}
+	};
+
 	const handleDistrictChange = (value: string) => {
 		console.log('District changed:', value);
 		setSelectedDistrict(value);
@@ -127,6 +211,18 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
 			},
 		});
+	};
+
+	const handleMouseDown = () => {
+		setShowPassword(true);
+	};
+
+	const handleMouseUp = () => {
+		setShowPassword(false);
+	};
+
+	const handleMouseLeave = () => {
+		setShowPassword(false);
 	};
 
 	const handleWardChange = (value: string) => {
@@ -214,9 +310,46 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 					</Form.Item>
 
 					{!edit && (
-						<Form.Item label='Mật khẩu' name='password' rules={[...rules.required, ...rules.password]}>
-							<Input.Password placeholder='Nhập mật khẩu' />
+						<Form.Item label='Mật khẩu' name='password' extra='Nếu để trống, mật khẩu mặc định sẽ là số CCCD'>
+							<Input.Password placeholder='Nhập mật khẩu (tùy chọn)' />
 						</Form.Item>
+					)}
+
+					{/* Compact password management section - chỉ hiển thị 1 hàng nhỏ gọn */}
+					{edit && (
+						<Row gutter={16} style={{ marginBottom: 16 }}>
+							<Col
+								span={18}
+								onMouseDown={handleMouseDown}
+								onMouseUp={handleMouseUp}
+								onMouseLeave={handleMouseLeave}
+								style={{
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '2px 8px',
+									backgroundColor: showPassword ? 'transparent' : '#f0f0f0',
+									borderRadius: '4px',
+									border: '1px dashed #d9d9d9',
+									display: 'inline-block',
+									minWidth: '100px',
+									textAlign: 'center',
+								}}
+								title='Nhấn và giữ để xem mật khẩu'
+							>
+								{showPassword ? record.password || '••••••••' : '••••••••'}
+							</Col>
+							<Col span={6}>
+								<Button
+									type='primary'
+									ghost
+									size='small'
+									onClick={() => setResetPasswordModalVisible(true)}
+									style={{ width: '100%' }}
+								>
+									Quản lý mật khẩu
+								</Button>
+							</Col>
+						</Row>
 					)}
 
 					<Card title='Hộ khẩu thường trú' style={{ marginTop: 16, border: 'none' }}>
@@ -279,6 +412,50 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 					</div>
 				</Form>
 			</Card>
+
+			{/* Modal quản lý mật khẩu */}
+			<Modal
+				title='Quản lý mật khẩu'
+				visible={resetPasswordModalVisible}
+				onCancel={() => {
+					setResetPasswordModalVisible(false);
+					setNewPassword('');
+				}}
+				footer={null}
+				width={500}
+			>
+				<div style={{ padding: '16px 0' }}>
+					<div style={{ marginBottom: 24 }}>
+						<h4 style={{ marginBottom: 8 }}>Reset mật khẩu về CCCD</h4>
+						<p style={{ color: '#666', marginBottom: 16 }}>
+							Mật khẩu sẽ được reset về số CCCD: <strong>{record?.soCCCD}</strong>
+						</p>
+						<Button type='primary' danger onClick={handleResetPassword} style={{ width: '100%' }}>
+							Reset về CCCD
+						</Button>
+					</div>
+
+					<div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 24 }}>
+						<h4 style={{ marginBottom: 8 }}>Đổi mật khẩu mới</h4>
+						<div style={{ marginBottom: 16 }}>
+							<Input.Password
+								placeholder='Nhập mật khẩu mới'
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
+								onPressEnter={handleChangePassword}
+							/>
+						</div>
+						<Button
+							type='primary'
+							onClick={handleChangePassword}
+							style={{ width: '100%' }}
+							disabled={!newPassword.trim()}
+						>
+							Đổi mật khẩu
+						</Button>
+					</div>
+				</div>
+			</Modal>
 		</div>
 	);
 };

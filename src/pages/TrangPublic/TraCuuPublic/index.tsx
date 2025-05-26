@@ -35,8 +35,7 @@ const TraCuuTuyenSinhPublic = () => {
 					backgroundSize: 'cover',
 					backgroundPosition: 'center',
 					backgroundRepeat: 'no-repeat',
-					background:
-						'linear-gradient(rgba(255, 240, 245, 0.9), rgba(255, 240, 245, 0.9)), radial-gradient(#ff9eb5 1px, transparent 1px)',
+					background: '#f5f5f5',
 				}}
 			>
 				<Col style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30 }} xs={24} lg={20}>

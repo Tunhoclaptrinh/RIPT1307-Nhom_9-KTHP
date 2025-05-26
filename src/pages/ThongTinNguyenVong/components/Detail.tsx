@@ -34,12 +34,13 @@ const ThongTinNguyenVongDetail: React.FC<Props> = ({ isVisible, onClose, record,
 				labelStyle={{ fontWeight: 600, width: 150 }}
 				contentStyle={{ whiteSpace: 'pre-wrap' }}
 			>
-				<Descriptions.Item label='ID'>{record.id}</Descriptions.Item>
-				<Descriptions.Item label='Thứ tự NV'>{record.thuTuNV}</Descriptions.Item>
-				<Descriptions.Item label='Tên nguyện vọng' span={2}>
-					{record.ten}
+				<Descriptions.Item label='Tên nguyện vọng'>
+					<strong>{record.ten}</strong>
 				</Descriptions.Item>
-				<Descriptions.Item label='Phương thức ID'>{record.phuongThucId}</Descriptions.Item>
+				<Descriptions.Item label='Thứ tự NV'>
+					<strong>{record.thuTuNV}</strong>
+				</Descriptions.Item>
+				{/* <Descriptions.Item label='Phương thức ID'>{record.phuongThucId}</Descriptions.Item> */}
 				<Descriptions.Item label='Phương thức xét tuyển' span={2}>
 					{record.phuongThucXT && record.phuongThucXT.length > 0
 						? record.phuongThucXT.map((pt, idx) => (

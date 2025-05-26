@@ -34,10 +34,15 @@ const NganhDaoTaoDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit
 				labelStyle={{ fontWeight: 600, width: 180 }}
 				contentStyle={{ whiteSpace: 'pre-wrap' }}
 			>
-				<Descriptions.Item label='Mã ngành đào tạo'>{record.ma}</Descriptions.Item>
-				<Descriptions.Item label='Tên ngành đào tạo'>{record.ten}</Descriptions.Item>
-				<Descriptions.Item label='Tổ hợp xét tuyển ID'>{record.toHopXetTuyenId || 'Không có'}</Descriptions.Item>
-				<Descriptions.Item label=' '>{''}</Descriptions.Item>
+				<Descriptions.Item label='Mã ngành đào tạo' span={2}>
+					{record.ma}
+				</Descriptions.Item>
+				<Descriptions.Item label='Tên ngành đào tạo' span={2}>
+					{record.ten}
+				</Descriptions.Item>
+				<Descriptions.Item label='Tổ hợp xét tuyển' span={2}>
+					{record.toHopXetTuyenId || 'Không có'}
+				</Descriptions.Item>
 				<Descriptions.Item label='Mô tả ngành đào tạo' span={2}>
 					{record.moTa || 'Không có mô tả'}
 				</Descriptions.Item>

@@ -162,7 +162,7 @@ export default [
 	{
 		path: '/dang-ky-tuyen-sinh',
 		name: 'Đăng ký tuyển sinh',
-		component: './UniversityRegistrationForm',
+		component: './DangKyHoSo',
 		icon: 'ReadOutlined',
 		layout: false,
 	},
