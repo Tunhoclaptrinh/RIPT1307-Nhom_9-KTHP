@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Form, Button, Card, Row, Col, Steps, message, Space, Typography, Progress } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Button, Card, Row, Col, Steps, message, Space, Typography, Progress, Modal } from 'antd';
 import { FileTextOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { history } from 'umi';
+import { logout } from '@/services/user';
 import StepContent from './components/StepContent';
 import Sidebar from './components/Sidebar';
 import moment from 'moment';
@@ -12,8 +14,37 @@ const { Title, Text } = Typography;
 const UniversityRegistrationForm = () => {
 	const [form] = Form.useForm();
 	const [currentStep, setCurrentStep] = useState(0);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const onFinish = (values) => {
+	useEffect(() => {
+		const userId = localStorage.getItem('userId');
+		const userInfo = localStorage.getItem('userInfo');
+		if (!userId && !userInfo) {
+			history.push('/user/login');
+		} else {
+			setIsLoggedIn(true);
+		}
+	}, []);
+
+
+	const handleLogin = () => {
+		history.push('/user/login');
+	};
+
+	const handleLogout = () => {
+		Modal.confirm({
+			title: 'Xác nhận đăng xuất',
+			content: 'Bạn có chắc chắn muốn đăng xuất?',
+			okText: 'Đăng xuất',
+			cancelText: 'Hủy',
+			onOk() {
+				logout();
+				window.location.reload();
+			},
+		});
+	};
+
+	const onFinish = (values: any) => {
 		console.log('Form values:', values);
 		message.success('Đăng ký thành công!');
 	};
@@ -70,9 +101,29 @@ const UniversityRegistrationForm = () => {
 									</div>
 								}
 								extra={
-									<Text type='secondary'>
-										Bước {currentStep + 1} / {steps.length}
-									</Text>
+									<Space>
+										<Text type='secondary'>
+											Bước {currentStep + 1} / {steps.length}
+										</Text>
+										{isLoggedIn ? (
+											<Button
+												type='primary'
+												danger
+												size='small'
+												onClick={handleLogout}
+											>
+												Đăng xuất
+											</Button>
+										) : (
+											<Button
+												type='primary'
+												size='small'
+												onClick={handleLogin}
+											>
+												Đăng nhập
+											</Button>
+										)}
+									</Space>
 								}
 							>
 								<Form
