@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Popconfirm, Tag, Space } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
@@ -7,9 +7,31 @@ import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
+import HoSoDetail from './components/Detail';
 
 const HoSoPage = () => {
-	const { handleEdit, handleView, deleteModel} = useModel('hoso');
+	const { handleEdit, handleView, deleteModel } = useModel('hoso');
+	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
+	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
+
+	// Hàm xử lý mở modal mở rộng
+	const onOpenExtendedModal = (record: HoSo.IRecord) => {
+		setSelectedRecord(record);
+		setExtendedModalVisible(true);
+	};
+
+	// Hàm đóng
+	const onCloseExtendedModal = () => {
+		setExtendedModalVisible(false);
+	};
+
+	// Hàm chuyển sang chế độ edit
+	const onEditFromView = () => {
+		setExtendedModalVisible(false);
+		if (selectedRecord) {
+			handleEdit(selectedRecord);
+		}
+	};
 
 	const columns: IColumn<HoSo.IRecord>[] = [
 		{
@@ -36,9 +58,7 @@ const HoSoPage = () => {
 			filterType: 'select',
 			filterData: ['Việt Nam', 'Lào', 'Campuchia'],
 			render: (thongTinBoSung) => (
-				<Tag color={thongTinBoSung?.quocTich === 'Việt Nam' ? 'blue' : 'green'}>
-					{thongTinBoSung?.quocTich || ''}
-				</Tag>
+				<Tag color={thongTinBoSung?.quocTich === 'Việt Nam' ? 'blue' : 'green'}>{thongTinBoSung?.quocTich || ''}</Tag>
 			),
 		},
 		{
@@ -49,9 +69,7 @@ const HoSoPage = () => {
 			filterType: 'select',
 			filterData: ['không', 'Thiên Chúa giáo', 'Phật giáo'],
 			render: (thongTinBoSung) => (
-				<Tag color={thongTinBoSung?.tonGiao === 'không' ? 'gray' : 'blue'}>
-					{thongTinBoSung?.tonGiao || ''}
-				</Tag>
+				<Tag color={thongTinBoSung?.tonGiao === 'không' ? 'gray' : 'blue'}>{thongTinBoSung?.tonGiao || ''}</Tag>
 			),
 		},
 		{
@@ -83,16 +101,11 @@ const HoSoPage = () => {
 				<Space>
 					<ButtonExtend
 						tooltip='Xem chi tiết'
-						onClick={() => handleView(record)}
+						onClick={() => onOpenExtendedModal(record)}
 						type='link'
 						icon={<EyeOutlined />}
 					/>
-					<ButtonExtend
-						tooltip='Chỉnh sửa'
-						onClick={() => handleEdit(record)}
-						type='link'
-						icon={<EditOutlined />}
-					/>
+					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
 						title='Bạn có chắc chắn muốn xóa hồ sơ này?'
@@ -116,6 +129,12 @@ const HoSoPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+			/>
+			<HoSoDetail
+				isVisible={extendedModalVisible}
+				onClose={onCloseExtendedModal}
+				record={selectedRecord}
+				onEdit={onEditFromView}
 			/>
 		</div>
 	);
