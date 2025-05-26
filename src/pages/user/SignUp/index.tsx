@@ -123,7 +123,7 @@ const SignUp: React.FC = () => {
 							</Col>
 
 							<Col span={24} md={12}>
-								<Form.Item name='dateOfBirth' label='Ngày sinh'>
+								<Form.Item name='ngaySinh' label='Ngày sinh'>
 									<MyDatePicker
 										placeholder='Chọn ngày sinh'
 										format='DD/MM/YYYY'
@@ -134,7 +134,7 @@ const SignUp: React.FC = () => {
 							</Col>
 
 							<Col span={24}>
-								<Form.Item name='idNumber' label='Số CMND/CCCD' rules={[...rules.required]}>
+								<Form.Item name='soCCCD' label='Số CMND/CCCD' rules={[...rules.required]}>
 									<Input
 										placeholder='Nhập số CMND/CCCD'
 										prefix={<IdcardOutlined className={styles.prefixIcon} />}
