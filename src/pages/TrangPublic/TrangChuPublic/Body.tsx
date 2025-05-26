@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { primaryColor } from '@/services/base/constant';
+import { ipLocal } from '@/utils/ip';
 
 const { Title, Paragraph, Text } = Typography;
 const { TabPane } = Tabs;
@@ -40,7 +41,7 @@ const TrangChuBody = () => {
 
 	const [loading, setLoading] = useState(true);
 
-	const BASE_API_URL = 'http://localhost:3000';
+	const BASE_API_URL = ipLocal;
 
 	// Fetch data from APIs
 	useEffect(() => {
