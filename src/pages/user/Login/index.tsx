@@ -3,7 +3,52 @@ import { Button, Form, Input, message, Row, Col } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useModel, useIntl, history } from 'umi';
 import styles from './index.less';
-import { dangNhap, getUserById } from '@/utils/loginsignup'; // Import API functions
+
+// Giả lập dữ liệu từ db.json
+const users = [
+	{
+		id: 'user_001',
+		password: 'hashedpassword123',
+		username: 'nguyenvana',
+		soCCCD: '001234567890',
+		email: 'nguyenvana@email.com',
+		ho: 'Nguyễn Văn',
+		ten: 'An',
+	},
+	{
+		id: 'user_002',
+		password: 'hashedpassword456',
+		username: 'tranthib',
+		soCCCD: '001234567891',
+		email: 'tranthib@email.com',
+		ho: 'Trần Thị',
+		ten: 'Bình',
+	},
+	{
+		id: 'a46a',
+		email: 'lehaianhp280620051@gmail.com',
+		ho: 'Lê Hải',
+		ten: 'An',
+		password: 'http://localhost:8000/user/signup',
+		soCCCD: '123',
+	},
+	{
+		id: '94fb',
+		email: 'lehaianhp280620051@gmail.com',
+		ho: 'Lê Hải',
+		ten: 'An',
+		password: '1234',
+		soCCCD: '123',
+	},
+	{
+		id: 'ae4d',
+		email: 'lehaianhp280620051@gmail.com',
+		ho: 'Lê Hải',
+		ten: 'An',
+		password: '1234',
+		soCCCD: '123',
+	},
+];
 
 const Login: React.FC = () => {
 	const { setInitialState } = useModel('@@initialState');
@@ -16,19 +61,11 @@ const Login: React.FC = () => {
 			setSubmitting(true);
 			const { login, password } = values;
 
-			// Call the login API
-			const loginResponse = await dangNhap(login, password);
-			const { userId } = loginResponse.data; // Assuming API returns userId
+			// Tìm user với email hoặc soCCCD khớp
+			const user = users.find((u) => (u.email === login || u.soCCCD === login) && u.password === password);
 
-			if (userId) {
-				// Store userId in local storage
-				localStorage.setItem('userId', userId);
-
-				// Fetch user details using getUserById
-				const userResponse = await getUserById(userId);
-				const user = userResponse.data;
-
-				// Save user info to initialState
+			if (user) {
+				// Lưu thông tin user vào initialState
 				await setInitialState({
 					currentUser: {
 						id: user.id,
@@ -37,9 +74,8 @@ const Login: React.FC = () => {
 						soCCCD: user.soCCCD,
 					},
 				});
-
 				message.success('Đăng nhập thành công');
-				history.push('/public/dash-board'); // Redirect to dashboard
+				history.push('/public/dash-board'); // Chuyển hướng đến trang Dashboard của thí sinh
 			} else {
 				throw new Error('Invalid credentials');
 			}
@@ -49,31 +85,6 @@ const Login: React.FC = () => {
 			setSubmitting(false);
 		}
 	};
-
-	// Check if user is already logged in
-	React.useEffect(() => {
-		const userId = localStorage.getItem('userId');
-		if (userId) {
-			// Fetch user details and set initial state
-			getUserById(userId)
-				.then((response) => {
-					const user = response.data;
-					setInitialState({
-						currentUser: {
-							id: user.id,
-							fullName: `${user.ho} ${user.ten}`,
-							email: user.email,
-							soCCCD: user.soCCCD,
-						},
-					});
-					// Optionally redirect to dashboard if already logged in
-					history.push('/public/dash-board');
-				})
-				.catch(() => {
-					localStorage.removeItem('userId'); // Clear invalid userId
-				});
-		}
-	}, [setInitialState]);
 
 	return (
 		<div className={styles.container}>

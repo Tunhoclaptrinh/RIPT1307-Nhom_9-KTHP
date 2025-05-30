@@ -1,33 +1,13 @@
 import { useEffect, useState } from 'react';
 import { coQuanChuQuan, primaryColor, unitName } from '@/services/base/constant';
 import { HeaderProps } from './typing';
-import { Button, Col, Drawer, Dropdown, Menu, Modal, Row, Space } from 'antd';
+import { Button, Col, Drawer, Dropdown, Menu, Row, Space } from 'antd';
 import { UserOutlined, MenuOutlined, DownOutlined, CloseOutlined, AppstoreOutlined } from '@ant-design/icons';
-import { history } from 'umi';
-import { logout } from '@/services/user';
 
 const Header = (props: HeaderProps) => {
 	const { subTitle = 'Hệ thống Tuyển sinh Đại học Trực tuyến', button = [], menu = [] } = props;
 	const [isMobile, setIsMobile] = useState(false);
 	const [drawerVisible, setDrawerVisible] = useState(false);
-	const isLoggedIn = !!localStorage.getItem('userId');
-
-	const handleLogin = () => {
-		history.push('/user/login');
-	};
-
-	const handleLogout = () => {
-		Modal.confirm({
-			title: 'Xác nhận đăng xuất',
-			content: 'Bạn có chắc chắn muốn đăng xuất?',
-			okText: 'Đăng xuất',
-			cancelText: 'Hủy',
-			onOk() {
-				logout();
-				window.location.reload();
-			},
-		});
-	};
 
 	// Xử lý responsive
 	useEffect(() => {
@@ -247,42 +227,22 @@ const Header = (props: HeaderProps) => {
 										</Space>
 									)}
 
-									{/* Mặc định hiển thị nút đăng nhập/đăng xuất nếu không có button nào được truyền vào */}
+									{/* Mặc định hiển thị nút đăng ký nếu không có button nào được truyền vào */}
 									{button.length === 0 && (
-										isLoggedIn ? (
-											<Button
-												key='logout'
-												type='primary'
-												danger
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													borderRadius: '6px',
-													padding: '4px 16px',
-													height: '38px',
-													margin: '0 10px',
-												}}
-												onClick={handleLogout}
-											>
-												Đăng xuất
-											</Button>
-										) : (
-											<Button
-												key='login'
-												type='primary'
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													borderRadius: '6px',
-													padding: '4px 16px',
-													height: '38px',
-													margin: '0 10px',
-												}}
-												onClick={handleLogin}
-											>
-												Đăng nhập
-											</Button>
-										)
+										<Button
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												borderRadius: '6px',
+												padding: '4px 16px',
+												height: '38px',
+												margin: '0 10px',
+											}}
+											type='primary'
+											icon={<UserOutlined />}
+										>
+											Đăng ký tài khoản
+										</Button>
 									)}
 								</div>
 							)}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Button, Card, Tabs, Typography, Statistic, List, Space, Timeline, Spin, message } from 'antd';
-import { history } from 'umi';
 import {
 	SearchOutlined,
 	CalendarOutlined,
@@ -125,19 +124,7 @@ const TrangChuBody = () => {
 										sơ tuyển sinh của bạn mọi lúc, mọi nơi.
 									</Paragraph>
 									<Space>
-										<Button 
-											type='primary' 
-											size='large'
-											onClick={() => {
-												const userId = localStorage.getItem('userId');
-												const userInfo = localStorage.getItem('userInfo');
-												if (!userId && !userInfo) {
-													history.push('/user/login');
-												} else {
-													history.push('/dang-ky-tuyen-sinh');
-												}
-											}}
-										>
+										<Button type='primary' size='large'>
 											Đăng Ký Xét Tuyển
 										</Button>
 										<Link
