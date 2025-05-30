@@ -1,75 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Typography, Select, Button, Divider } from 'antd';
 import { RightOutlined, FileSearchOutlined, ReadOutlined, CreditCardOutlined } from '@ant-design/icons';
-import { useModel, history } from 'umi';
+import { useModel } from 'umi';
 import styles from './index.less';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import path from 'path';
 
+// const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
 
 const Dashboard: React.FC = () => {
 	const { initialState } = useModel('@@initialState');
-	// const { dangXuat } = useModel('users');
 	const currentUser = initialState?.currentUser;
 	const [selectedYear, setSelectedYear] = useState('2024');
 	const [selectedMajor, setSelectedMajor] = useState('Chính quy');
-
-	const handleLogout = async () => {
-		try {
-			// await dangXuat();
-			history.push('/user/signin');
-		} catch (error) {
-			console.error('Logout failed:', error);
-		}
-	};
-
+	const userString = localStorage.getItem('userInfo');
+	const user = userString ? JSON.parse(userString) : null;
 	// Các dịch vụ chính hiển thị trên dashboard
 	const services = [
 		{
 			title: 'Xét tuyển trực tuyến',
 			icon: <FileSearchOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/admission.svg',
-			path: '/dang-ky-tuyen-sinh',
+			image: '/images/admission.svg', // Thay thế bằng đường dẫn thực tế của bạn
 		},
 		{
 			title: 'Nhập học trực tuyến',
 			icon: <ReadOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/enroll.svg',
-			path: '/nhap-hoc',
+			image: '/images/enroll.svg', // Thay thế bằng đường dẫn thực tế của bạn
 		},
 		{
 			title: 'Thanh toán trực tuyến',
 			icon: <CreditCardOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/payment.svg',
-			path: '/thanh-toan',
+			image: '/images/payment.svg', // Thay thế bằng đường dẫn thực tế của bạn
 		},
 	];
 
 	return (
 		<>
-			<Header
-				button={
-					currentUser
-						? [
-								<Button type='primary' onClick={handleLogout} key='logout'>
-									Đăng xuất
-								</Button>,
-						  ]
-						: [
-								<Button type='primary' href='/user/signin' style={{ marginRight: 8 }} key='signin'>
-									Đăng nhập
-								</Button>,
-								<Button type='default' href='/user/signup' key='signup'>
-									Đăng ký
-								</Button>,
-						  ]
-				}
-			/>
+			<Header />
 			<div className={styles.dashboardContainer}>
 				<Row>
 					<Col xs={24} lg={20} style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30 }}>
@@ -78,7 +50,7 @@ const Dashboard: React.FC = () => {
 							<Row justify='center' align='middle'>
 								<Col span={24} style={{ textAlign: 'center', padding: '20px 0' }}>
 									<Typography.Title level={3} style={{ color: '#8b1d1d' }}>
-										Xin chào {currentUser?.name || 'Linh'},{' '}
+										Xin chào {user?.ho || ''} {user?.ten || ''},{' '}
 										<span role='img' aria-label='wave'>
 											👋
 										</span>

@@ -12,10 +12,10 @@ export default [
 				name: 'login',
 				component: './user/Login',
 			},
-			// {
-			// 	path: '/user',
-			// 	redirect: '/user/login',
-			// },
+			{
+				path: '/user',
+				redirect: '/user/login',
+			},
 			{
 				path: '/user/signup',
 				layout: false,
