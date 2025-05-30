@@ -38,7 +38,7 @@ const TraCuuTuyenSinhPublic = () => {
 					background: '#f5f5f5',
 				}}
 			>
-				<Col style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30 }} xs={24} lg={20}>
+				<Col style={{ margin: 'auto', paddingTop: 30, paddingBottom: 30, marginTop: 90 }} xs={24} lg={20}>
 					<Card title='Thông tin tra cứu'>
 						<Form
 							// onFinish={onFinish}

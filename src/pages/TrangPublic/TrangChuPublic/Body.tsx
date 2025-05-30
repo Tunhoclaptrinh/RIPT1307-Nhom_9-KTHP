@@ -98,7 +98,7 @@ const TrangChuBody = () => {
 
 	if (loading) {
 		return (
-			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', marginTop: 90 }}>
 				<Spin size='large' />
 			</div>
 		);
@@ -109,7 +109,7 @@ const TrangChuBody = () => {
 			{/* Banner section */}
 			<div
 				className='elementor-element elementor-element-4aa2163 e-con-full e-flex e-con e-child'
-				style={{ background: '#f0f7ff', padding: '40px 0' }}
+				style={{ background: '#f0f7ff', padding: '40px 0', marginTop: 90 }}
 			>
 				<div style={{ margin: '0 20px' }}>
 					<Row justify='center'>
