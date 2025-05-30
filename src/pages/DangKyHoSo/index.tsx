@@ -12,34 +12,6 @@ const { Title, Text } = Typography;
 const UniversityRegistrationForm = () => {
 	const [form] = Form.useForm();
 	const [currentStep, setCurrentStep] = useState(0);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-	useEffect(() => {
-		const userId = localStorage.getItem('userId');
-		const userInfo = localStorage.getItem('userInfo');
-		if (!userId && !userInfo) {
-			history.push('/user/login');
-		} else {
-			setIsLoggedIn(true);
-		}
-	}, []);
-
-	const handleLogin = () => {
-		history.push('/user/login');
-	};
-
-	const handleLogout = () => {
-		Modal.confirm({
-			title: 'Xác nhận đăng xuất',
-			content: 'Bạn có chắc chắn muốn đăng xuất?',
-			okText: 'Đăng xuất',
-			cancelText: 'Hủy',
-			onOk() {
-				logout();
-				window.location.reload();
-			},
-		});
-	};
 
 	const onFinish = (values: any) => {
 		console.log('Form values:', values);
