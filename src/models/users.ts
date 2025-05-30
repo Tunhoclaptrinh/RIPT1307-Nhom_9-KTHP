@@ -4,6 +4,9 @@ import { dangKy } from '../services/Users/index';
 
 export default () => {
 	const objInt = useInitModel<User.IRecord>('users', undefined, undefined, ipLocal);
+	// const dangXuat = () => {
+	// 	localStorage.clear
+	// }
 
 	return {
 		...objInt,

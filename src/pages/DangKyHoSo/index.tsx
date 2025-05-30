@@ -13,7 +13,7 @@ const UniversityRegistrationForm = () => {
 	const [form] = Form.useForm();
 	const [currentStep, setCurrentStep] = useState(0);
 
-	const onFinish = (values) => {
+	const onFinish = (values: any) => {
 		console.log('Form values:', values);
 		message.success('Đăng ký thành công!');
 	};

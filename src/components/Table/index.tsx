@@ -10,6 +10,8 @@ import {
 	PlusCircleOutlined,
 	ReloadOutlined,
 	SearchOutlined,
+	FullscreenExitOutlined,
+	FullscreenOutlined,
 } from '@ant-design/icons';
 import {
 	AutoComplete,
@@ -46,6 +48,7 @@ import type { IColumn, TDataOption, TFilter, TableBaseProps } from './typing';
 
 const TableBase = (props: TableBaseProps) => {
 	const { modelName, Form, title, dependencies = [], params, buttons, widthDrawer, destroyModal } = props;
+	const [isExpanded, setIsExpanded] = useState(false);
 	const model = useModel(modelName);
 	const {
 		visibleForm,
@@ -616,7 +619,8 @@ const TableBase = (props: TableBaseProps) => {
 				<>
 					{props.formType === 'Drawer' ? (
 						<Drawer
-							className={widthDrawer === 'full' ? 'drawer-full' : ''}
+							// className={widthDrawer === 'full' ? 'drawer-full' : ''}
+							className={isExpanded || widthDrawer === 'full' ? 'drawer-full' : ''}
 							maskClosable={props.maskCloseableForm || false}
 							width={widthDrawer !== 'full' ? widthDrawer : undefined}
 							footer={false}
@@ -625,14 +629,26 @@ const TableBase = (props: TableBaseProps) => {
 							destroyOnClose={destroyModal || false}
 						>
 							<Form title={title ?? ''} {...props.formProps} />
+							<div className='expand-button'>
+								{/* Expand Button */}
+								<div
+									onClick={() => setIsExpanded(!isExpanded)}
+									style={{ transform: 'translate(-30px, -5px)', cursor: 'pointer' }}
+								>
+									{isExpanded ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+								</div>
+								{/* Close Button */}
+							</div>
 							<CloseOutlined
+								className='close-button'
 								onClick={() => setVisibleForm(false)}
 								style={{ position: 'absolute', top: 24, right: 24, cursor: 'pointer' }}
 							/>
 						</Drawer>
 					) : (
 						<Modal
-							className={widthDrawer === 'full' ? 'modal-full' : ''}
+							// className={widthDrawer === 'full' ? 'modal-full' : ''}
+							className={isExpanded || widthDrawer === 'full' ? 'modal-full' : ''}
 							maskClosable={props.maskCloseableForm || false}
 							width={widthDrawer !== 'full' ? widthDrawer : undefined}
 							onCancel={() => setVisibleForm(false)}
@@ -642,6 +658,10 @@ const TableBase = (props: TableBaseProps) => {
 							destroyOnClose={destroyModal || false}
 						>
 							<Form title={title ?? ''} {...props.formProps} />
+							<div className='expand-button' onClick={() => setIsExpanded(!isExpanded)}>
+								{/* Expand Button */}
+								{isExpanded ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+							</div>
 						</Modal>
 					)}
 				</>

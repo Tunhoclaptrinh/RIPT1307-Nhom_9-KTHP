@@ -4,12 +4,18 @@ import { useModel, useIntl } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
+import NganhDaoTaoSelect from '@/pages/NganhDaoTao/components/Select';
 
 interface ThongTinNguyenVongFormProps {
 	title?: string;
+	hideFooter?: boolean;
 }
 
-const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({ title = 'thông tin nguyện vọng' }) => {
+const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({
+	title = 'thông tin nguyện vọng',
+	hideFooter,
+	...props
+}) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } =
 		useModel('thongtinnguyenvong');
 	const [form] = Form.useForm();
@@ -43,7 +49,8 @@ const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({ title =
 				<Row gutter={[16, 16]}>
 					<Col xs={24} sm={24}>
 						<Form.Item label='Tên nguyện vọng' name='ten' rules={[...rules.required]}>
-							<Input placeholder='Nhập tên nguyện vọng' />
+							{/* <Input placeholder='Nhập tên nguyện vọng' /> */}
+							<NganhDaoTaoSelect />
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={12}>
@@ -53,8 +60,8 @@ const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({ title =
 					</Col>
 
 					<Col xs={24} sm={12}>
-						<Form.Item label='Phương thức ID' name='phuongThucId' rules={[...rules.required]}>
-							<PhuongThucXTSelect placeholder='Nhập ID phương thức xét tuyển' />
+						<Form.Item label='Phương thức xét tuyển' name='phuongThucId' rules={[...rules.required]}>
+							<PhuongThucXTSelect placeholder='Chọn phương thức xét tuyển' />
 						</Form.Item>
 					</Col>
 					<Col xs={24} sm={8}>
@@ -94,16 +101,18 @@ const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({ title =
 					</Col>
 				</Row>
 
-				<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
-					<Space>
-						<Button loading={formSubmiting} htmlType='submit' type='primary'>
-							{!edit
-								? intl.formatMessage({ id: 'global.button.themmoi' })
-								: intl.formatMessage({ id: 'global.button.luulai' })}
-						</Button>
-						<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
-					</Space>
-				</div>
+				{!hideFooter && (
+					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+						<Space>
+							<Button loading={formSubmiting} htmlType='submit' type='primary'>
+								{!edit
+									? intl.formatMessage({ id: 'global.button.themmoi' })
+									: intl.formatMessage({ id: 'global.button.luulai' })}
+							</Button>
+							<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+						</Space>
+					</div>
+				)}
 			</Form>
 		</Card>
 	);

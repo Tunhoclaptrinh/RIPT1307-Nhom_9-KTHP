@@ -10,10 +10,11 @@ import { Space } from 'antd';
 
 interface UserFormProps {
 	title?: string;
+	hideFooter?: boolean;
 	[key: string]: any;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
+const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFooter, ...props }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('users');
 	const [form] = Form.useForm();
 	const intl = useIntl();
@@ -35,7 +36,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 			setSelectedDistrict(undefined);
 			setSelectedWard(undefined);
 		} else if (record?.id) {
-			// Trường hợp edit - populate form với dữ liệu có sẵn
 			const formData = {
 				...record,
 				ngayCap: record.ngayCap ? moment(record.ngayCap) : undefined,
@@ -49,17 +49,14 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 			};
 			form.setFieldsValue(formData);
 
-			// Cập nhật state địa chỉ - QUAN TRỌNG: phải set theo thứ tự
 			const province = record.hoKhauThuongTru?.tinh_ThanhPho;
 			const district = record.hoKhauThuongTru?.quanHuyen;
 			const ward = record.hoKhauThuongTru?.xaPhuong;
 
 			setSelectedProvince(province);
-			// Delay để đảm bảo districts được load trước khi set district
 			if (province && district) {
 				setTimeout(() => {
 					setSelectedDistrict(district);
-					// Delay thêm để đảm bảo wards được load trước khi set ward
 					if (ward) {
 						setTimeout(() => {
 							setSelectedWard(ward);
@@ -85,13 +82,11 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 				},
 			};
 
-			// Nếu không có mật khẩu và đang tạo mới, sử dụng CCCD làm mật khẩu mặc định
 			if (!edit && (!values.password || values.password.trim() === '')) {
 				submitData.password = values.soCCCD;
 			}
 
 			if (edit) {
-				// Fix TypeScript error: Kiểm tra record?.id trước khi sử dụng
 				if (!record?.id) {
 					throw new Error('Record ID is required for editing');
 				}
@@ -114,7 +109,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		setSelectedDistrict(undefined);
 		setSelectedWard(undefined);
 
-		// Reset form fields
 		form.setFieldsValue({
 			hoKhauThuongTru: {
 				tinh_ThanhPho: value,
@@ -125,7 +119,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		});
 	};
 
-	// Hàm reset mật khẩu về CCCD
 	const handleResetPassword = async () => {
 		if (!record?.soCCCD) {
 			message.error('Không tìm thấy số CCCD để reset mật khẩu');
@@ -138,10 +131,9 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		}
 
 		try {
-			// Lấy dữ liệu hiện tại của người dùng từ record
 			const currentData = {
 				...record,
-				password: record.soCCCD, // Chỉ cập nhật mật khẩu
+				password: record.soCCCD,
 				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
 				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
 				hoKhauThuongTru: {
@@ -160,7 +152,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 			message.error('Reset mật khẩu thất bại');
 		}
 	};
-	// Hàm đổi mật khẩu thành mật khẩu mới
+
 	const handleChangePassword = async () => {
 		if (!newPassword || newPassword.trim() === '') {
 			message.error('Vui lòng nhập mật khẩu mới');
@@ -173,10 +165,9 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		}
 
 		try {
-			// Lấy dữ liệu hiện tại của người dùng từ record
 			const currentData = {
 				...record,
-				password: newPassword.trim(), // Chỉ cập nhật mật khẩu mới
+				password: newPassword.trim(),
 				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
 				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
 				hoKhauThuongTru: {
@@ -202,7 +193,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		setSelectedDistrict(value);
 		setSelectedWard(undefined);
 
-		// Update form field
 		form.setFieldsValue({
 			hoKhauThuongTru: {
 				tinh_ThanhPho: selectedProvince,
@@ -229,7 +219,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 		console.log('Ward changed:', value);
 		setSelectedWard(value);
 
-		// Update form field
 		form.setFieldsValue({
 			hoKhauThuongTru: {
 				tinh_ThanhPho: selectedProvince,
@@ -259,7 +248,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 
 					<Row gutter={16}>
 						<Col span={12}>
-							<Form.Item label='Username' name='username' rules={[...rules.required]}>
+							<Form.Item label='Username' name='username'>
 								<Input placeholder='Nhập username' />
 							</Form.Item>
 						</Col>
@@ -315,7 +304,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 						</Form.Item>
 					)}
 
-					{/* Compact password management section - chỉ hiển thị 1 hàng nhỏ gọn */}
 					{edit && (
 						<Row gutter={16} style={{ marginBottom: 16 }}>
 							<Col
@@ -400,20 +388,21 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng' }) => {
 						</Row>
 					</Card>
 
-					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
-						<Space>
-							<Button loading={submitting} htmlType='submit' type='primary'>
-								{!edit
-									? intl.formatMessage({ id: 'global.button.themmoi' })
-									: intl.formatMessage({ id: 'global.button.luulai' })}
-							</Button>
-							<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
-						</Space>
-					</div>
+					{!hideFooter && (
+						<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+							<Space>
+								<Button loading={submitting} htmlType='submit' type='primary'>
+									{!edit
+										? intl.formatMessage({ id: 'global.button.themmoi' })
+										: intl.formatMessage({ id: 'global.button.luulai' })}
+								</Button>
+								<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+							</Space>
+						</div>
+					)}
 				</Form>
 			</Card>
 
-			{/* Modal quản lý mật khẩu */}
 			<Modal
 				title='Quản lý mật khẩu'
 				visible={resetPasswordModalVisible}

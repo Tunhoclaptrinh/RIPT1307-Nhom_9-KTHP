@@ -113,112 +113,6 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
 		}
 	};
 
-	const handleProvinceChange = (value: string) => {
-		setSelectedProvince(value);
-		setSelectedDistrict(undefined);
-		setSelectedWard(undefined);
-		form.setFieldsValue({
-			hoKhauThuongTru: {
-				tinh_ThanhPho: value,
-				quanHuyen: undefined,
-				xaPhuong: undefined,
-				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
-			},
-		});
-	};
-
-	const handleDistrictChange = (value: string) => {
-		setSelectedDistrict(value);
-		setSelectedWard(undefined);
-		form.setFieldsValue({
-			hoKhauThuongTru: {
-				tinh_ThanhPho: selectedProvince,
-				quanHuyen: value,
-				xaPhuong: undefined,
-				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
-			},
-		});
-	};
-
-	const handleWardChange = (value: string) => {
-		setSelectedWard(value);
-		form.setFieldsValue({
-			hoKhauThuongTru: {
-				tinh_ThanhPho: selectedProvince,
-				quanHuyen: selectedDistrict,
-				xaPhuong: value,
-				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
-			},
-		});
-	};
-
-	const handleResetPassword = async () => {
-		if (!record?.soCCCD) {
-			message.error('Không tìm thấy số CCCD để reset mật khẩu');
-			return;
-		}
-		if (!record?.id) {
-			message.error('Không tìm thấy ID người dùng');
-			return;
-		}
-		try {
-			const currentData = {
-				...record,
-				password: record.soCCCD,
-				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
-				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
-				hoKhauThuongTru: {
-					tinh_ThanhPho: record.hoKhauThuongTru?.tinh_ThanhPho,
-					quanHuyen: record.hoKhauThuongTru?.quanHuyen,
-					xaPhuong: record.hoKhauThuongTru?.xaPhuong,
-					diaChi: record.hoKhauThuongTru?.diaChi,
-				},
-			};
-			await putModel?.(record.id, currentData);
-			message.success('Reset mật khẩu thành công! Mật khẩu mới là số CCCD');
-			setResetPasswordModalVisible(false);
-		} catch (error) {
-			console.error('Reset password error:', error);
-			message.error('Reset mật khẩu thất bại');
-		}
-	};
-
-	const handleChangePassword = async () => {
-		if (!newPassword || newPassword.trim() === '') {
-			message.error('Vui lòng nhập mật khẩu mới');
-			return;
-		}
-		if (!record?.id) {
-			message.error('Không tìm thấy ID người dùng');
-			return;
-		}
-		try {
-			const currentData = {
-				...record,
-				password: newPassword.trim(),
-				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
-				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
-				hoKhauThuongTru: {
-					tinh_ThanhPho: record.hoKhauThuongTru?.tinh_ThanhPho,
-					quanHuyen: record.hoKhauThuongTru?.quanHuyen,
-					xaPhuong: record.hoKhauThuongTru?.xaPhuong,
-					diaChi: record.hoKhauThuongTru?.diaChi,
-				},
-			};
-			await putModel?.(record.id, currentData);
-			message.success('Đổi mật khẩu thành công!');
-			setResetPasswordModalVisible(false);
-			setNewPassword('');
-		} catch (error) {
-			console.error('Change password error:', error);
-			message.error('Đổi mật khẩu thất bại');
-		}
-	};
-
-	const handleMouseDown = () => setShowPassword(true);
-	const handleMouseUp = () => setShowPassword(false);
-	const handleMouseLeave = () => setShowPassword(false);
-
 	return (
 		// <>
 		// 	<Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
@@ -433,7 +327,7 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
 		// 		</div>
 		// 	</Modal>
 		// </>
-		<UserForm></UserForm>
+		<UserForm hideFooter={true}></UserForm>
 	);
 };
 
