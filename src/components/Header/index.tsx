@@ -3,6 +3,7 @@ import { coQuanChuQuan, primaryColor, unitName } from '@/services/base/constant'
 import { HeaderProps } from './typing';
 import { Button, Col, Drawer, Dropdown, Menu, Row, Space } from 'antd';
 import { UserOutlined, MenuOutlined, DownOutlined, CloseOutlined, AppstoreOutlined } from '@ant-design/icons';
+import { history } from 'umi';
 
 const Header = (props: HeaderProps) => {
 	const { subTitle = 'Hệ thống Tuyển sinh Đại học Trực tuyến', button = [], menu = [] } = props;
@@ -65,7 +66,16 @@ const Header = (props: HeaderProps) => {
 	);
 
 	return (
-		<div style={{ backgroundColor: '#fff', width: '100%', position: 'fixed', top: 0, zIndex: 1000 }}>
+		<div
+			style={{
+				backgroundColor: '#fff',
+				width: '100%',
+				position: 'fixed',
+				top: 0,
+				zIndex: 1000,
+				boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.2)',
+			}}
+		>
 			<Row justify='center'>
 				<Col xs={24} lg={20}>
 					<header>
@@ -92,7 +102,10 @@ const Header = (props: HeaderProps) => {
 											height: 70,
 										}}
 									>
-										<div style={{ flexShrink: 0, marginRight: isMobile ? 10 : 20 }}>
+										<div
+											style={{ flexShrink: 0, marginRight: isMobile ? 10 : 20, cursor: 'pointer' }}
+											onClick={() => history.push('/public/trang-chu')}
+										>
 											<img
 												style={{
 													width: 50,

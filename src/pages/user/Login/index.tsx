@@ -1,88 +1,20 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, message, Row, Col } from 'antd';
+import React from 'react';
+import { Button, Form, Input, Row, Col } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { useModel, useIntl, history } from 'umi';
+import { useIntl } from 'umi';
 import styles from './index.less';
-
-// Giả lập dữ liệu từ db.json
-const users = [
-	{
-		id: 'user_001',
-		password: 'hashedpassword123',
-		username: 'nguyenvana',
-		soCCCD: '001234567890',
-		email: 'nguyenvana@email.com',
-		ho: 'Nguyễn Văn',
-		ten: 'An',
-	},
-	{
-		id: 'user_002',
-		password: 'hashedpassword456',
-		username: 'tranthib',
-		soCCCD: '001234567891',
-		email: 'tranthib@email.com',
-		ho: 'Trần Thị',
-		ten: 'Bình',
-	},
-	{
-		id: 'a46a',
-		email: 'lehaianhp280620051@gmail.com',
-		ho: 'Lê Hải',
-		ten: 'An',
-		password: 'http://localhost:8000/user/signup',
-		soCCCD: '123',
-	},
-	{
-		id: '94fb',
-		email: 'lehaianhp280620051@gmail.com',
-		ho: 'Lê Hải',
-		ten: 'An',
-		password: '1234',
-		soCCCD: '123',
-	},
-	{
-		id: 'ae4d',
-		email: 'lehaianhp280620051@gmail.com',
-		ho: 'Lê Hải',
-		ten: 'An',
-		password: '1234',
-		soCCCD: '123',
-	},
-];
+import useAuth from '../../../hooks/useAuth';
 
 const Login: React.FC = () => {
-	const { setInitialState } = useModel('@@initialState');
-	const [submitting, setSubmitting] = useState(false);
+	const { login, isLoading } = useAuth();
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
 	const handleSubmit = async (values: any) => {
 		try {
-			setSubmitting(true);
-			const { login, password } = values;
-
-			// Tìm user với email hoặc soCCCD khớp
-			const user = users.find((u) => (u.email === login || u.soCCCD === login) && u.password === password);
-
-			if (user) {
-				// Lưu thông tin user vào initialState
-				await setInitialState({
-					currentUser: {
-						id: user.id,
-						fullName: `${user.ho} ${user.ten}`,
-						email: user.email,
-						soCCCD: user.soCCCD,
-					},
-				});
-				message.success('Đăng nhập thành công');
-				history.push('/public/dash-board'); // Chuyển hướng đến trang Dashboard của thí sinh
-			} else {
-				throw new Error('Invalid credentials');
-			}
+			await login(values.login, values.password);
 		} catch (error) {
-			message.error('Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.');
-		} finally {
-			setSubmitting(false);
+			// Lỗi đã được xử lý trong useAuth, không cần xử lý thêm
 		}
 	};
 
@@ -136,7 +68,7 @@ const Login: React.FC = () => {
 						</Row>
 
 						<Form.Item>
-							<Button type='primary' htmlType='submit' block size='large' loading={submitting}>
+							<Button type='primary' htmlType='submit' block size='large' loading={isLoading}>
 								Đăng nhập
 							</Button>
 						</Form.Item>

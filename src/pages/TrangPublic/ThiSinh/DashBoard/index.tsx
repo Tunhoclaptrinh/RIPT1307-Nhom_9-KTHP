@@ -1,29 +1,16 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Typography, Select, Button, Divider } from 'antd';
 import { RightOutlined, FileSearchOutlined, ReadOutlined, CreditCardOutlined } from '@ant-design/icons';
-import { useModel, history } from 'umi';
 import styles from './index.less';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import path from 'path';
-
+import useAuth from '../../../../hooks/useAuth';
 const { Option } = Select;
 
 const Dashboard: React.FC = () => {
-	const { initialState } = useModel('@@initialState');
-	const { dangXuat } = useModel('users');
-	const currentUser = initialState?.currentUser;
+	const { user, isAuthenticated, logout } = useAuth();
 	const [selectedYear, setSelectedYear] = useState('2024');
 	const [selectedMajor, setSelectedMajor] = useState('Chính quy');
-
-	const handleLogout = async () => {
-		try {
-			await dangXuat();
-			history.push('/user/signin');
-		} catch (error) {
-			console.error('Logout failed:', error);
-		}
-	};
 
 	// Các dịch vụ chính hiển thị trên dashboard
 	const services = [
@@ -51,14 +38,14 @@ const Dashboard: React.FC = () => {
 		<>
 			<Header
 				button={
-					currentUser
+					isAuthenticated
 						? [
-								<Button type='primary' onClick={handleLogout} key='logout'>
+								<Button type='primary' onClick={logout} key='logout'>
 									Đăng xuất
 								</Button>,
 						  ]
 						: [
-								<Button type='primary' href='/user/signin' style={{ marginRight: 8 }} key='signin'>
+								<Button type='primary' href='/user/login' style={{ marginRight: 8 }} key='login'>
 									Đăng nhập
 								</Button>,
 								<Button type='default' href='/user/signup' key='signup'>
@@ -75,7 +62,7 @@ const Dashboard: React.FC = () => {
 							<Row justify='center' align='middle'>
 								<Col span={24} style={{ textAlign: 'center', padding: '20px 0' }}>
 									<Typography.Title level={3} style={{ color: '#8b1d1d' }}>
-										Xin chào {currentUser?.fullName || 'Linh'},{' '}
+										Xin chào {user?.fullName || 'Khách'},{' '}
 										<span role='img' aria-label='wave'>
 											👋
 										</span>
