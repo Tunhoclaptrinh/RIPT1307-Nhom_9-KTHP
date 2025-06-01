@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, Typography, Select, Button, Divider } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Typography, Select, Button, Divider, message } from 'antd';
 import { RightOutlined, FileSearchOutlined, ReadOutlined, CreditCardOutlined } from '@ant-design/icons';
+import { history } from 'umi';
 import styles from './index.less';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import useAuth from '../../../../hooks/useAuth';
+
 const { Option } = Select;
 
 const Dashboard: React.FC = () => {
-	const { user, isAuthenticated, logout } = useAuth();
+	const { user, isAuthenticated, isLoading, logout } = useAuth();
 	const [selectedYear, setSelectedYear] = useState('2024');
 	const [selectedMajor, setSelectedMajor] = useState('Chính quy');
+
+	// Kiểm tra trạng thái đăng nhập và chuyển hướng nếu chưa đăng nhập
+	useEffect(() => {
+		if (!isLoading && !isAuthenticated) {
+			message.warning('Vui lòng đăng nhập để truy cập Dashboard.');
+			history.push('/user/login');
+		}
+	}, [isAuthenticated, isLoading]);
 
 	// Các dịch vụ chính hiển thị trên dashboard
 	const services = [
@@ -33,6 +43,10 @@ const Dashboard: React.FC = () => {
 			image: '/images/payment.svg',
 		},
 	];
+
+	if (isLoading) {
+		return <div>Đang tải...</div>;
+	}
 
 	return (
 		<>

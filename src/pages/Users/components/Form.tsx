@@ -11,7 +11,7 @@ import { Space } from 'antd';
 interface UserFormProps {
 	title?: string;
 	hideFooter?: boolean;
-	[key: string]: any;
+	// [key: string]: any;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFooter, ...props }) => {
