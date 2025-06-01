@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space } from 'antd';
+import { Popconfirm, Tag, Space, message } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import Form from './components/Form'; // Assuming a Form component exists for HoSo
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
-import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
 import HoSoDetail from './components/Detail';
+import { duyetHoSo } from '@/services/HoSo';
 
 const HoSoPage = () => {
-	const { handleEdit, handleView, deleteModel } = useModel('hoso');
+	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
 
@@ -93,6 +94,12 @@ const HoSoPage = () => {
 			},
 		},
 		{
+			title: 'Tình trạng',
+			dataIndex: 'tinhTrang',
+			width: 100,
+			render: (status) => <Tag color={status === 'đã duyệt' ? 'green' : 'orange'}>{status}</Tag>,
+		},
+		{
 			title: 'Thao tác',
 			align: 'center',
 			width: 150,
@@ -105,6 +112,28 @@ const HoSoPage = () => {
 						type='link'
 						icon={<EyeOutlined />}
 					/>
+					<Popconfirm
+						title='Bạn có chắc chắn muốn duyệt hồ sơ này?'
+						placement='topLeft'
+						onConfirm={async () => {
+							try {
+								await duyetHoSo(record);
+								message.success('Duyệt hồ sơ thành công!');
+								getModel();
+							} catch (error) {
+								message.error('Duyệt hồ sơ thất bại!');
+							}
+						}}
+					>
+						<ButtonExtend
+							tooltip='Duyệt'
+							type='link'
+							className='btn-success'
+							icon={<CheckOutlined />}
+							disabled={record.tinhTrang === 'đã duyệt'}
+						/>
+					</Popconfirm>
+
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}

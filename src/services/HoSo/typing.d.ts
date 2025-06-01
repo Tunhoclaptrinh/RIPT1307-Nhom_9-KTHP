@@ -35,14 +35,14 @@ declare module HoSo {
 		thongTinCaNhanId: string;
 		thongTinBoSung: IThongTinBoSung;
 		thongTinLienHe: IThongTinLienHe;
-		trangThai: trangThai;
+		tinhTrang: TTinhTrang;
 		nguyenVong: TNguyenVong;
 		ketQua: IKetQua;
 	}
 
 	// export type nguyenVong = string;
 
-	export type TTrangThai = 'chờ duyệt' | 'đã duyệt' | 'từ chối';
+	export type TTinhTrang = 'chờ duyệt' | 'đã duyệt' | 'từ chối';
 
 	export type TNguyenVong = string[];
 

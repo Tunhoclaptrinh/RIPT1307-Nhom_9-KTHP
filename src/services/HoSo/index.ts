@@ -2,22 +2,14 @@ import axios from '@/utils/axios';
 import { ipLocal } from '@/utils/ip';
 import { HoSo } from './typing';
 
-// Giả lập api duyệt
-export async function duyetHoSo(hoso: HoSo.) {
-	return axios.post(`${ipLocal}/users`, {
-		...users,
-		ngayCap: null,
-		noiCap: null,
-		hoKhauThuongTru: {
-			tinh_ThanhPho: null,
-			quanHuyen: null,
-			xaPhuong: null,
-			diaChi: null,
-		},
-	});
+export async function duyetHoSo(hoso: HoSo.IRecord) {
+	try {
+		const res = await axios.patch(`${ipLocal}/hoSo/${hoso.id}`, {
+			tinhTrang: 'đã duyệt',
+		});
+		return res.data;
+	} catch (error) {
+		console.error('Lỗi duyệt hồ sơ:', error);
+		throw error;
+	}
 }
-
-// export async function dangNhap(user: User.IRecord) {
-// 	return axios.get((`${ipLocal}`)).then (res. map)
-
-// }
