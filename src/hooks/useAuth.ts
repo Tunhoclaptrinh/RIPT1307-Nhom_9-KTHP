@@ -28,7 +28,7 @@ const useAuth = () => {
 
 				// Nếu có userId nhưng không có user, gọi API để lấy thông tin
 				if (userId && !user?.id) {
-					const response = await fetch(`http://localhost:3001/users/${userId}`);
+					const response = await fetch(`http://localhost:3000/users/${userId}`);
 					if (!response.ok) {
 						throw new Error('Không thể lấy thông tin người dùng');
 					}
@@ -78,7 +78,7 @@ const useAuth = () => {
 			setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 			// Gọi API để lấy danh sách người dùng
-			const response = await fetch('http://localhost:3001/users');
+			const response = await fetch('http://localhost:3000/users');
 			if (!response.ok) {
 				throw new Error('Không thể kết nối đến server. Vui lòng thử lại sau.');
 			}
