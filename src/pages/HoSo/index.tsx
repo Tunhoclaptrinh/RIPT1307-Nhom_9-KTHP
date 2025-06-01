@@ -134,7 +134,13 @@ const HoSoPage = () => {
 						/>
 					</Popconfirm>
 
-					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
+					<ButtonExtend
+						tooltip='Chỉnh sửa'
+						onClick={() => handleEdit(record)}
+						type='link'
+						icon={<EditOutlined />}
+						disabled={record.tinhTrang === 'đã duyệt'}
+					/>
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
 						title='Bạn có chắc chắn muốn xóa hồ sơ này?'
