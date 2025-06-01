@@ -75,44 +75,87 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
 		}
 	}, [record?.id, visibleForm, form]);
 
+	// const onFinish = async (values: any) => {
+	// 	try {
+	// 		setSubmitting(true);
+	// 		const submitData = {
+	// 			...values,
+	// 			hoTen: `${values.ho} ${values.ten}`.trim(),
+	// 			ngayCap: values.ngayCap?.format('YYYY-MM-DD'),
+	// 			ngaySinh: values.ngaySinh?.format('YYYY-MM-DD'),
+	// 			hoKhauThuongTru: {
+	// 				tinh_ThanhPho: values.hoKhauThuongTru?.tinh_ThanhPho,
+	// 				quanHuyen: values.hoKhauThuongTru?.quanHuyen,
+	// 				xaPhuong: values.hoKhauThuongTru?.xaPhuong,
+	// 				diaChi: values.hoKhauThuongTru?.diaChi,
+	// 			},
+	// 		};
+
+	// 		if (!edit && (!values.password || values.password.trim() === '')) {
+	// 			submitData.password = values.soCCCD;
+	// 		}
+
+	// 		if (edit) {
+	// 			if (!record?.id) {
+	// 				throw new Error('Record ID is required for editing');
+	// 			}
+	// 			await putModel?.(record.id, submitData);
+	// 		} else {
+	// 			await postModel?.(submitData);
+	// 		}
+	// 		setVisibleForm?.(false);
+	// 		form.resetFields();
+	// 	} catch (error) {
+	// 		console.error('Form submission error:', error);
+	// 		message.error('Lỗi khi gửi biểu mẫu');
+	// 	} finally {
+	// 		setSubmitting(false);
+	// 	}
+	// };
 	const onFinish = async (values: any) => {
-		try {
-			setSubmitting(true);
-			const submitData = {
-				...values,
-				hoTen: `${values.ho} ${values.ten}`.trim(),
-				ngayCap: values.ngayCap?.format('YYYY-MM-DD'),
-				ngaySinh: values.ngaySinh?.format('YYYY-MM-DD'),
-				hoKhauThuongTru: {
-					tinh_ThanhPho: values.hoKhauThuongTru?.tinh_ThanhPho,
-					quanHuyen: values.hoKhauThuongTru?.quanHuyen,
-					xaPhuong: values.hoKhauThuongTru?.xaPhuong,
-					diaChi: values.hoKhauThuongTru?.diaChi,
-				},
-			};
+	try {
+		setSubmitting(true);
+		const submitData = {
+		thongTinCaNhanId: values.id || `user_${Date.now()}`, // Generate a unique ID if not provided
+		thongTinBoSung: {
+			danToc: values.danToc || 'kinh',
+			quocTich: values.quocTich || 'Việt Nam',
+			tonGiao: values.tonGiao || 'không',
+			noiSinh: {
+			trongNuoc: values.noiSinh?.trongNuoc !== undefined ? values.noiSinh.trongNuoc : true,
+			tinh_ThanhPho: values.noiSinh?.tinh_ThanhPho || values.hoKhauThuongTru?.tinh_ThanhPho,
+			},
+		},
+		thongTinLienHe: {
+			ten: `${values.ho} ${values.ten}`.trim(),
+			diaChi: {
+			tinh_ThanhPho: values.hoKhauThuongTru?.tinh_ThanhPho,
+			quanHuyen: values.hoKhauThuongTru?.quanHuyen,
+			xaPhuong: values.hoKhauThuongTru?.xaPhuong,
+			diaChiCuThe: values.hoKhauThuongTru?.diaChi,
+			},
+		},
+		nguyenVong: values.nguyenVong || [], // Will be populated in later steps
+		tinhTrang: 'chờ duyệt', // Default status for new submissions
+		ketQua: {}, // Empty initially, to be updated later
+		};
 
-			if (!edit && (!values.password || values.password.trim() === '')) {
-				submitData.password = values.soCCCD;
-			}
-
-			if (edit) {
-				if (!record?.id) {
-					throw new Error('Record ID is required for editing');
-				}
-				await putModel?.(record.id, submitData);
-			} else {
-				await postModel?.(submitData);
-			}
-			setVisibleForm?.(false);
-			form.resetFields();
-		} catch (error) {
-			console.error('Form submission error:', error);
-			message.error('Lỗi khi gửi biểu mẫu');
-		} finally {
-			setSubmitting(false);
+		if (edit && record?.id) {
+		await putModel?.(record.id, submitData);
+		} else {
+		await postModel?.(submitData);
 		}
-	};
 
+		message.success('Thông tin đã được gửi thành công!');
+		setVisibleForm?.(false);
+		form.resetFields();
+	} catch (error) {
+		console.error('Form submission error:', error);
+		message.error('Lỗi khi gửi thông tin');
+	} finally {
+		setSubmitting(false);
+	}
+	};
 	return <UserForm hideFooter={true}></UserForm>;
 };
 
