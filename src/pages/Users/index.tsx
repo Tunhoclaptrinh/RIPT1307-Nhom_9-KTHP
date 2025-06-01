@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, Popover } from 'antd';
+import { Popconfirm, Tag, Space, Popover, Image } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -149,6 +149,27 @@ const UsersPage = () => {
 			sorter: true,
 			align: 'center',
 			render: (val) => (val ? moment(val).format('DD/MM/YYYY') : ''),
+		},
+		{
+			title: 'Avatar',
+			dataIndex: ['avatar'] as any,
+			width: 120,
+			sorter: true,
+			align: 'center',
+			render: (val) => {
+				const thumbUrl = val?.fileList?.[0]?.thumbUrl;
+				return thumbUrl ? (
+					<Image
+						src={thumbUrl}
+						width={80}
+						height={80}
+						style={{ objectFit: 'cover' }}
+						preview={{
+							src: thumbUrl,
+						}}
+					/>
+				) : null;
+			},
 		},
 		{
 			title: 'Thao tác',

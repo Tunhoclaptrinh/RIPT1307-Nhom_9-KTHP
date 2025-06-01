@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message, Image } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import moment from 'moment';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import UploadFile from '@/components/Upload/UploadFile';
 const { Option } = Select;
 import { Space } from 'antd';
 
@@ -242,6 +243,18 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 						<Col span={24} md={12}>
 							<Form.Item label='Tên' name='ten' rules={[...rules.required]}>
 								<Input placeholder='Nhập tên' />
+							</Form.Item>
+						</Col>
+					</Row>
+
+					<Row gutter={16} style={{ marginBottom: 16 }}>
+						<Col span={24}>
+							<Form.Item label='Ảnh đại diện' name='avatar'>
+								<UploadFile 
+									isAvatar 
+									maxFileSize={5} 
+									buttonDescription="Tải lên ảnh đại diện"
+								/>
 							</Form.Item>
 						</Col>
 					</Row>
