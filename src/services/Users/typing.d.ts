@@ -14,6 +14,8 @@ declare module User {
 		email: string;
 		soDT: string;
 		password?: string;
+		avatar?: string;
+		role: 'user' | 'admin';
 	}
 
 	export type HoKhauThuongTru = {
