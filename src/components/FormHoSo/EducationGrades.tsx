@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment'; // Add Moment.js import
 import {
 	Form,
 	Input,
@@ -16,11 +17,54 @@ import {
 } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { ProvincesSelect } from '@/components/Address';
+import type { ThongTinHocTap, HocBa, DiemMon, DiemDanhGia, GiaiHSG, ChungChi, HeDaoTao, ToHop } from './index';
 
 const { Option } = Select;
 
-const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onNext }) => {
+interface EducationGradesFormProps {
+	userId: string;
+	initialData: any;
+	showHocBa: boolean;
+	setShowHocBa: (value: boolean) => void;
+	onNext: (values: any) => void;
+	heDaoTaoData: HeDaoTao[];
+	toHopData: ToHop[];
+	existingThongTinHocTap: ThongTinHocTap | null;
+	existingHocBa: HocBa | null;
+}
+
+const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
+	userId,
+	initialData,
+	showHocBa,
+	setShowHocBa,
+	onNext,
+	heDaoTaoData,
+	toHopData,
+	existingThongTinHocTap,
+	existingHocBa,
+}) => {
 	const [form] = Form.useForm();
+
+	// Convert string dates to Moment objects for initial values
+	const formattedInitialData = {
+		...initialData,
+		educationGrades: {
+			...initialData.educationGrades,
+			thongTinTHPT: {
+				...initialData.educationGrades?.thongTinTHPT,
+				namTotNghiep: initialData.educationGrades?.thongTinTHPT?.namTotNghiep
+					? moment(initialData.educationGrades.thongTinTHPT.namTotNghiep, 'YYYY')
+					: undefined,
+			},
+			giaiHSG: {
+				...initialData.educationGrades?.giaiHSG,
+				nam: initialData.educationGrades?.giaiHSG?.nam
+					? moment(initialData.educationGrades.giaiHSG.nam, 'YYYY')
+					: undefined,
+			},
+		},
+	};
 
 	const monHocOptions = [
 		'Toán',
@@ -41,21 +85,49 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 	const handleNext = async () => {
 		try {
 			const values = await form.validateFields();
-			console.log('Education grades for user:', userId);
-			onNext(values);
+			const submissionData = {
+				educationGrades: {
+					...values,
+					userId,
+					id: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
+					thongTinTHPT: {
+						...values.thongTinTHPT,
+						namTotNghiep: values.thongTinTHPT?.namTotNghiep
+							? values.thongTinTHPT.namTotNghiep.format('YYYY')
+							: undefined,
+					},
+					giaiHSG: values.giaiHSG
+						? {
+								...values.giaiHSG,
+								nam: values.giaiHSG.nam ? values.giaiHSG.nam.format('YYYY') : undefined,
+						  }
+						: undefined,
+				},
+				hocBa: showHocBa
+					? {
+							...values.hocBa,
+							userId,
+							id: existingHocBa?.id || `hb_${Date.now()}`,
+							thongTinHocTapId: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
+					  }
+					: null,
+			};
+			console.log('Education grades submission for user:', userId, submissionData);
+			onNext(submissionData);
 		} catch (error) {
 			console.error('Validation failed:', error);
 		}
 	};
 
 	return (
-		<Form form={form} layout='vertical' initialValues={initialData}>
+		<Form form={form} layout='vertical' initialValues={formattedInitialData}>
+			{/* Thông tin trường THPT */}
 			<Card title='Thông tin trường THPT' style={{ marginBottom: 16 }}>
 				<Row gutter={16}>
 					<Col span={8}>
 						<Form.Item
 							label='Mã trường'
-							name={['thongTinTHPT', 'maTruong']}
+							name={['educationGrades', 'thongTinTHPT', 'maTruong']}
 							rules={[{ required: true, message: 'Vui lòng nhập mã trường!' }]}
 						>
 							<Input placeholder='Nhập mã trường' />
@@ -64,7 +136,7 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 					<Col span={8}>
 						<Form.Item
 							label='Mã tỉnh'
-							name={['thongTinTHPT', 'maTinh']}
+							name={['educationGrades', 'thongTinTHPT', 'maTinh']}
 							rules={[{ required: true, message: 'Vui lòng nhập mã tỉnh!' }]}
 						>
 							<Input placeholder='Nhập mã tỉnh' />
@@ -73,19 +145,47 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 					<Col span={8}>
 						<Form.Item
 							label='Tỉnh/Thành phố'
-							name={['thongTinTHPT', 'tinh_ThanhPho']}
+							name={['educationGrades', 'thongTinTHPT', 'tinh_ThanhPho']}
 							rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố!' }]}
 						>
 							<ProvincesSelect />
 						</Form.Item>
 					</Col>
 				</Row>
-
+				<Row gutter={16}>
+					<Col span={8}>
+						<Form.Item
+							label='Quận/Huyện'
+							name={['educationGrades', 'thongTinTHPT', 'quanHuyen']}
+							rules={[{ required: true, message: 'Vui lòng nhập quận/huyện!' }]}
+						>
+							<Input placeholder='Nhập quận/huyện' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item
+							label='Xã/Phường'
+							name={['educationGrades', 'thongTinTHPT', 'xaPhuong']}
+							rules={[{ required: true, message: 'Vui lòng nhập xã/phường!' }]}
+						>
+							<Input placeholder='Nhập xã/phường' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item
+							label='Địa chỉ'
+							name={['educationGrades', 'thongTinTHPT', 'diaChi']}
+							rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
+						>
+							<Input placeholder='Nhập địa chỉ' />
+						</Form.Item>
+					</Col>
+				</Row>
 				<Row gutter={16}>
 					<Col span={12}>
 						<Form.Item
 							label='Khu vực ưu tiên'
-							name={['thongTinTHPT', 'khuVucUT']}
+							name={['educationGrades', 'thongTinTHPT', 'khuVucUT']}
 							rules={[{ required: true, message: 'Vui lòng chọn khu vực ưu tiên!' }]}
 						>
 							<Select placeholder='Chọn khu vực ưu tiên'>
@@ -97,7 +197,7 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 						</Form.Item>
 					</Col>
 					<Col span={12}>
-						<Form.Item label='Đối tượng ưu tiên' name={['thongTinTHPT', 'doiTuongUT']}>
+						<Form.Item label='Đối tượng ưu tiên' name={['educationGrades', 'thongTinTHPT', 'doiTuongUT']}>
 							<Select placeholder='Chọn đối tượng ưu tiên' allowClear>
 								<Option value='hộ nghèo'>Hộ nghèo</Option>
 								<Option value='cận nghèo'>Cận nghèo</Option>
@@ -105,23 +205,31 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 						</Form.Item>
 					</Col>
 				</Row>
-
 				<Row gutter={16}>
 					<Col span={12}>
-						<Form.Item label='Đã tốt nghiệp' name={['thongTinTHPT', 'daTotNghiep']} valuePropName='checked'>
+						<Form.Item
+							label='Đã tốt nghiệp'
+							name={['educationGrades', 'thongTinTHPT', 'daTotNghiep']}
+							valuePropName='checked'
+						>
 							<Switch />
 						</Form.Item>
 					</Col>
 					<Col span={12}>
-						<Form.Item label='Năm tốt nghiệp' name={['thongTinTHPT', 'namTotNghiep']}>
+						<Form.Item
+							label='Năm tốt nghiệp'
+							name={['educationGrades', 'thongTinTHPT', 'namTotNghiep']}
+							rules={[{ required: true, message: 'Vui lòng chọn năm tốt nghiệp!' }]}
+						>
 							<DatePicker picker='year' style={{ width: '100%' }} placeholder='Chọn năm tốt nghiệp' />
 						</Form.Item>
 					</Col>
 				</Row>
 			</Card>
 
+			{/* Điểm THPT */}
 			<Card title='Điểm THPT' style={{ marginBottom: 16 }}>
-				<Form.List name='diemTHPT'>
+				<Form.List name={['educationGrades', 'diemTHPT']}>
 					{(fields, { add, remove }) => (
 						<>
 							{fields.map(({ key, name, ...restField }) => (
@@ -129,12 +237,11 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 									<Col span={10}>
 										<Form.Item {...restField} name={[name, 'mon']} rules={[{ required: true, message: 'Chọn môn!' }]}>
 											<Select placeholder='Chọn môn thi'>
-												<Option value='toán'>Toán</Option>
-												<Option value='văn'>Văn</Option>
-												<Option value='anh'>Anh</Option>
-												<Option value='lý'>Lý</Option>
-												<Option value='hóa'>Hóa</Option>
-												<Option value='sinh'>Sinh</Option>
+												{monHocOptions.map((mon) => (
+													<Option key={mon} value={mon.toLowerCase()}>
+														{mon}
+													</Option>
+												))}
 											</Select>
 										</Form.Item>
 									</Col>
@@ -177,7 +284,7 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 					<>
 						<Divider />
 						<Card title='Điểm các môn học' type='inner'>
-							<Form.List name='diemMonHoc'>
+							<Form.List name={['hocBa', 'diemMonHoc']}>
 								{(fields, { add, remove }) => (
 									<>
 										{fields.map(({ key, name, ...restField }) => (
@@ -207,7 +314,6 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 															))}
 														</Select>
 													</Form.Item>
-
 													<Form.Item
 														{...restField}
 														name={[name, 'hocKy']}
@@ -224,7 +330,6 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 															<Option value='HK2_Lop12'>HK2 - Lớp 12</Option>
 														</Select>
 													</Form.Item>
-
 													<Form.Item
 														{...restField}
 														name={[name, 'diemTongKet']}
@@ -244,7 +349,6 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 															style={{ width: '100%' }}
 														/>
 													</Form.Item>
-
 													<MinusCircleOutlined
 														onClick={() => remove(name)}
 														style={{ color: '#ff4d4f', fontSize: 18, cursor: 'pointer' }}
@@ -266,14 +370,13 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 								)}
 							</Form.List>
 						</Card>
-
 						<Card title='Thông tin bổ sung về học bạ' type='inner' style={{ marginTop: 16 }}>
 							<Row gutter={16}>
 								<Col span={12}>
 									<Form.Item
 										label='Loại hạnh kiểm'
-										name='loaiHanhKiem'
-										rules={showHocBa ? [{ required: true, message: 'Chọn loại hạnh kiểm!' }] : []}
+										name={['hocBa', 'loaiHanhKiem']}
+										rules={[{ required: true, message: 'Chọn loại hạnh kiểm!' }]}
 									>
 										<Select placeholder='Chọn loại hạnh kiểm'>
 											<Option value='tốt'>Tốt</Option>
@@ -287,8 +390,8 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 								<Col span={12}>
 									<Form.Item
 										label='Minh chứng học bạ'
-										name='minhChungHocBa'
-										rules={showHocBa ? [{ required: true, message: 'Nhập minh chứng!' }] : []}
+										name={['hocBa', 'minhChung']}
+										rules={[{ required: true, message: 'Nhập minh chứng!' }]}
 									>
 										<Input placeholder='Đường dẫn file học bạ hoặc mô tả minh chứng' />
 									</Form.Item>
@@ -299,10 +402,182 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 				)}
 			</Card>
 
+			{/* Điểm đánh giá tư duy (DGTD) */}
+			<Card title='Điểm đánh giá tư duy (DGTD)' style={{ marginBottom: 16 }}>
+				<Form.List name={['educationGrades', 'diemDGTD', 'mon']}>
+					{(fields, { add, remove }) => (
+						<>
+							{fields.map(({ key, name, ...restField }) => (
+								<Row key={key} gutter={16} style={{ marginBottom: 8 }}>
+									<Col span={10}>
+										<Form.Item
+											{...restField}
+											name={[name, 'ten']}
+											label='Tên môn'
+											rules={[{ required: true, message: 'Nhập tên môn!' }]}
+										>
+											<Input placeholder='VD: Tư duy logic' />
+										</Form.Item>
+									</Col>
+									<Col span={10}>
+										<Form.Item
+											{...restField}
+											name={[name, 'diem']}
+											label='Điểm'
+											rules={[
+												{ required: true, message: 'Nhập điểm!' },
+												{ type: 'number', min: 0, max: 100, message: 'Điểm từ 0-100!' },
+											]}
+										>
+											<InputNumber placeholder='Điểm' step={1} style={{ width: '100%' }} min={0} max={100} />
+										</Form.Item>
+									</Col>
+									<Col span={4}>
+										<Button type='text' danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} />
+									</Col>
+								</Row>
+							))}
+							<Form.Item>
+								<Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+									Thêm môn đánh giá
+								</Button>
+							</Form.Item>
+						</>
+					)}
+				</Form.List>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item
+							label='Tổng điểm DGTD'
+							name={['educationGrades', 'diemDGTD', 'tongDiem']}
+							rules={[{ type: 'number', min: 0, message: 'Tổng điểm không hợp lệ!' }]}
+						>
+							<InputNumber placeholder='Tổng điểm' step={1} style={{ width: '100%' }} min={0} />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item label='Minh chứng DGTD' name={['educationGrades', 'diemDGTD', 'minhChung']}>
+							<Input placeholder='Đường dẫn file minh chứng' />
+						</Form.Item>
+					</Col>
+				</Row>
+			</Card>
+
+			{/* Điểm đánh giá năng lực (DGNL) */}
+			<Card title='Điểm đánh giá năng lực (DGNL)' style={{ marginBottom: 16 }}>
+				<Form.List name={['educationGrades', 'diemDGNL', 'mon']}>
+					{(fields, { add, remove }) => (
+						<>
+							{fields.map(({ key, name, ...restField }) => (
+								<Row key={key} gutter={16} style={{ marginBottom: 8 }}>
+									<Col span={10}>
+										<Form.Item
+											{...restField}
+											name={[name, 'ten']}
+											label='Tên môn'
+											rules={[{ required: true, message: 'Nhập tên môn!' }]}
+										>
+											<Input placeholder='VD: Toán học' />
+										</Form.Item>
+									</Col>
+									<Col span={10}>
+										<Form.Item
+											{...restField}
+											name={[name, 'diem']}
+											label='Điểm'
+											rules={[
+												{ required: true, message: 'Nhập điểm!' },
+												{ type: 'number', min: 0, max: 100, message: 'Điểm từ 0-100!' },
+											]}
+										>
+											<InputNumber placeholder='Điểm' step={1} style={{ width: '100%' }} min={0} max={100} />
+										</Form.Item>
+									</Col>
+									<Col span={4}>
+										<Button type='text' danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} />
+									</Col>
+								</Row>
+							))}
+							<Form.Item>
+								<Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+									Thêm môn đánh giá
+								</Button>
+							</Form.Item>
+						</>
+					)}
+				</Form.List>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item
+							label='Tổng điểm DGNL'
+							name={['educationGrades', 'diemDGNL', 'tongDiem']}
+							rules={[{ type: 'number', min: 0, message: 'Tổng điểm không hợp lệ!' }]}
+						>
+							<InputNumber placeholder='Tổng điểm' step={1} style={{ width: '100%' }} min={0} />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item label='Minh chứng DGNL' name={['educationGrades', 'diemDGNL', 'minhChung']}>
+							<Input placeholder='Đường dẫn file minh chứng' />
+						</Form.Item>
+					</Col>
+				</Row>
+			</Card>
+
+			{/* Giải học sinh giỏi */}
+			<Card title='Giải học sinh giỏi' style={{ marginBottom: 16 }}>
+				<Row gutter={16}>
+					<Col span={8}>
+						<Form.Item label='Cấp giải' name={['educationGrades', 'giaiHSG', 'giaiHsgCap']}>
+							<Select placeholder='Chọn cấp giải' allowClear>
+								<Option value='tỉnh'>Tỉnh</Option>
+								<Option value='quốc gia'>Quốc gia</Option>
+								<Option value='quốc tế'>Quốc tế</Option>
+							</Select>
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item label='Môn' name={['educationGrades', 'giaiHSG', 'mon']}>
+							<Select placeholder='Chọn môn'>
+								{monHocOptions.map((mon) => (
+									<Option key={mon} value={mon.toLowerCase()}>
+										{mon}
+									</Option>
+								))}
+							</Select>
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item label='Loại giải' name={['educationGrades', 'giaiHSG', 'loaiGiai']}>
+							<Select placeholder='Chọn loại giải' allowClear>
+								<Option value='nhất'>Nhất</Option>
+								<Option value='nhì'>Nhì</Option>
+								<Option value='ba'>Ba</Option>
+								<Option value='khuyến khích'>Khuyến khích</Option>
+							</Select>
+						</Form.Item>
+					</Col>
+				</Row>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item label='Năm' name={['educationGrades', 'giaiHSG', 'nam']}>
+							<DatePicker picker='year' style={{ width: '100%' }} placeholder='Chọn năm' />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item label='Nơi cấp' name={['educationGrades', 'giaiHSG', 'noiCap']}>
+							<Input placeholder='VD: Sở GD&ĐT Hà Nội' />
+						</Form.Item>
+					</Col>
+				</Row>
+				<Form.Item label='Minh chứng' name={['educationGrades', 'giaiHSG', 'minhChung']}>
+					<Input placeholder='Đường dẫn file minh chứng' />
+				</Form.Item>
+			</Card>
+
 			{/* Chứng chỉ */}
-			<Card title='Thông tin bổ sung' style={{ marginBottom: 16 }}>
-				<Divider orientation='left'>Chứng chỉ ngoại ngữ/Tin học</Divider>
-				<Form.List name='chungChi'>
+			<Card title='Chứng chỉ ngoại ngữ/tin học' style={{ marginBottom: 16 }}>
+				<Form.List name={['educationGrades', 'chungChi']}>
 					{(fields, { add, remove }) => (
 						<>
 							{fields.map(({ key, name, ...restField }) => (
@@ -312,7 +587,12 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 									style={{ marginBottom: 8, padding: '8px', backgroundColor: '#f9f9f9', borderRadius: '4px' }}
 								>
 									<Col span={8}>
-										<Form.Item {...restField} name={[name, 'loaiCC']} label='Loại chứng chỉ'>
+										<Form.Item
+											{...restField}
+											name={[name, 'loaiCC']}
+											label='Loại chứng chỉ'
+											rules={[{ required: true, message: 'Chọn loại chứng chỉ!' }]}
+										>
 											<Select placeholder='Chọn loại chứng chỉ'>
 												<Option value='tiếng anh'>Tiếng Anh</Option>
 												<Option value='tin học'>Tin học</Option>
@@ -321,12 +601,22 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 										</Form.Item>
 									</Col>
 									<Col span={8}>
-										<Form.Item {...restField} name={[name, 'ketQua']} label='Kết quả'>
+										<Form.Item
+											{...restField}
+											name={[name, 'ketQua']}
+											label='Kết quả'
+											rules={[{ required: true, message: 'Nhập kết quả!' }]}
+										>
 											<Input placeholder='VD: 7.5 IELTS, Giỏi...' />
 										</Form.Item>
 									</Col>
 									<Col span={6}>
-										<Form.Item {...restField} name={[name, 'minhChung']} label='Minh chứng'>
+										<Form.Item
+											{...restField}
+											name={[name, 'minhChung']}
+											label='Minh chứng'
+											rules={[{ required: true, message: 'Nhập minh chứng!' }]}
+										>
 											<Input placeholder='Đường dẫn file' />
 										</Form.Item>
 									</Col>
@@ -347,7 +637,7 @@ const EducationGradesForm = ({ userId, initialData, showHocBa, setShowHocBa, onN
 				</Form.List>
 			</Card>
 
-			<div style={{ textAlign: 'right', marginTop: 16 }}>
+			<div style={{ textAlign: 'center', marginTop: 16 }}>
 				<Button type='primary' onClick={handleNext}>
 					Tiếp tục
 				</Button>

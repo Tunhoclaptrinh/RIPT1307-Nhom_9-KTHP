@@ -8,7 +8,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined, FormOutlined } from '@ant-de
 import moment from 'moment';
 import UserForm from './components/Form';
 import UserDetail from './components/Detail';
-import AdmissionStepModal from '../HoSo/components/FormHoSo';
+import AdmissionStepModal from '../../components/FormHoSo';
 
 // PasswordCell component (unchanged)
 const PasswordCell = ({ password }: { password: string }) => {
@@ -59,6 +59,10 @@ const UsersPage = () => {
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
 
+	// Thêm state để quản lý AdmissionStepModal
+	const [admissionModalVisible, setAdmissionModalVisible] = useState(false);
+	const [selectedUserId, setSelectedUserId] = useState<string>('');
+
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);
@@ -74,6 +78,18 @@ const UsersPage = () => {
 		if (selectedRecord) {
 			handleEdit(selectedRecord);
 		}
+	};
+
+	// Thêm function để xử lý tạo hồ sơ
+	const onCreateAdmission = (record: User.IRecord) => {
+		setSelectedUserId(record.id);
+		setAdmissionModalVisible(true);
+	};
+
+	// Thêm function để đóng admission modal
+	const onCloseAdmissionModal = () => {
+		setAdmissionModalVisible(false);
+		setSelectedUserId('');
 	};
 
 	const columns: IColumn<User.IRecord>[] = [
@@ -160,7 +176,7 @@ const UsersPage = () => {
 					<ButtonExtend tooltip='Xem chi tiết' onClick={() => onView(record)} type='link' icon={<EyeOutlined />} />
 					<ButtonExtend
 						tooltip='Tạo hồ sơ cho thí sinh này'
-						onClick={() => onView(record)}
+						onClick={() => onCreateAdmission(record)}
 						type='link'
 						icon={<FormOutlined />}
 					/>
@@ -199,7 +215,10 @@ const UsersPage = () => {
 					title='người dùng'
 				/>
 			)}
-			<AdmissionStepModal />
+			{/* Modal tạo hồ sơ - chỉ hiển thị khi có userId được chọn */}
+			{admissionModalVisible && selectedUserId && (
+				<AdmissionStepModal userId={selectedUserId} visible={admissionModalVisible} onClose={onCloseAdmissionModal} />
+			)}
 		</div>
 	);
 };
