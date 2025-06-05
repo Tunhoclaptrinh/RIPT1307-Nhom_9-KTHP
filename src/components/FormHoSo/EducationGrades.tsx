@@ -16,7 +16,7 @@ import {
 	Space,
 } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
-import { ProvincesSelect } from '@/components/Address';
+import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 
 const { Option } = Select;
 
@@ -64,6 +64,10 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 			},
 		},
 	};
+
+	// Watch form fields for reactive updates
+	const provinceCode = Form.useWatch(['educationGrades', 'thongTinTHPT', 'tinh_ThanhPho'], form);
+	const districtCode = Form.useWatch(['educationGrades', 'thongTinTHPT', 'quanHuyen'], form);
 
 	const monHocOptions = [
 		'Toán',
@@ -125,20 +129,20 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 				<Row gutter={16}>
 					<Col span={8}>
 						<Form.Item
+							label='Tên trường'
+							name={['educationGrades', 'thongTinTHPT', 'ten']}
+							rules={[{ required: true, message: 'Vui lòng nhập tên trường!' }]}
+						>
+							<Input placeholder='Nhập tên trường' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item
 							label='Mã trường'
 							name={['educationGrades', 'thongTinTHPT', 'maTruong']}
 							rules={[{ required: true, message: 'Vui lòng nhập mã trường!' }]}
 						>
 							<Input placeholder='Nhập mã trường' />
-						</Form.Item>
-					</Col>
-					<Col span={8}>
-						<Form.Item
-							label='Mã tỉnh'
-							name={['educationGrades', 'thongTinTHPT', 'maTinh']}
-							rules={[{ required: true, message: 'Vui lòng nhập mã tỉnh!' }]}
-						>
-							<Input placeholder='Nhập mã tỉnh' />
 						</Form.Item>
 					</Col>
 					<Col span={8}>
@@ -156,18 +160,18 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 						<Form.Item
 							label='Quận/Huyện'
 							name={['educationGrades', 'thongTinTHPT', 'quanHuyen']}
-							rules={[{ required: true, message: 'Vui lòng nhập quận/huyện!' }]}
+							rules={[{ required: true, message: 'Vui lòng chọn quận/huyện!' }]}
 						>
-							<Input placeholder='Nhập quận/huyện' />
+							<DistrictsSelect provinceCode={provinceCode} />
 						</Form.Item>
 					</Col>
 					<Col span={8}>
 						<Form.Item
 							label='Xã/Phường'
 							name={['educationGrades', 'thongTinTHPT', 'xaPhuong']}
-							rules={[{ required: true, message: 'Vui lòng nhập xã/phường!' }]}
+							rules={[{ required: true, message: 'Vui lòng chọn xã/phường!' }]}
 						>
-							<Input placeholder='Nhập xã/phường' />
+							<WardsSelect districtCode={districtCode} />
 						</Form.Item>
 					</Col>
 					<Col span={8}>
@@ -181,7 +185,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 				</Row>
 				<Row gutter={16}>
-					<Col span={12}>
+					<Col span={8}>
 						<Form.Item
 							label='Khu vực ưu tiên'
 							name={['educationGrades', 'thongTinTHPT', 'khuVucUT']}
@@ -195,7 +199,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							</Select>
 						</Form.Item>
 					</Col>
-					<Col span={12}>
+					<Col span={8}>
 						<Form.Item label='Đối tượng ưu tiên' name={['educationGrades', 'thongTinTHPT', 'doiTuongUT']}>
 							<Select placeholder='Chọn đối tượng ưu tiên' allowClear>
 								<Option value='hộ nghèo'>Hộ nghèo</Option>
@@ -203,9 +207,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							</Select>
 						</Form.Item>
 					</Col>
-				</Row>
-				<Row gutter={16}>
-					<Col span={12}>
+					<Col span={8}>
 						<Form.Item
 							label='Đã tốt nghiệp'
 							name={['educationGrades', 'thongTinTHPT', 'daTotNghiep']}
@@ -214,6 +216,8 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<Switch />
 						</Form.Item>
 					</Col>
+				</Row>
+				<Row gutter={16}>
 					<Col span={12}>
 						<Form.Item
 							label='Năm tốt nghiệp'

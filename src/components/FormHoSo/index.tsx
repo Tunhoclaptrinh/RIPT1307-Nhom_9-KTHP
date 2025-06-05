@@ -110,6 +110,7 @@ interface ChungChi {
 }
 
 interface ThongTinTHPT {
+	ten: string; // Added to match JSON structure
 	tinh_ThanhPho: string;
 	quanHuyen: string;
 	xaPhuong: string;
@@ -144,7 +145,7 @@ interface ThongTinNguyenVong {
 	phuongThucId: string;
 	diemChuaUT: number;
 	diemCoUT: number;
-	diemDoiTuongUT: number;
+	diemDoiTuongUT: string; // Changed to string to match JSON object
 	diemKhuVucUT: number;
 	tongDiem: number;
 	phuongThucXT?: string[];
