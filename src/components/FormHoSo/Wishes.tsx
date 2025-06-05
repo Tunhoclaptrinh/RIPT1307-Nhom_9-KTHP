@@ -6,21 +6,54 @@ import NganhDaoTaoSelect from '@/pages/NganhDaoTao/components/Select';
 
 const { Option } = Select;
 
-const WishesForm = ({ userId, initialData, onNext }) => {
+interface WishesFormProps {
+	userId: string;
+	initialData: { wishes?: ThongTinNguyenVong.IRecord[] };
+	onNext: (data: { wishes: ThongTinNguyenVong.IRecord[] }) => void;
+	phuongThucXetTuyenData: PhuongThucXT.IRecord[];
+	nganhDaoTaoData: NganhDaoTao.IRecord[];
+	toHopData: ToHop.IRecord[];
+	existingNguyenVong: ThongTinNguyenVong.IRecord[];
+}
+
+const WishesForm: React.FC<WishesFormProps> = ({
+	userId,
+	initialData,
+	onNext,
+	phuongThucXetTuyenData,
+	nganhDaoTaoData,
+	toHopData,
+}) => {
 	const [form] = Form.useForm();
 
+	// Hàm xử lý khi nhấn "Tiếp tục"
 	const handleNext = async () => {
 		try {
 			const values = await form.validateFields();
-			console.log('Wishes data for user:', userId);
-			onNext(values);
+			// Chuẩn hóa dữ liệu để gửi qua onNext
+			const wishes: ThongTinNguyenVong.IRecord[] = values.nguyenVong.map((nv: any, index: number) => ({
+				id: nv.id || `ttnv_${Date.now()}${Math.random().toString(36).substr(2, 9)}`, // Tạo ID tạm nếu không có
+				userId,
+				thuTuNV: index + 1,
+				maNganh: nv.maNganh,
+				ten: nganhDaoTaoData.find((nganh) => nganh.ma === nv.maNganh)?.ten || nv.ten || '',
+				coSoDaoTao: nv.coSoDaoTao,
+				phuongThucId: nv.phuongThucId,
+				diemChuaUT: nv.diemChuaUT,
+				diemCoUT: nv.diemCoUT,
+				diemDoiTuongUT: nv.diemDoiTuongUT || 0,
+				diemKhuVucUT: nv.diemKhuVucUT || 0,
+				tongDiem: nv.tongDiem,
+				phuongThucXT: [phuongThucXetTuyenData.find((pt) => pt.id === nv.phuongThucId)?.ten || ''],
+			}));
+			onNext({ wishes });
 		} catch (error) {
 			console.error('Validation failed:', error);
 		}
 	};
 
 	return (
-		<Form form={form} layout='vertical' initialValues={initialData}>
+		<Form form={form} layout='vertical' initialValues={{ nguyenVong: initialData.wishes || [] }}>
 			<Card title='Nguyện vọng xét tuyển'>
 				<Form.List name='nguyenVong'>
 					{(fields, { add, remove }) => (
@@ -37,11 +70,11 @@ const WishesForm = ({ userId, initialData, onNext }) => {
 										<Col span={12}>
 											<Form.Item
 												{...restField}
-												name={[name, 'ten']}
+												name={[name, 'maNganh']}
 												label='Ngành đào tạo'
 												rules={[{ required: true, message: 'Vui lòng chọn ngành!' }]}
 											>
-												<NganhDaoTaoSelect placeholder='Chọn ngành đào tạo' />
+												<NganhDaoTaoSelect selectData={nganhDaoTaoData} placeholder='Chọn ngành đào tạo' />
 											</Form.Item>
 										</Col>
 										<Col span={12}>
@@ -51,7 +84,10 @@ const WishesForm = ({ userId, initialData, onNext }) => {
 												label='Phương thức xét tuyển'
 												rules={[{ required: true, message: 'Vui lòng chọn phương thức!' }]}
 											>
-												<PhuongThucXTSelect placeholder='Chọn phương thức xét tuyển' />
+												<PhuongThucXTSelect
+													selectData={phuongThucXetTuyenData}
+													placeholder='Chọn phương thức xét tuyển'
+												/>
 											</Form.Item>
 										</Col>
 									</Row>
@@ -64,10 +100,17 @@ const WishesForm = ({ userId, initialData, onNext }) => {
 												label='Điểm chưa ưu tiên'
 												rules={[
 													{ required: true, message: 'Vui lòng nhập điểm!' },
-													{ type: 'number', min: 0, message: 'Điểm phải lớn hơn 0!' },
+													{ type: 'number', min: 0, max: 30, message: 'Điểm phải từ 0 đến 30!' },
 												]}
 											>
-												<InputNumber min={0} step={0.1} precision={2} placeholder='0.0' style={{ width: '100%' }} />
+												<InputNumber
+													min={0}
+													max={30}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
 											</Form.Item>
 										</Col>
 										<Col span={8}>
@@ -77,10 +120,17 @@ const WishesForm = ({ userId, initialData, onNext }) => {
 												label='Điểm có ưu tiên'
 												rules={[
 													{ required: true, message: 'Vui lòng nhập điểm!' },
-													{ type: 'number', min: 0, message: 'Điểm phải lớn hơn 0!' },
+													{ type: 'number', min: 0, max: 30, message: 'Điểm phải từ 0 đến 30!' },
 												]}
 											>
-												<InputNumber min={0} step={0.1} precision={2} placeholder='0.0' style={{ width: '100%' }} />
+												<InputNumber
+													min={0}
+													max={30}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
 											</Form.Item>
 										</Col>
 										<Col span={8}>
@@ -90,10 +140,54 @@ const WishesForm = ({ userId, initialData, onNext }) => {
 												label='Tổng điểm'
 												rules={[
 													{ required: true, message: 'Vui lòng nhập tổng điểm!' },
-													{ type: 'number', min: 0, message: 'Điểm phải lớn hơn 0!' },
+													{ type: 'number', min: 0, max: 30, message: 'Điểm phải từ 0 đến 30!' },
 												]}
 											>
-												<InputNumber min={0} step={0.1} precision={2} placeholder='0.0' style={{ width: '100%' }} />
+												<InputNumber
+													min={0}
+													max={30}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
+											</Form.Item>
+										</Col>
+									</Row>
+
+									<Row gutter={16}>
+										<Col span={12}>
+											<Form.Item
+												{...restField}
+												name={[name, 'diemDoiTuongUT']}
+												label='Điểm ưu tiên đối tượng'
+												rules={[{ type: 'number', min: 0, max: 5, message: 'Điểm phải từ 0 đến 5!' }]}
+											>
+												<InputNumber
+													min={0}
+													max={5}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
+											</Form.Item>
+										</Col>
+										<Col span={12}>
+											<Form.Item
+												{...restField}
+												name={[name, 'diemKhuVucUT']}
+												label='Điểm ưu tiên khu vực'
+												rules={[{ type: 'number', min: 0, max: 5, message: 'Điểm phải từ 0 đến 5!' }]}
+											>
+												<InputNumber
+													min={0}
+													max={5}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
 											</Form.Item>
 										</Col>
 									</Row>

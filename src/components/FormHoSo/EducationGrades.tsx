@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment'; // Add Moment.js import
+import moment from 'moment';
 import {
 	Form,
 	Input,
@@ -17,7 +17,6 @@ import {
 } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { ProvincesSelect } from '@/components/Address';
-import type { ThongTinHocTap, HocBa, DiemMon, DiemDanhGia, GiaiHSG, ChungChi, HeDaoTao, ToHop } from './index';
 
 const { Option } = Select;
 
@@ -27,10 +26,10 @@ interface EducationGradesFormProps {
 	showHocBa: boolean;
 	setShowHocBa: (value: boolean) => void;
 	onNext: (values: any) => void;
-	heDaoTaoData: HeDaoTao[];
-	toHopData: ToHop[];
-	existingThongTinHocTap: ThongTinHocTap | null;
-	existingHocBa: HocBa | null;
+	heDaoTaoData: HeDaoTao.IRecord[];
+	toHopData: ToHop.IRecord[];
+	existingThongTinHocTap: ThongTinHocTap.IRecord | null;
+	existingHocBa: DiemHocSinh.IRecord | null;
 }
 
 const EducationGradesForm: React.FC<EducationGradesFormProps> = ({

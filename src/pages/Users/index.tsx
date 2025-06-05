@@ -9,6 +9,7 @@ import moment from 'moment';
 import UserForm from './components/Form';
 import UserDetail from './components/Detail';
 import AdmissionStepModal from '../../components/FormHoSo';
+import { useAddress } from '@/hooks/useAddress'; // Import the useAddress hook
 
 // PasswordCell component (unchanged)
 const PasswordCell = ({ password }: { password: string }) => {
@@ -58,14 +59,18 @@ const UsersPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
-
-	// Thêm state để quản lý AdmissionStepModal
 	const [admissionModalVisible, setAdmissionModalVisible] = useState(false);
 	const [selectedUserId, setSelectedUserId] = useState<string>('');
+
+	// Use the useAddress hook
+	const { provinces, districts, wards, setSelectedProvince, setSelectedDistrict } = useAddress();
 
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);
+		// Set province and district to fetch corresponding districts and wards
+		setSelectedProvince(record.hoKhauThuongTru?.tinh_ThanhPho);
+		setSelectedDistrict(record.hoKhauThuongTru?.quanHuyen);
 	};
 
 	const onCloseModal = () => {
@@ -80,16 +85,27 @@ const UsersPage = () => {
 		}
 	};
 
-	// Thêm function để xử lý tạo hồ sơ
 	const onCreateAdmission = (record: User.IRecord) => {
 		setSelectedUserId(record.id);
 		setAdmissionModalVisible(true);
 	};
 
-	// Thêm function để đóng admission modal
 	const onCloseAdmissionModal = () => {
 		setAdmissionModalVisible(false);
 		setSelectedUserId('');
+	};
+
+	// Helper function to get address names from codes
+	const getAddressName = (record: User.IRecord) => {
+		const { hoKhauThuongTru } = record;
+		if (!hoKhauThuongTru) return '';
+
+		const province = provinces.find((p) => p.code === hoKhauThuongTru.tinh_ThanhPho)?.name || '';
+		const district = districts.find((d) => d.code === hoKhauThuongTru.quanHuyen)?.name || '';
+		const ward = wards.find((w) => w.code === hoKhauThuongTru.xaPhuong)?.name || '';
+		const address = hoKhauThuongTru.diaChi || '';
+
+		return [address, ward, district, province].filter(Boolean).join(', ');
 	};
 
 	const columns: IColumn<User.IRecord>[] = [
@@ -153,10 +169,7 @@ const UsersPage = () => {
 			title: 'Địa chỉ',
 			dataIndex: 'hoKhauThuongTru',
 			width: 250,
-			render: (val) => {
-				if (!val) return '';
-				return `${val.diaChi}, ${val.xaPhuong}, ${val.quanHuyen}, ${val.tinh_ThanhPho}`;
-			},
+			render: (_, record) => getAddressName(record), // Use helper function to render address
 		},
 		{
 			title: 'Ngày cấp CCCD',
@@ -205,7 +218,6 @@ const UsersPage = () => {
 				deleteMany
 				rowSelection
 			/>
-			{/* Modal xem chi tiết */}
 			{selectedRecord && (
 				<UserDetail
 					isVisible={viewModalVisible}
@@ -215,7 +227,6 @@ const UsersPage = () => {
 					title='người dùng'
 				/>
 			)}
-			{/* Modal tạo hồ sơ - chỉ hiển thị khi có userId được chọn */}
 			{admissionModalVisible && selectedUserId && (
 				<AdmissionStepModal userId={selectedUserId} visible={admissionModalVisible} onClose={onCloseAdmissionModal} />
 			)}
