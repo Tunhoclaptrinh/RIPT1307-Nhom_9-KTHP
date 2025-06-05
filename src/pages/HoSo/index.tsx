@@ -172,8 +172,6 @@ const HoSoPage = () => {
 				record={selectedRecord}
 				onEdit={onEditFromView}
 			/>
-
-			<AdmissionStepModal userId={'1'} />
 		</div>
 	);
 };

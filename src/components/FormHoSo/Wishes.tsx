@@ -32,18 +32,18 @@ const WishesForm: React.FC<WishesFormProps> = ({
 			const values = await form.validateFields();
 			// Chuẩn hóa dữ liệu để gửi qua onNext
 			const wishes: ThongTinNguyenVong.IRecord[] = values.nguyenVong.map((nv: any, index: number) => ({
-				id: nv.id || `ttnv_${Date.now()}${Math.random().toString(36).substr(2, 9)}`, // Tạo ID tạm nếu không có
+				id: nv.id || `ttnv_${Date.now()}${Math.random().toString(36).substr(2, 9)}`,
 				userId,
 				thuTuNV: index + 1,
 				maNganh: nv.maNganh,
 				ten: nganhDaoTaoData.find((nganh) => nganh.ma === nv.maNganh)?.ten || nv.ten || '',
 				coSoDaoTao: nv.coSoDaoTao,
 				phuongThucId: nv.phuongThucId,
-				diemChuaUT: nv.diemChuaUT,
-				diemCoUT: nv.diemCoUT,
-				diemDoiTuongUT: nv.diemDoiTuongUT || 0,
-				diemKhuVucUT: nv.diemKhuVucUT || 0,
-				tongDiem: nv.tongDiem,
+				diemChuaUT: Number(nv.diemChuaUT) || 0,
+				diemCoUT: Number(nv.diemCoUT) || 0,
+				diemDoiTuongUT: Number(nv.diemDoiTuongUT) || 0, // Chuẩn hóa thành số
+				diemKhuVucUT: Number(nv.diemKhuVucUT) || 0, // Chuẩn hóa thành số
+				tongDiem: Number(nv.tongDiem) || 0,
 				phuongThucXT: [phuongThucXetTuyenData.find((pt) => pt.id === nv.phuongThucId)?.ten || ''],
 			}));
 			onNext({ wishes });

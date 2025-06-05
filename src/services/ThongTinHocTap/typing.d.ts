@@ -7,6 +7,7 @@ declare module ThongTinHocTap {
 	export type LoaiCC = 'tiếng anh' | 'tin học' | string;
 
 	export interface IThongTinTHPT {
+		ten: string;
 		tinh_ThanhPho: string;
 		quanHuyen: string;
 		xaPhuong: string;

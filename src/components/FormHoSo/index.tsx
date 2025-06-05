@@ -8,195 +8,27 @@ import EducationGradesForm from './EducationGrades';
 import WishesForm from './Wishes';
 import SummaryForm from './Summary';
 import { ipLocal } from '@/utils/ip';
+import { HoSo } from '@/services/HoSo/typing';
 
 const { Step } = Steps;
 
-// Type definitions based on your JSON structure
-interface DiaChi {
-	tinh_ThanhPho: string;
-	quanHuyen: string;
-	xaPhuong: string;
-	diaChi?: string;
-	diaChiCuThe?: string;
-}
-
-interface User {
-	id: string;
-	password: string;
-	username: string;
-	soCCCD: string;
-	ngayCap: string;
-	noiCap: string;
-	ho: string;
-	ten: string;
-	hoKhauThuongTru: DiaChi;
-	ngaySinh: string;
-	gioiTinh: string;
-	email: string;
-	soDT: string;
-	avatar?: string;
-	role?: string;
-	thongTinBoSung?: {
-		danToc?: string;
-		quocTich?: string;
-		tonGiao?: string;
-	};
-	thongTinLienHe?: DiaChi;
-}
-
-interface HeDaoTao {
-	id: string;
-	ten: string;
-}
-
-interface PhuongThucXetTuyen {
-	id: string;
-	ten: string;
-	nguyenTac: string;
-}
-
-interface ToHop {
-	id: string;
-	monHoc: string[];
-}
-
-interface NganhDaoTao {
-	id: string;
-	ma: string;
-	ten: string;
-	moTa: string;
-	toHopXetTuyenId: string;
-}
-
-interface DiemMon {
-	mon: string;
-	diem: number;
-}
-
-interface DiemHocBa {
-	mon: string;
-	hocKy: string;
-	diemTongKet: number;
-}
-
-interface HocBa {
-	id: string;
-	userId: string | null;
-	thongTinHocTapId?: string;
-	diemMonHoc: DiemHocBa[];
-	loaiHanhKiem: string;
-	minhChung: string;
-}
-
-interface DiemDanhGia {
-	mon: { ten: string; diem: number }[];
-	tongDiem: number;
-	minhChung?: string;
-}
-
-interface GiaiHSG {
-	giaiHsgCap: string;
-	mon: string;
-	loaiGiai: string;
-	nam: string;
-	noiCap: string;
-	minhChung: string;
-}
-
-interface ChungChi {
-	loaiCC: string;
-	ketQua: string;
-	minhChung: string;
-}
-
-interface ThongTinTHPT {
-	ten: string; // Added to match JSON structure
-	tinh_ThanhPho: string;
-	quanHuyen: string;
-	xaPhuong: string;
-	diaChi: string;
-	maTruong: string;
-	maTinh: string;
-	doiTuongUT: string;
-	khuVucUT: string;
-	daTotNghiep: boolean;
-	namTotNghiep: string;
-}
-
-interface ThongTinHocTap {
-	id: string;
-	userId: string | null;
-	thongTinTHPT: ThongTinTHPT;
-	hocBaId?: string;
-	diemTHPT: DiemMon[];
-	diemDGTD?: DiemDanhGia;
-	diemDGNL?: DiemDanhGia;
-	giaiHSG?: GiaiHSG;
-	chungChi?: ChungChi[];
-}
-
-interface ThongTinNguyenVong {
-	id: string;
-	userId: string | null;
-	thuTuNV: number;
-	maNganh?: string;
-	ten: string;
-	coSoDaoTao?: string;
-	phuongThucId: string;
-	diemChuaUT: number;
-	diemCoUT: number;
-	diemDoiTuongUT: string; // Changed to string to match JSON object
-	diemKhuVucUT: number;
-	tongDiem: number;
-	phuongThucXT?: string[];
-}
-
-interface HoSo {
-	id: string;
-	thongTinCaNhanId: string;
-	thongTinHocTapId?: string;
-	thongTinBoSung: {
-		danToc: string;
-		quocTich: string;
-		tonGiao: string;
-		noiSinh: {
-			trongNuoc: boolean;
-			tinh_ThanhPho: string;
-		};
-	};
-	thongTinLienHe: {
-		ten: string;
-		diaChi: DiaChi;
-	};
-	nguyenVong: string[];
-	tinhTrang: string;
-	ketQua?: {
-		success?: boolean;
-		succes?: boolean; // Keep typo for backward compatibility
-		nguyenVong?: string;
-		nguyenVongDo?: string;
-		phuongThucId: string;
-		diem: number;
-	} | null;
-}
-
 interface ApiData {
-	user: User | null;
-	heDaoTao: HeDaoTao[];
-	phuongThucXetTuyen: PhuongThucXetTuyen[];
-	toHop: ToHop[];
-	nganhDaoTao: NganhDaoTao[];
-	thongTinHocTap: ThongTinHocTap | null;
-	hocBa: HocBa | null;
-	thongTinNguyenVong: ThongTinNguyenVong[];
-	hoSo: HoSo | null;
+	user: User.IRecord | null;
+	heDaoTao: HeDaoTao.IRecord[];
+	phuongThucXetTuyen: PhuongThucXT.IRecord[];
+	toHop: ToHop.IRecord[];
+	nganhDaoTao: NganhDaoTao.IRecord[];
+	thongTinHocTap: ThongTinHocTap.IRecord | null;
+	hocBa: DiemHocSinh.IRecord | null;
+	thongTinNguyenVong: ThongTinNguyenVong.IRecord[];
+	hoSo: HoSo.IRecord | null;
 }
 
 interface FormData {
-	personalInfo?: Partial<User>;
-	educationGrades?: Partial<ThongTinHocTap>;
-	hocBa?: Partial<HocBa>;
-	wishes?: ThongTinNguyenVong[];
+	personalInfo?: Partial<User.IRecord>;
+	educationGrades?: Partial<ThongTinHocTap.IRecord>;
+	hocBa?: Partial<DiemHocSinh.IRecord>;
+	wishes?: ThongTinNguyenVong.IRecord[];
 }
 
 interface StepInfo {
@@ -249,19 +81,46 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				nguyenVongResponse,
 				hoSoResponse,
 			] = await Promise.all([
-				axios.get<User>(`${ipLocal}/users/${userId}`),
-				axios.get<HeDaoTao[]>(`${ipLocal}/heDaoTao`),
-				axios.get<PhuongThucXetTuyen[]>(`${ipLocal}/phuongThucXetTuyen`),
-				axios.get<ToHop[]>(`${ipLocal}/toHop`),
-				axios.get<NganhDaoTao[]>(`${ipLocal}/nganhDaoTao`),
-				axios.get<ThongTinHocTap[]>(`${ipLocal}/thongTinHocTap?userId=${userId}`),
-				axios.get<HocBa[]>(`${ipLocal}/hocBa?userId=${userId}`),
-				axios.get<ThongTinNguyenVong[]>(`${ipLocal}/thongTinNguyenVong?userId=${userId}`),
-				axios.get<HoSo[]>(`${ipLocal}/hoSo?thongTinCaNhanId=${userId}`),
+				axios.get<User.IRecord>(`${ipLocal}/users/${userId}`),
+				axios.get<HeDaoTao.IRecord[]>(`${ipLocal}/heDaoTao`),
+				axios.get<PhuongThucXT.IRecord[]>(`${ipLocal}/phuongThucXetTuyen`),
+				axios.get<ToHop.IRecord[]>(`${ipLocal}/toHop`),
+				axios.get<NganhDaoTao.IRecord[]>(`${ipLocal}/nganhDaoTao`),
+				axios.get<ThongTinHocTap.IRecord[]>(`${ipLocal}/thongTinHocTap?userId=${userId}`),
+				axios.get<DiemHocSinh.IRecord[]>(`${ipLocal}/hocBa?userId=${userId}`),
+				axios.get<ThongTinNguyenVong.IRecord[]>(`${ipLocal}/thongTinNguyenVong?userId=${userId}`),
+				axios.get<HoSo.IRecord[]>(`${ipLocal}/hoSo?thongTinCaNhanId=${userId}`),
 			]);
 
+			// Normalize hoKhauThuongTru to handle inconsistent data
+			const normalizeHoKhauThuongTru = (data: any) => {
+				if (!data) {
+					return { tinh_ThanhPho: '', quanHuyen: '', xaPhuong: '', diaChi: '' };
+				}
+				if (typeof data === 'object' && data.tinh_ThanhPho) {
+					return {
+						tinh_ThanhPho: data.tinh_ThanhPho || '',
+						quanHuyen: data.quanHuyen || '',
+						xaPhuong: data.xaPhuong || '',
+						diaChi: data.diaChi || '',
+					};
+				}
+				// Handle cases where hoKhauThuongTru is a string, number, or other non-object type
+				return {
+					tinh_ThanhPho: '',
+					quanHuyen: '',
+					xaPhuong: '',
+					diaChi: String(data) || '',
+				};
+			};
+
+			const normalizedUser = {
+				...userResponse.data,
+				hoKhauThuongTru: normalizeHoKhauThuongTru(userResponse.data.hoKhauThuongTru),
+			};
+
 			const newApiData: ApiData = {
-				user: userResponse.data,
+				user: normalizedUser,
 				heDaoTao: heDaoTaoResponse.data,
 				phuongThucXetTuyen: phuongThucResponse.data,
 				toHop: toHopResponse.data,
@@ -275,26 +134,15 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			setApiData(newApiData);
 
 			// Pre-fill form data if user has existing data
-			const initialFormData: FormData = {};
-
-			if (userResponse.data) {
-				initialFormData.personalInfo = userResponse.data;
-			}
-
-			if (thongTinHocTapResponse.data[0]) {
-				initialFormData.educationGrades = thongTinHocTapResponse.data[0];
-			}
-
-			if (hocBaResponse.data[0]) {
-				initialFormData.hocBa = hocBaResponse.data[0];
-				setShowHocBa(true);
-			}
-
-			if (nguyenVongResponse.data && nguyenVongResponse.data.length > 0) {
-				initialFormData.wishes = nguyenVongResponse.data;
-			}
+			const initialFormData: FormData = {
+				personalInfo: normalizedUser || {},
+				educationGrades: thongTinHocTapResponse.data[0] || {},
+				hocBa: hocBaResponse.data[0] || {},
+				wishes: nguyenVongResponse.data || [],
+			};
 
 			setFormData(initialFormData);
+			setShowHocBa(!!hocBaResponse.data[0]);
 		} catch (error) {
 			console.error('Error fetching data:', error);
 			message.error('Không thể tải dữ liệu. Vui lòng thử lại!');
@@ -327,9 +175,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 	];
 
 	const handleNext = (stepData: Partial<FormData>): void => {
-		const updatedFormData: FormData = { ...formData, ...stepData };
-		setFormData(updatedFormData);
-
+		setFormData((prev) => ({ ...prev, ...stepData }));
 		if (currentStep < steps.length - 1) {
 			setCurrentStep(currentStep + 1);
 		}
@@ -344,9 +190,28 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 	const handleSubmit = async (): Promise<void> => {
 		setLoading(true);
 		try {
-			// Cập nhật thông tin user với thông tin bổ sung từ personalInfo
+			// Validate required fields
+			if (!formData.personalInfo?.ho || !formData.personalInfo?.ten || !formData.personalInfo?.soCCCD) {
+				message.error('Vui lòng điền đầy đủ thông tin cá nhân!');
+				setLoading(false);
+				return;
+			}
+
+			if (!formData.educationGrades?.thongTinTHPT?.ten || !formData.educationGrades?.thongTinTHPT?.namTotNghiep) {
+				message.error('Vui lòng điền đầy đủ thông tin học tập!');
+				setLoading(false);
+				return;
+			}
+
+			if (!formData.wishes || formData.wishes.length === 0) {
+				message.error('Vui lòng chọn ít nhất một nguyện vọng!');
+				setLoading(false);
+				return;
+			}
+
+			// Update user info
 			if (formData.personalInfo) {
-				const userUpdateData: Partial<User> = {
+				const userUpdateData: Partial<User.IRecord> = {
 					...apiData.user,
 					ho: formData.personalInfo.ho,
 					ten: formData.personalInfo.ten,
@@ -358,23 +223,19 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					soCCCD: formData.personalInfo.soCCCD,
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
-					hoKhauThuongTru: formData.personalInfo.thongTinLienHe || formData.personalInfo.hoKhauThuongTru,
-					// Thêm thông tin bổ sung vào user record
+					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || formData.personalInfo.thongTinLienHe || {},
 					thongTinBoSung: formData.personalInfo.thongTinBoSung || {},
 				};
-
 				await axios.put(`${ipLocal}/users/${userId}`, userUpdateData);
 			}
 
 			// Prepare data for hoSo submission
-			const submissionData: Partial<HoSo> = {
+			const submissionData: Partial<HoSo.IRecord> = {
 				thongTinCaNhanId: userId,
 				thongTinBoSung: {
-					// Lấy thông tin bổ sung từ personalInfo
-					danToc: formData.personalInfo?.thongTinBoSung?.danToc || '',
+					danToc: formData.personalInfo?.thongTinBoSung?.danToc || 'kinh',
 					quocTich: formData.personalInfo?.thongTinBoSung?.quocTich || 'Việt Nam',
-					tonGiao: formData.personalInfo?.thongTinBoSung?.tonGiao || '',
-					// Thêm thông tin nơi sinh nếu cần
+					tonGiao: formData.personalInfo?.thongTinBoSung?.tonGiao || 'không',
 					noiSinh: {
 						trongNuoc: true,
 						tinh_ThanhPho:
@@ -384,7 +245,6 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					},
 				},
 				thongTinLienHe: {
-					// Sử dụng thông tin liên hệ từ personalInfo
 					ten: `${formData.personalInfo?.ho || ''} ${formData.personalInfo?.ten || ''}`.trim(),
 					diaChi: {
 						tinh_ThanhPho:
@@ -406,59 +266,54 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				ketQua: null,
 			};
 
-			// Create or update thongTinHocTap if needed
+			// Create or update thongTinHocTap
 			if (formData.educationGrades) {
+				const educationData = {
+					...formData.educationGrades,
+					userId: userId,
+				};
 				if (apiData.thongTinHocTap) {
-					await axios.put(`${ipLocal}/thongTinHocTap/${apiData.thongTinHocTap.id}`, {
-						...apiData.thongTinHocTap,
-						...formData.educationGrades,
-					});
+					await axios.put(`${ipLocal}/thongTinHocTap/${apiData.thongTinHocTap.id}`, educationData);
 				} else {
-					await axios.post(`${ipLocal}/thongTinHocTap`, {
-						userId: userId,
-						...formData.educationGrades,
-					});
+					await axios.post(`${ipLocal}/thongTinHocTap`, educationData);
 				}
 			}
 
-			// Create or update hocBa if needed
+			// Create or update hocBa
 			if (formData.hocBa && showHocBa) {
+				const hocBaData = {
+					...formData.hocBa,
+					userId: userId,
+				};
 				if (apiData.hocBa) {
-					await axios.put(`${ipLocal}/hocBa/${apiData.hocBa.id}`, {
-						...apiData.hocBa,
-						...formData.hocBa,
-					});
+					await axios.put(`${ipLocal}/hocBa/${apiData.hocBa.id}`, hocBaData);
 				} else {
-					await axios.post(`${ipLocal}/hocBa`, {
-						userId: userId,
-						...formData.hocBa,
-					});
+					await axios.post(`${ipLocal}/hocBa`, hocBaData);
 				}
 			}
 
 			// Create or update nguyenVong
 			if (formData.wishes && formData.wishes.length > 0) {
 				// Delete existing wishes
-				const existingWishes = await axios.get<ThongTinNguyenVong[]>(`${ipLocal}/thongTinNguyenVong?userId=${userId}`);
-				for (const wish of existingWishes.data) {
-					await axios.delete(`${ipLocal}/thongTinNguyenVong/${wish.id}`);
+				if (apiData.thongTinNguyenVong.length > 0) {
+					await Promise.all(
+						apiData.thongTinNguyenVong.map((wish) => axios.delete(`${ipLocal}/thongTinNguyenVong/${wish.id}`)),
+					);
 				}
-
 				// Create new wishes
-				for (const wish of formData.wishes) {
-					await axios.post(`${ipLocal}/thongTinNguyenVong`, {
-						...wish,
-						userId: userId,
-					});
-				}
+				await Promise.all(
+					formData.wishes.map((wish) =>
+						axios.post(`${ipLocal}/thongTinNguyenVong`, {
+							...wish,
+							userId: userId,
+						}),
+					),
+				);
 			}
 
 			// Create or update hoSo
 			if (apiData.hoSo) {
-				await axios.put(`${ipLocal}/hoSo/${apiData.hoSo.id}`, {
-					...apiData.hoSo,
-					...submissionData,
-				});
+				await axios.put(`${ipLocal}/hoSo/${apiData.hoSo.id}`, submissionData);
 			} else {
 				const newHoSoId = `HOSO${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
 				await axios.post(`${ipLocal}/hoSo`, {
@@ -478,7 +333,6 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 	};
 
 	const handleClose = (): void => {
-		// Reset all states when closing
 		setCurrentStep(0);
 		setFormData({});
 		setShowHocBa(false);
@@ -493,10 +347,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			thongTinNguyenVong: [],
 			hoSo: null,
 		});
-		// Call parent's onClose function
-		if (onClose) {
-			onClose();
-		}
+		onClose?.();
 	};
 
 	const getStepContent = (): React.ReactNode => {
@@ -522,16 +373,12 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				);
 			case 1:
 				return (
-					<EducationGradesForm
+					<PersonalInfoForm
 						userId={userId}
 						initialData={formData}
-						showHocBa={showHocBa}
-						setShowHocBa={setShowHocBa}
 						onNext={handleNext}
-						heDaoTaoData={apiData.heDaoTao}
-						toHopData={apiData.toHop}
-						existingThongTinHocTap={apiData.thongTinHocTap}
-						existingHocBa={apiData.hocBa}
+						userData={apiData.user}
+						existingHoSo={apiData.hoSo}
 					/>
 				);
 			case 2:
@@ -573,9 +420,8 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			<div style={{ textAlign: 'center' }}>
 				<Space>
 					{currentStep > 0 && <Button onClick={handlePrev}>Quay lại</Button>}
-
 					{currentStep === steps.length - 1 && (
-						<Button type='primary' onClick={handleSubmit}>
+						<Button type='primary' onClick={handleSubmit} loading={loading}>
 							Nộp hồ sơ
 						</Button>
 					)}
