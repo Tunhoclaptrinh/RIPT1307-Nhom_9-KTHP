@@ -7,29 +7,26 @@ import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined, UserOutlined, LoadingOutlined } from '@ant-design/icons';
 import ThongTinNguyenVongForm from './components/Form';
 import ThongTinNguyenVongDetail from './components/Detail';
+import useUsers from '@/hooks/useUsers';
 import UserDetail from '../Users/components/Detail';
+
+const { Text } = Typography;
 
 const ThongTinNguyenVongPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('thongtinnguyenvong');
-	const { handleView: viewUser, getByIdModel: getUserById } = useModel('users');
-
+	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<ThongTinNguyenVong.IRecord | undefined>();
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
 	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>();
-	const [loadingUserId, setLoadingUserId] = useState<string | null>(null); // Track loading state
+	const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
 
-	// State để lưu trữ thông tin user đã load
 	const [usersCache, setUsersCache] = useState<{ [key: string]: User.IRecord }>({});
 
-	const { Text } = Typography;
-
-	// Hàm load thông tin user và cache lại
 	const loadUserInfo = async (userId: string) => {
 		if (usersCache[userId]) {
 			return usersCache[userId];
 		}
-
 		try {
 			const user = await getUserById(userId);
 			if (user) {
@@ -46,30 +43,23 @@ const ThongTinNguyenVongPage = () => {
 		return null;
 	};
 
-	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: ThongTinNguyenVong.IRecord) => {
 		setSelectedRecord(record);
 		setExtendedModalVisible(true);
 	};
 
 	const handleUserClick = async (userId: string) => {
-		// Nếu đang loading user khác, không cho phép click
 		if (loadingUserId && loadingUserId !== userId) {
 			return;
 		}
-
 		try {
 			setLoadingUserId(userId);
-
-			// Nếu user đã có trong cache, hiển thị ngay
 			if (usersCache[userId]) {
 				setSelectedUser(usersCache[userId]);
 				setUserDetailModalVisible(true);
 				setLoadingUserId(null);
 				return;
 			}
-
-			// Nếu chưa có trong cache, load từ API
 			const user = await loadUserInfo(userId);
 			if (user) {
 				setSelectedUser(user);
@@ -82,18 +72,15 @@ const ThongTinNguyenVongPage = () => {
 		}
 	};
 
-	// Hàm đóng modal user detail
 	const handleCloseUserDetail = () => {
 		setUserDetailModalVisible(false);
 		setSelectedUser(undefined);
 	};
 
-	// Hàm đóng
 	const onCloseExtendedModal = () => {
 		setExtendedModalVisible(false);
 	};
 
-	// Hàm chuyển sang chế độ edit
 	const onEditFromView = () => {
 		setExtendedModalVisible(false);
 		if (selectedRecord) {
@@ -101,7 +88,6 @@ const ThongTinNguyenVongPage = () => {
 		}
 	};
 
-	// Component để render thông tin user
 	const UserInfoCell = ({ userId }: { userId: string }) => {
 		const [userInfo, setUserInfo] = useState<User.IRecord | null>(null);
 		const [loading, setLoading] = useState(true);
@@ -113,13 +99,11 @@ const ThongTinNguyenVongPage = () => {
 				setUserInfo(user);
 				setLoading(false);
 			};
-
 			fetchUser();
 		}, [userId]);
 
 		const isClickLoading = loadingUserId === userId;
 
-		// Container style cố định để tránh layout shift
 		const containerStyle = {
 			display: 'flex',
 			alignItems: 'center',
@@ -128,9 +112,8 @@ const ThongTinNguyenVongPage = () => {
 			padding: '6px 10px',
 			borderRadius: '8px',
 			transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
-			position: 'relative' as const,
-			minHeight: '40px', // Cố định chiều cao
-			width: '100%', // Cố định chiều rộng
+			minHeight: '40px',
+			width: '100%',
 			opacity: isClickLoading ? 0.7 : 1,
 		};
 
@@ -138,14 +121,7 @@ const ThongTinNguyenVongPage = () => {
 			return (
 				<div style={containerStyle}>
 					<Avatar size='small' icon={<UserOutlined />} />
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: 4,
-							flex: 1, // Đảm bảo chiếm hết không gian còn lại
-						}}
-					>
+					<div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}>
 						<Spin size='small' />
 						<span style={{ color: '#666', fontSize: '14px' }}>Đang tải...</span>
 					</div>
@@ -157,20 +133,12 @@ const ThongTinNguyenVongPage = () => {
 			return (
 				<div style={containerStyle}>
 					<Avatar size='small' icon={<UserOutlined />} />
-					<div
-						style={{
-							color: '#ff4d4f',
-							fontSize: '14px',
-							flex: 1,
-						}}
-					>
-						Không tìm thấy thông tin
-					</div>
+					<div style={{ color: '#ff4d4f', fontSize: '14px', flex: 1 }}>Không tìm thấy thông tin</div>
 				</div>
 			);
 		}
 
-		const fullName = userInfo.ho + ' ' + userInfo.ten;
+		const fullName = getUserFullName(userId);
 
 		return (
 			<div
@@ -197,18 +165,12 @@ const ThongTinNguyenVongPage = () => {
 					src={userInfo.avatar}
 					icon={<UserOutlined />}
 					style={{
-						flexShrink: 0, // Không cho phép thu nhỏ
+						flexShrink: 0,
 						filter: isClickLoading ? 'brightness(0.8)' : 'brightness(1)',
 						transition: 'filter 0.2s ease',
 					}}
 				/>
-				<div
-					style={{
-						flex: 1,
-						minWidth: 0, // Cho phép text truncate nếu cần
-						overflow: 'hidden',
-					}}
-				>
+				<div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
 					<div
 						style={{
 							fontWeight: 500,
@@ -238,21 +200,19 @@ const ThongTinNguyenVongPage = () => {
 							@{userInfo.username}
 						</Text>
 					)}
-					{userInfo.id && (
-						<Text
-							type='secondary'
-							style={{
-								fontSize: '12px',
-								lineHeight: '16px',
-								display: 'block',
-								whiteSpace: 'nowrap',
-								overflow: 'hidden',
-								textOverflow: 'ellipsis',
-							}}
-						>
-							ID:{userInfo.id}
-						</Text>
-					)}
+					<Text
+						type='secondary'
+						style={{
+							fontSize: '12px',
+							lineHeight: '16px',
+							display: 'block',
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+						}}
+					>
+						ID:{userId}
+					</Text>
 				</div>
 				{isClickLoading && (
 					<div
@@ -373,7 +333,7 @@ const ThongTinNguyenVongPage = () => {
 				modelName='thongtinnguyenvong'
 				title='Quản lý thông tin nguyện vọng'
 				Form={ThongTinNguyenVongForm}
-				widthDrawer={700}
+				widthDrawer={900}
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSortable
@@ -390,6 +350,7 @@ const ThongTinNguyenVongPage = () => {
 				onClose={handleCloseUserDetail}
 				record={selectedUser}
 				title='thí sinh'
+				hideFooter
 			/>
 		</div>
 	);

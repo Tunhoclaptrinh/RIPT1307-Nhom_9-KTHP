@@ -26,9 +26,11 @@ const { Text } = Typography;
 
 interface DiemHocSinhFormProps {
 	title?: string;
+	userId?: string;
+	hideFooter?: boolean;
 }
 
-const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm học sinh' }) => {
+const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm học sinh', hideFooter, userId }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('hocba');
 	const { users, getUserFullName, getUserInfo, loading: usersLoading } = useUsers();
 	const [form] = Form.useForm();
@@ -473,16 +475,18 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 						/>
 					</Form.Item>
 
-					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
-						<Space>
-							<Button loading={formSubmiting} htmlType='submit' type='primary'>
-								{!edit
-									? intl.formatMessage({ id: 'global.button.themmoi' })
-									: intl.formatMessage({ id: 'global.button.luulai' })}
-							</Button>
-							<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
-						</Space>
-					</div>
+					{!hideFooter && (
+						<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+							<Space>
+								<Button loading={formSubmiting} htmlType='submit' type='primary'>
+									{edit
+										? intl.formatMessage({ id: 'global.button.luulai' })
+										: intl.formatMessage({ id: 'global.button.themmoi' })}
+								</Button>
+								<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+							</Space>
+						</div>
+					)}
 				</Form>
 			</Card>
 		</div>

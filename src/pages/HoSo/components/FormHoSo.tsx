@@ -52,7 +52,7 @@ const AdmissionStepModal = () => {
 			description: 'Cập nhật thông tin cá nhân',
 		},
 		{
-			title: 'Thông tin học tập & Học bạ',
+			title: 'Điểm, Chứng chỉ & Học bạ',
 			icon: <BookOutlined />,
 			description: 'Thông tin trường THPT, điểm thi và học bạ',
 		},

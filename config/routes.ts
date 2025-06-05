@@ -53,8 +53,15 @@ export default [
 			},
 			{
 				path: '/public/dash-board',
-				name: 'Trang cá nhân', // Tramg cá nhân thí sinh
+				name: 'Trang cá nhân', // Trang cá nhân thí sinh
 				component: './TrangPublic/ThiSinh/DashBoard',
+				layout: false,
+			},
+			{
+				path: '/public//dang-ky-tuyen-sinh',
+				name: 'Đăng ký tuyển sinh',
+				component: './DangKyHoSo',
+				icon: 'ReadOutlined',
 				layout: false,
 			},
 		],
@@ -154,13 +161,6 @@ export default [
 		name: 'Hồ sơ',
 		component: './HoSo',
 		icon: 'IdcardOutlined',
-	},
-	{
-		path: '/dang-ky-tuyen-sinh',
-		name: 'Đăng ký tuyển sinh',
-		component: './DangKyHoSo',
-		icon: 'ReadOutlined',
-		layout: false,
 	},
 
 	// {

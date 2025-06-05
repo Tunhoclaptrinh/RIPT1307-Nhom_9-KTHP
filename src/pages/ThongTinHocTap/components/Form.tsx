@@ -22,18 +22,19 @@ import { Space } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import useUsers from '@/hooks/useUsers';
+import DiemHocSinhForm from '@/pages/HocBa/components/Form';
 
 const { Option } = Select;
 const { Text } = Typography;
 
 interface ThongTinHocTapFormProps {
 	title?: string;
+	userId?: string;
 	hideFooter?: boolean;
 }
 
 const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
-	{ title = 'thông tin học tập' },
-	hideFooter,
+	{ title = 'thông tin học tập', userId, hideFooter },
 	...props
 ) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
@@ -703,12 +704,6 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 							</Form.List>
 						)}
 					</Card>
-
-					{/* Học bạ THPT */}
-					<Form.Item label='Học bạ THPT' name='hocBaTHPT'>
-						<Input placeholder='Nhập ID học bạ' />
-						{/* <HocBaSelect></HocBaSelect> */}
-					</Form.Item>
 
 					{/* Form actions */}
 					{!hideFooter && (

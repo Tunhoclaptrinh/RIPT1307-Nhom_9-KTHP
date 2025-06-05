@@ -163,123 +163,124 @@ const HocBaDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) =>
 					</Space>
 				</div>,
 			]}
+			bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
 		>
-			{/* Thông tin học sinh */}
-			<Card
-				style={{
-					marginBottom: '16px',
-					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-					border: 'none',
-				}}
-			>
-				<Row align='middle' gutter={16}>
-					<Col>
-						<Avatar size={64} src={userInfo?.avatar} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
-					</Col>
-					<Col flex={1}>
-						<Title level={4} style={{ color: 'white', margin: 0 }}>
-							{fullName}
-						</Title>
-						<div style={{ color: 'rgba(255,255,255,0.9)', marginTop: '4px' }}>
-							<div>Mã học sinh: {record.userId}</div>
-							{userInfo?.username && <div>@{userInfo.username}</div>}
-							{userDetail?.soCCCD && <div>CCCD: {userDetail.soCCCD}</div>}
-						</div>
-					</Col>
-					<Col>
-						<div style={{ textAlign: 'right', color: 'white' }}>
-							{record.namHoc && <div>Năm học: {record.namHoc}</div>}
-							{record.khoiLop && <div>Khối: {record.khoiLop}</div>}
-						</div>
-					</Col>
-				</Row>
-			</Card>
+			<Card type='inner'>
+				{' '}
+				{/* Thông tin học sinh */}
+				<Card
+					style={{
+						marginBottom: '16px',
+						background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+						border: 'none',
+					}}
+				>
+					<Row align='middle' gutter={16}>
+						<Col>
+							<Avatar size={64} src={userInfo?.avatar} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
+						</Col>
+						<Col flex={1}>
+							<Title level={4} style={{ color: 'white', margin: 0 }}>
+								{fullName}
+							</Title>
+							<div style={{ color: 'rgba(255,255,255,0.9)', marginTop: '4px' }}>
+								<div>Mã học sinh: {record.userId}</div>
+								{userInfo?.username && <div>@{userInfo.username}</div>}
+								{userDetail?.soCCCD && <div>CCCD: {userDetail.soCCCD}</div>}
+							</div>
+						</Col>
+						<Col>
+							<div style={{ textAlign: 'right', color: 'white' }}>
+								{record.namHoc && <div>Năm học: {record.namHoc}</div>}
+								{record.khoiLop && <div>Khối: {record.khoiLop}</div>}
+							</div>
+						</Col>
+					</Row>
+				</Card>
+				{/* Thông tin cơ bản */}
+				<Descriptions
+					title={
+						<>
+							<FileTextOutlined /> Thông tin học bạ
+						</>
+					}
+					column={2}
+					bordered
+					labelStyle={{ fontWeight: 600, width: 180, backgroundColor: '#fafafa' }}
+					contentStyle={{ whiteSpace: 'pre-wrap' }}
+					style={{ marginBottom: '24px' }}
+				>
+					<Descriptions.Item label='ID học bạ' span={2}>
+						<Text code style={{ fontSize: '14px' }}>
+							{record.id}
+						</Text>
+					</Descriptions.Item>
 
-			{/* Thông tin cơ bản */}
-			<Descriptions
-				title={
-					<>
-						<FileTextOutlined /> Thông tin học bạ
-					</>
-				}
-				column={2}
-				bordered
-				labelStyle={{ fontWeight: 600, width: 180, backgroundColor: '#fafafa' }}
-				contentStyle={{ whiteSpace: 'pre-wrap' }}
-				style={{ marginBottom: '24px' }}
-			>
-				<Descriptions.Item label='ID học bạ' span={2}>
-					<Text code style={{ fontSize: '14px' }}>
-						{record.id}
-					</Text>
-				</Descriptions.Item>
+					<Descriptions.Item label='Loại hạnh kiểm'>{renderLoaiHanhKiem(record.loaiHanhKiem)}</Descriptions.Item>
 
-				<Descriptions.Item label='Loại hạnh kiểm'>{renderLoaiHanhKiem(record.loaiHanhKiem)}</Descriptions.Item>
-
-				<Descriptions.Item label='Xếp loại học lực'>{renderXepLoaiHocLuc(record.xepLoaiHocLuc)}</Descriptions.Item>
-			</Descriptions>
-
-			{/* Điểm các môn học */}
-			<Card
-				title={
-					<>
-						<BookOutlined /> Điểm các môn học
-					</>
-				}
-				style={{ marginBottom: '16px' }}
-				headStyle={{ backgroundColor: '#f0f9ff', borderBottom: '2px solid #1890ff' }}
-			>
-				{renderDiemMonHoc(record.diemMonHoc)}
-			</Card>
-
-			{/* Nhận xét và đánh giá */}
-			{(record.nhanXetGiaoVien || record.minhChung) && (
+					<Descriptions.Item label='Xếp loại học lực'>{renderXepLoaiHocLuc(record.xepLoaiHocLuc)}</Descriptions.Item>
+				</Descriptions>
+				{/* Điểm các môn học */}
 				<Card
 					title={
 						<>
-							<FileTextOutlined /> Nhận xét và đánh giá
+							<BookOutlined /> Điểm các môn học
 						</>
 					}
-					headStyle={{ backgroundColor: '#f6ffed', borderBottom: '2px solid #52c41a' }}
+					style={{ marginBottom: '16px' }}
+					headStyle={{ backgroundColor: '#f0f9ff', borderBottom: '2px solid #1890ff' }}
 				>
-					{record.nhanXetGiaoVien && (
-						<div style={{ marginBottom: '16px' }}>
-							<Title level={5} style={{ color: '#52c41a', marginBottom: '8px' }}>
-								Nhận xét của giáo viên chủ nhiệm:
-							</Title>
-							<div
-								style={{
-									backgroundColor: '#f6ffed',
-									padding: '12px',
-									borderRadius: '6px',
-									borderLeft: '4px solid #52c41a',
-									fontStyle: 'italic',
-								}}
-							>
-								{record.nhanXetGiaoVien}
-							</div>
-						</div>
-					)}
-
-					{record.minhChung && (
-						<div>
-							<Title level={5} style={{ color: '#1890ff', marginBottom: '8px' }}>
-								Minh chứng và thành tích:
-							</Title>
-							<div
-								style={{
-									backgroundColor: '#f0f9ff',
-									padding: '12px',
-									borderRadius: '6px',
-									borderLeft: '4px solid #1890ff',
-								}}
-							>
-								{record.minhChung}
-							</div>
-						</div>
-					)}
+					{renderDiemMonHoc(record.diemMonHoc)}
 				</Card>
-			)}
+				{/* Nhận xét và đánh giá */}
+				{(record.nhanXetGiaoVien || record.minhChung) && (
+					<Card
+						title={
+							<>
+								<FileTextOutlined /> Nhận xét và đánh giá
+							</>
+						}
+						headStyle={{ backgroundColor: '#f6ffed', borderBottom: '2px solid #52c41a' }}
+					>
+						{record.nhanXetGiaoVien && (
+							<div style={{ marginBottom: '16px' }}>
+								<Title level={5} style={{ color: '#52c41a', marginBottom: '8px' }}>
+									Nhận xét của giáo viên chủ nhiệm:
+								</Title>
+								<div
+									style={{
+										backgroundColor: '#f6ffed',
+										padding: '12px',
+										borderRadius: '6px',
+										borderLeft: '4px solid #52c41a',
+										fontStyle: 'italic',
+									}}
+								>
+									{record.nhanXetGiaoVien}
+								</div>
+							</div>
+						)}
+
+						{record.minhChung && (
+							<div>
+								<Title level={5} style={{ color: '#1890ff', marginBottom: '8px' }}>
+									Minh chứng và thành tích:
+								</Title>
+								<div
+									style={{
+										backgroundColor: '#f0f9ff',
+										padding: '12px',
+										borderRadius: '6px',
+										borderLeft: '4px solid #1890ff',
+									}}
+								>
+									{record.minhChung}
+								</div>
+							</div>
+						)}
+					</Card>
+				)}
+			</Card>
 		</Modal>
 	);
 };

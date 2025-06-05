@@ -8,6 +8,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined, FormOutlined } from '@ant-de
 import moment from 'moment';
 import UserForm from './components/Form';
 import UserDetail from './components/Detail';
+import AdmissionStepModal from '../HoSo/components/FormHoSo';
 
 // PasswordCell component (unchanged)
 const PasswordCell = ({ password }: { password: string }) => {
@@ -152,7 +153,7 @@ const UsersPage = () => {
 		{
 			title: 'Thao tác',
 			align: 'center',
-			width: 150,
+			width: 160,
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
@@ -198,6 +199,7 @@ const UsersPage = () => {
 					title='người dùng'
 				/>
 			)}
+			<AdmissionStepModal />
 		</div>
 	);
 };

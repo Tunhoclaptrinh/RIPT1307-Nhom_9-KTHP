@@ -388,6 +388,7 @@ const ThongTinHocTapPage = () => {
 				onClose={handleCloseUserDetail}
 				record={selectedUser}
 				title='thí sinh'
+				hideFooter
 			/>
 		</div>
 	);
