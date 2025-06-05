@@ -43,21 +43,25 @@ export default [
 				path: '/public/trang-chu',
 				name: 'Trang chủ',
 				component: './TrangPublic/TrangChuPublic',
-				icon: 'HomeOutlined',
 				layout: false,
 			},
 			{
 				path: '/public/tra-cuu-public',
 				name: 'Tra cứu tuyển sinh',
 				component: './TrangPublic/TraCuuPublic',
-				icon: 'SearchOutlined',
 				layout: false,
 			},
 			{
 				path: '/public/dash-board',
-				name: 'Trang cá nhân', // Tramg cá nhân thí sinh
+				name: 'Trang cá nhân', // Trang cá nhân thí sinh
 				component: './TrangPublic/ThiSinh/DashBoard',
-				icon: 'UserOutlined',
+				layout: false,
+			},
+			{
+				path: '/public//dang-ky-tuyen-sinh',
+				name: 'Đăng ký tuyển sinh',
+				component: './DangKyHoSo',
+				icon: 'ReadOutlined',
 				layout: false,
 			},
 		],
@@ -71,57 +75,68 @@ export default [
 				path: '/public-manage/thong-bao-tuyen-sinh',
 				name: 'Thông báo tuyển sinh',
 				component: './QuanLyTrang/ThongBaoTS',
-				icon: 'NotificationOutlined',
 			},
 			{
 				path: '/public-manage/huong-dan-ho-so',
 				name: 'Hướng dẫn hồ sơ',
 				component: './QuanLyTrang/HDHoSo',
-				icon: 'FileTextOutlined',
 			},
 			{
 				path: '/public-manage/hoi-dap',
 				name: 'Hỏi đáp',
 				component: './QuanLyTrang/FAQ',
-				icon: 'QuestionCircleOutlined',
 			},
 			{
 				path: '/public-manage/lich-trinh-tuyen-sinh',
 				name: 'Lịch trình tuyển sinh',
 				component: './QuanLyTrang/LichTrinhTS',
-				icon: 'CalendarOutlined',
 			},
 			{
 				path: '/public-manage/thong-ke-tuyen-sinh',
 				name: 'Thống kê tuyển sinh',
 				component: './QuanLyTrang/ThongKeTS',
-				icon: 'BarChartOutlined',
 			},
 			{
 				path: '/public-manage/tin-tuc',
 				name: 'Tin tức',
 				component: './QuanLyTrang/TinTuc',
-				icon: 'FileSearchOutlined',
 			},
 		],
 	},
+
+	{
+		path: '/qldt',
+		name: 'Quản lý đào tạo',
+		icon: 'AppstoreOutlined',
+		routes: [
+			{
+				path: '/qldt/he-dao-tao',
+				name: 'Hệ đào tạo',
+				component: './HeDaoTao',
+			},
+			{
+				path: '/qldt/nganh-dao-tao',
+				name: 'Ngành đào tạo',
+				component: './NganhDaoTao',
+			},
+			{
+				path: '/qldt/phuong-thuc-xet-tuyen',
+				name: 'Phương thức xét tuyển',
+				component: './PhuongThucXT',
+			},
+			{
+				path: '/qldt/to-hop',
+				name: 'Tổ hợp môn',
+				component: './ToHop',
+			},
+		],
+	},
+
 	{
 		path: '/users',
 		name: 'Người dùng',
 		component: './Users',
 		icon: 'TeamOutlined',
-	},
-	{
-		path: '/he-dao-tao',
-		name: 'Hệ đào tạo',
-		component: './HeDaoTao',
-		icon: 'AppstoreOutlined',
-	},
-	{
-		path: '/nganh-dao-tao',
-		name: 'Ngành đào tạo',
-		component: './NganhDaoTao',
-		icon: 'BulbOutlined',
 	},
 	{
 		path: '/hoc-ba',
@@ -146,25 +161,6 @@ export default [
 		name: 'Hồ sơ',
 		component: './HoSo',
 		icon: 'IdcardOutlined',
-	},
-	{
-		path: '/phuong-thuc-xet-tuyen',
-		name: 'Phương thức xét tuyển',
-		component: './PhuongThucXT',
-		icon: 'ProfileOutlined',
-	},
-	{
-		path: '/to-hop',
-		name: 'Tổ hợp môn học',
-		component: './ToHop',
-		icon: 'ReadOutlined',
-	},
-	{
-		path: '/dang-ky-tuyen-sinh',
-		name: 'Đăng ký tuyển sinh',
-		component: './DangKyHoSo',
-		icon: 'ReadOutlined',
-		layout: false,
 	},
 
 	// {

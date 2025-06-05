@@ -48,7 +48,7 @@ declare module Login {
 		gioiTinh?: string; // Giới tính, ví dụ: 'nam'
 		soDT?: string; // Số điện thoại, ví dụ: '0935123456'
 		preferred_username?: string; // Tên người dùng ưa thích, ví dụ: 'leminhc' (tùy chọn, giữ từ interface gốc)
-		picture?: string; // URL ảnh đại diện, ví dụ: 'https://images2.thanhnien.vn/...' (tùy chọn)
+		avatar?: string; // URL ảnh đại diện, ví dụ: 'https://images2.thanhnien.vn/...' (tùy chọn)
 		realm_access?: {
 			roles: string[]; // Danh sách vai trò, ví dụ: ['QUAN_TRI_VIEN', 'admin', ...] (tùy chọn)
 		};

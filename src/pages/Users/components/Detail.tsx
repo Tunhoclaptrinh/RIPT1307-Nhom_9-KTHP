@@ -5,12 +5,20 @@ import moment from 'moment';
 interface ViewModalProps {
 	isVisible: boolean;
 	onClose: () => void;
-	onEdit: () => void;
+	onEdit?: () => void;
 	record?: User.IRecord;
 	title?: string;
+	hideFooter?: boolean;
 }
 
-const UserDetail: React.FC<ViewModalProps> = ({ isVisible, onClose, onEdit, record, title = 'người dùng' }) => {
+const UserDetail: React.FC<ViewModalProps> = ({
+	isVisible,
+	onClose,
+	onEdit,
+	record,
+	title = 'người dùng',
+	hideFooter,
+}) => {
 	const [showPassword, setShowPassword] = useState(false);
 
 	if (!record) return null;
@@ -32,14 +40,22 @@ const UserDetail: React.FC<ViewModalProps> = ({ isVisible, onClose, onEdit, reco
 			title={`Chi tiết ${title}`}
 			visible={isVisible}
 			onCancel={onClose}
-			footer={[
-				<Button key='back' onClick={onClose}>
-					Đóng
-				</Button>,
-				<Button key='edit' type='primary' onClick={onEdit}>
-					Chỉnh sửa
-				</Button>,
-			]}
+			footer={
+				hideFooter
+					? null
+					: [
+							<div style={{ textAlign: 'center' }}>
+								<Button key='back' onClick={onClose}>
+									Đóng
+								</Button>
+								,
+								<Button key='edit' type='primary' onClick={onEdit}>
+									Chỉnh sửa
+								</Button>
+								,
+							</div>,
+					  ]
+			}
 			width={800}
 		>
 			<Descriptions column={2} bordered>

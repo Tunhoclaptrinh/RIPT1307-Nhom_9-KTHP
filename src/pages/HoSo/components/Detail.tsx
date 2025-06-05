@@ -37,7 +37,12 @@ const HoSoDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) => 
 				labelStyle={{ fontWeight: 600, width: 180 }}
 				contentStyle={{ whiteSpace: 'pre-wrap' }}
 			>
-				<Descriptions.Item label='ID hồ sơ'>{record.id}</Descriptions.Item>
+				<Descriptions.Item label='ID hồ sơ' span={2}>
+					{record.id}
+				</Descriptions.Item>
+				<Descriptions.Item label='Tình trạng'>
+					<Tag color={record.tinhTrang === 'đã duyệt' ? 'green' : 'orange'}>{record.tinhTrang} </Tag>
+				</Descriptions.Item>
 				<Descriptions.Item label='ID thông tin cá nhân'>{record.thongTinCaNhanId}</Descriptions.Item>
 				<Descriptions.Item label='Dân tộc'>{thongTinBoSung.danToc}</Descriptions.Item>
 				<Descriptions.Item label='Quốc tịch'>{thongTinBoSung.quocTich}</Descriptions.Item>

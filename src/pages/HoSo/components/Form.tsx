@@ -10,8 +10,8 @@ import UploadFile from '@/components/Upload/UploadFile';
 const { Option } = Select;
 
 interface HoSoFormProps {
-  title?: string;
-  [key: string]: any;
+	title?: string;
+	[key: string]: any;
 }
 
 const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
@@ -21,39 +21,39 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
   const [form] = Form.useForm();
   const intl = useIntl();
 
-  // State for address selection
-  const [selectedProvince, setSelectedProvince] = useState<string>();
-  const [selectedDistrict, setSelectedDistrict] = useState<string>();
-  const [selectedWard, setSelectedWard] = useState<string>();
-  const [submitting, setSubmitting] = useState(false);
+	// State for address selection
+	const [selectedProvince, setSelectedProvince] = useState<string>();
+	const [selectedDistrict, setSelectedDistrict] = useState<string>();
+	const [selectedWard, setSelectedWard] = useState<string>();
+	const [submitting, setSubmitting] = useState(false);
 
-  // Reset form and update values when record changes
-  useEffect(() => {
-    if (!visibleForm) {
-      resetFieldsForm(form);
-      setSelectedProvince(undefined);
-      setSelectedDistrict(undefined);
-      setSelectedWard(undefined);
-    } else if (record?.id) {
-      const formData = {
-        ...record,
-        thongTinLienHe: {
-          ...record.thongTinLienHe,
-          diaChi: record.thongTinLienHe?.diaChi || {},
-        },
-        thongTinBoSung: {
-          ...record.thongTinBoSung,
-          noiSinh: record.thongTinBoSung?.noiSinh || {},
-        },
-      };
-      form.setFieldsValue(formData);
+	// Reset form and update values when record changes
+	useEffect(() => {
+		if (!visibleForm) {
+			resetFieldsForm(form);
+			setSelectedProvince(undefined);
+			setSelectedDistrict(undefined);
+			setSelectedWard(undefined);
+		} else if (record?.id) {
+			const formData = {
+				...record,
+				thongTinLienHe: {
+					...record.thongTinLienHe,
+					diaChi: record.thongTinLienHe?.diaChi || {},
+				},
+				thongTinBoSung: {
+					...record.thongTinBoSung,
+					noiSinh: record.thongTinBoSung?.noiSinh || {},
+				},
+			};
+			form.setFieldsValue(formData);
 
-      // Update address state
-      setSelectedProvince(record.thongTinLienHe?.diaChi?.tinh_ThanhPho);
-      setSelectedDistrict(record.thongTinLienHe?.diaChi?.quanHuyen);
-      setSelectedWard(record.thongTinLienHe?.diaChi?.xaPhuong);
-    }
-  }, [record?.id, visibleForm, form]);
+			// Update address state
+			setSelectedProvince(record.thongTinLienHe?.diaChi?.tinh_ThanhPho);
+			setSelectedDistrict(record.thongTinLienHe?.diaChi?.quanHuyen);
+			setSelectedWard(record.thongTinLienHe?.diaChi?.xaPhuong);
+		}
+	}, [record?.id, visibleForm, form]);
 
   // Handle form submission
   const onFinish = async (values: any) => {
@@ -108,50 +108,50 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
     }
   };
 
-  const handleProvinceChange = (value: string) => {
-    setSelectedProvince(value);
-    setSelectedDistrict(undefined);
-    setSelectedWard(undefined);
-    form.setFieldsValue({
-      thongTinLienHe: {
-        ...form.getFieldValue('thongTinLienHe'),
-        diaChi: {
-          ...form.getFieldValue('thongTinLienHe')?.diaChi,
-          tinh_ThanhPho: value,
-          quanHuyen: undefined,
-          xaPhuong: undefined,
-        },
-      },
-    });
-  };
+	const handleProvinceChange = (value: string) => {
+		setSelectedProvince(value);
+		setSelectedDistrict(undefined);
+		setSelectedWard(undefined);
+		form.setFieldsValue({
+			thongTinLienHe: {
+				...form.getFieldValue('thongTinLienHe'),
+				diaChi: {
+					...form.getFieldValue('thongTinLienHe')?.diaChi,
+					tinh_ThanhPho: value,
+					quanHuyen: undefined,
+					xaPhuong: undefined,
+				},
+			},
+		});
+	};
 
-  const handleDistrictChange = (value: string) => {
-    setSelectedDistrict(value);
-    setSelectedWard(undefined);
-    form.setFieldsValue({
-      thongTinLienHe: {
-        ...form.getFieldValue('thongTinLienHe'),
-        diaChi: {
-          ...form.getFieldValue('thongTinLienHe')?.diaChi,
-          quanHuyen: value,
-          xaPhuong: undefined,
-        },
-      },
-    });
-  };
+	const handleDistrictChange = (value: string) => {
+		setSelectedDistrict(value);
+		setSelectedWard(undefined);
+		form.setFieldsValue({
+			thongTinLienHe: {
+				...form.getFieldValue('thongTinLienHe'),
+				diaChi: {
+					...form.getFieldValue('thongTinLienHe')?.diaChi,
+					quanHuyen: value,
+					xaPhuong: undefined,
+				},
+			},
+		});
+	};
 
-  const handleWardChange = (value: string) => {
-    setSelectedWard(value);
-    form.setFieldsValue({
-      thongTinLienHe: {
-        ...form.getFieldValue('thongTinLienHe'),
-        diaChi: {
-          ...form.getFieldValue('thongTinLienHe')?.diaChi,
-          xaPhuong: value,
-        },
-      },
-    });
-  };
+	const handleWardChange = (value: string) => {
+		setSelectedWard(value);
+		form.setFieldsValue({
+			thongTinLienHe: {
+				...form.getFieldValue('thongTinLienHe'),
+				diaChi: {
+					...form.getFieldValue('thongTinLienHe')?.diaChi,
+					xaPhuong: value,
+				},
+			},
+		});
+	};
 
   return (
     <div>
@@ -247,79 +247,77 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
             </Form.Item>
           </Card>
 
-          <Card title="Địa chỉ liên hệ" style={{ marginTop: 16, border: 'none' }}>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Tỉnh/Thành phố"
-                  name={['thongTinLienHe', 'diaChi', 'tinh_ThanhPho']}
-                  rules={[...rules.required]}
-                >
-                  <ProvincesSelect
-                    placeholder="Chọn tỉnh/thành phố"
-                    onChange={handleProvinceChange}
-                    value={selectedProvince}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label="Quận/Huyện"
-                  name={['thongTinLienHe', 'diaChi', 'quanHuyen']}
-                //   rules={[...rules.required]}
-                >
-                  <DistrictsSelect
-                    provinceCode={selectedProvince}
-                    placeholder="Chọn quận/huyện"
-                    onChange={handleDistrictChange}
-                    value={selectedDistrict}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Xã/Phường"
-                  name={['thongTinLienHe', 'diaChi', 'xaPhuong']}
-                //   rules={[...rules.required]}
-                >
-                  <WardsSelect
-                    districtCode={selectedDistrict}
-                    placeholder="Chọn xã/phường"
-                    onChange={handleWardChange}
-                    value={selectedWard}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label="Địa chỉ cụ thể"
-                  name={['thongTinLienHe', 'diaChi', 'diaChiCuThe']}
-                  rules={[...rules.required]}
-                >
-                  <Input placeholder="Nhập số nhà, tên đường..." />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
+					<Card title='Địa chỉ liên hệ' style={{ marginTop: 16, border: 'none' }}>
+						<Row gutter={16}>
+							<Col span={12}>
+								<Form.Item
+									label='Tỉnh/Thành phố'
+									name={['thongTinLienHe', 'diaChi', 'tinh_ThanhPho']}
+									rules={[...rules.required]}
+								>
+									<ProvincesSelect
+										placeholder='Chọn tỉnh/thành phố'
+										onChange={handleProvinceChange}
+										value={selectedProvince}
+									/>
+								</Form.Item>
+							</Col>
+							<Col span={12}>
+								<Form.Item
+									label='Quận/Huyện'
+									name={['thongTinLienHe', 'diaChi', 'quanHuyen']}
+									//   rules={[...rules.required]}
+								>
+									<DistrictsSelect
+										provinceCode={selectedProvince}
+										placeholder='Chọn quận/huyện'
+										onChange={handleDistrictChange}
+										value={selectedDistrict}
+									/>
+								</Form.Item>
+							</Col>
+						</Row>
+						<Row gutter={16}>
+							<Col span={12}>
+								<Form.Item
+									label='Xã/Phường'
+									name={['thongTinLienHe', 'diaChi', 'xaPhuong']}
+									//   rules={[...rules.required]}
+								>
+									<WardsSelect
+										districtCode={selectedDistrict}
+										placeholder='Chọn xã/phường'
+										onChange={handleWardChange}
+										value={selectedWard}
+									/>
+								</Form.Item>
+							</Col>
+							<Col span={12}>
+								<Form.Item
+									label='Địa chỉ cụ thể'
+									name={['thongTinLienHe', 'diaChi', 'diaChiCuThe']}
+									rules={[...rules.required]}
+								>
+									<Input placeholder='Nhập số nhà, tên đường...' />
+								</Form.Item>
+							</Col>
+						</Row>
+					</Card>
 
-          <div className="form-actions" style={{ marginTop: 24, textAlign: 'center' }}>
-            <Space>
-              <Button loading={submitting} htmlType="submit" type="primary">
-                {!edit
-                  ? intl.formatMessage({ id: 'global.button.themmoi' })
-                  : intl.formatMessage({ id: 'global.button.luulai' })}
-              </Button>
-              <Button onClick={() => setVisibleForm(false)}>
-                {intl.formatMessage({ id: 'global.button.huy' })}
-              </Button>
-            </Space>
-          </div>
-        </Form>
-      </Card>
-    </div>
-  );
+					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
+						<Space>
+							<Button loading={submitting} htmlType='submit' type='primary'>
+								{!edit
+									? intl.formatMessage({ id: 'global.button.themmoi' })
+									: intl.formatMessage({ id: 'global.button.luulai' })}
+							</Button>
+							<Button onClick={() => setVisibleForm(false)}>{intl.formatMessage({ id: 'global.button.huy' })}</Button>
+						</Space>
+					</div>
+				</Form>
+			</Card>
+		</div>
+	);
 };
 
 export default HoSoForm;

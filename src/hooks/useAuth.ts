@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useModel, history } from 'umi';
 import { message } from 'antd';
 import { Login } from '@/services/base/typing';
+import { ipLocal } from '@/utils/ip';
 
 interface AuthState {
 	user: Login.IUser | null;
@@ -28,7 +29,7 @@ const useAuth = () => {
 
 				// Nếu có userId nhưng không có user, gọi API để lấy thông tin
 				if (userId && !user?.id) {
-					const response = await fetch(`http://localhost:3001/users/${userId}`);
+					const response = await fetch(`${ipLocal}/users/${userId}`);
 					if (!response.ok) {
 						throw new Error('Không thể lấy thông tin người dùng');
 					}
@@ -47,7 +48,7 @@ const useAuth = () => {
 						ngayCap: userData.ngayCap,
 						noiCap: userData.noiCap,
 						preferred_username: userData.preferred_username,
-						picture: userData.picture,
+						avatar: userData.avatar,
 						email_verified: userData.email_verified,
 						realm_access: userData.realm_access,
 					};
@@ -78,7 +79,7 @@ const useAuth = () => {
 			setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 			// Gọi API để lấy danh sách người dùng
-			const response = await fetch('http://localhost:3001/users');
+			const response = await fetch(`${ipLocal}/users`);
 			if (!response.ok) {
 				throw new Error('Không thể kết nối đến server. Vui lòng thử lại sau.');
 			}
@@ -106,7 +107,7 @@ const useAuth = () => {
 				ngayCap: user.ngayCap,
 				noiCap: user.noiCap,
 				preferred_username: user.preferred_username,
-				picture: user.picture,
+				avatar: user.avatar,
 				email_verified: user.email_verified,
 				realm_access: user.realm_access,
 			};

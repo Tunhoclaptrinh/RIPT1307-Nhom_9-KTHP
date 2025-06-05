@@ -6,6 +6,7 @@ import styles from './index.less';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import useAuth from '../../../../hooks/useAuth';
+import path from 'path';
 
 const { Option } = Select;
 
@@ -28,19 +29,22 @@ const Dashboard: React.FC = () => {
 			title: 'Xét tuyển trực tuyến',
 			icon: <FileSearchOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/admission.svg',
+			image: 'https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/05/9-1-1024x520.jpg',
+			path: '/dang-ky-tuyen-sinh',
 		},
 		{
 			title: 'Nhập học trực tuyến',
 			icon: <ReadOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/enroll.svg',
+			image: 'https://i.ytimg.com/vi/JDadPU_1fPI/maxresdefault.jpg',
+			path: '/dang-ky-tuyen-sinh',
 		},
 		{
 			title: 'Thanh toán trực tuyến',
 			icon: <CreditCardOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
-			image: '/images/payment.svg',
+			image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOmbWhInhDtFCA215uhODstISa7kEIs0mCRg&s',
+			path: '/dang-ky-tuyen-sinh',
 		},
 	];
 
@@ -140,7 +144,7 @@ const Dashboard: React.FC = () => {
 										</div>
 
 										<div style={{ textAlign: 'right', marginTop: 16 }}>
-											<Button type='link' style={{ padding: 0 }}>
+											<Button type='link' style={{ padding: 0 }} onClick={() => history.push('/dang-ky-tuyen-sinh')}>
 												Xem chi tiết <RightOutlined />
 											</Button>
 										</div>
