@@ -373,12 +373,16 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				);
 			case 1:
 				return (
-					<PersonalInfoForm
+					<EducationGradesForm
 						userId={userId}
 						initialData={formData}
+						showHocBa={showHocBa}
+						setShowHocBa={setShowHocBa}
 						onNext={handleNext}
-						userData={apiData.user}
-						existingHoSo={apiData.hoSo}
+						heDaoTaoData={apiData.heDaoTao}
+						toHopData={apiData.toHop}
+						existingThongTinHocTap={apiData.thongTinHocTap}
+						existingHocBa={apiData.hocBa}
 					/>
 				);
 			case 2:
