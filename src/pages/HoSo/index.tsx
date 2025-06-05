@@ -9,6 +9,7 @@ import { CheckOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-d
 import { HoSo } from '@/services/HoSo/typing';
 import HoSoDetail from './components/Detail';
 import { duyetHoSo } from '@/services/HoSo';
+import AdmissionStepModal from './components/FormHoSo';
 
 const HoSoPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
@@ -171,6 +172,8 @@ const HoSoPage = () => {
 				record={selectedRecord}
 				onEdit={onEditFromView}
 			/>
+
+			<AdmissionStepModal />
 		</div>
 	);
 };

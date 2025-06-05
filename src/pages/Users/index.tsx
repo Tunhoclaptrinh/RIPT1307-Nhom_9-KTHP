@@ -4,11 +4,10 @@ import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
-import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, FormOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import UserForm from './components/Form';
 import UserDetail from './components/Detail';
-import ExpandText from '@/components/ExpandText';
 
 // PasswordCell component (unchanged)
 const PasswordCell = ({ password }: { password: string }) => {
@@ -158,6 +157,12 @@ const UsersPage = () => {
 			render: (_, record) => (
 				<Space>
 					<ButtonExtend tooltip='Xem chi tiết' onClick={() => onView(record)} type='link' icon={<EyeOutlined />} />
+					<ButtonExtend
+						tooltip='Tạo hồ sơ cho thí sinh này'
+						onClick={() => onView(record)}
+						type='link'
+						icon={<FormOutlined />}
+					/>
 					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}

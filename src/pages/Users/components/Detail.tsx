@@ -5,7 +5,7 @@ import moment from 'moment';
 interface ViewModalProps {
 	isVisible: boolean;
 	onClose: () => void;
-	onEdit: () => void;
+	onEdit?: () => void;
 	record?: User.IRecord;
 	title?: string;
 }

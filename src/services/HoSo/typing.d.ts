@@ -32,7 +32,8 @@ declare module HoSo {
 
 	export interface IRecord {
 		id: string;
-		thongTinCaNhanId: string;
+		thongTinCaNhanId: string; //Chính là userId
+		thongTinHocTapId: string;
 		thongTinBoSung: IThongTinBoSung;
 		thongTinLienHe: IThongTinLienHe;
 		tinhTrang: TTinhTrang;

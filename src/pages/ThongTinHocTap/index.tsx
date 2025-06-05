@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, Typography, Popover } from 'antd';
+import { Popconfirm, Tag, Space, Typography, Popover, Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -8,13 +9,18 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import ThongTinHocTapForm from './components/Form';
 import ThongTinHocTapDetail from './components/Detail';
+import UserDetail from '../Users/components/Detail'; // Import UserDetail modal
+import useUsers from '@/hooks/useUsers'; // Import hook
 
 const { Text } = Typography;
 
 const ThongTinHocTapPage = () => {
 	const { handleEdit, handleView, deleteModel } = useModel('thongtinhoctap');
+	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
+	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false); // Modal xem thông tin user
 	const [selectedRecord, setSelectedRecord] = useState<ThongTinHocTap.IRecord | undefined>();
+	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // User được chọn
 
 	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: ThongTinHocTap.IRecord) => {
@@ -33,6 +39,70 @@ const ThongTinHocTapPage = () => {
 		if (selectedRecord) {
 			handleEdit(selectedRecord);
 		}
+	};
+
+	// Hàm xử lý click vào thông tin user
+	const handleUserClick = (userId: string) => {
+		const user = getUserById(userId);
+		if (user) {
+			setSelectedUser(user);
+			setUserDetailModalVisible(true);
+		}
+	};
+
+	// Hàm đóng modal user detail
+	const handleCloseUserDetail = () => {
+		setUserDetailModalVisible(false);
+		setSelectedUser(undefined);
+	};
+
+	// Render user info với avatar và tên - có thể click
+	const renderUserInfo = (userId: string) => {
+		const userInfo = getUserInfo(userId);
+		const fullName = getUserFullName(userId);
+
+		if (usersLoading) {
+			return <Text type='secondary'>Đang tải...</Text>;
+		}
+
+		return (
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: 8,
+					cursor: 'pointer',
+					padding: '4px 8px',
+					borderRadius: '6px',
+					transition: 'all 0.3s ease',
+				}}
+				onClick={() => handleUserClick(userId)}
+				onMouseEnter={(e) => {
+					e.currentTarget.style.backgroundColor = '#f0f9ff';
+					e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.backgroundColor = 'transparent';
+					e.currentTarget.style.boxShadow = 'none';
+				}}
+				title='Click để xem thông tin chi tiết'
+			>
+				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
+				<div>
+					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
+					{userInfo?.username && (
+						<Text type='secondary' style={{ fontSize: '12px' }}>
+							@{userInfo.username}
+						</Text>
+					)}
+					<div style={{ margin: 0 }}>
+						<Text type='secondary' style={{ fontSize: '12px' }}>
+							ID:{userId}
+						</Text>
+					</div>
+				</div>
+			</div>
+		);
 	};
 
 	// Helper function để render trạng thái tốt nghiệp
@@ -56,13 +126,12 @@ const ThongTinHocTapPage = () => {
 		}
 
 		return (
-			<div>
-				{diemTHPT.slice(0, 3).map((diem, index) => (
-					<div key={index} style={{ marginBottom: 2 }}>
+			<div style={{ maxHeight: 300, overflowY: 'auto' }}>
+				{diemTHPT.map((diem, index) => (
+					<div key={index} style={{ marginBottom: 4 }}>
 						<Text strong>{diem.mon}</Text>: <Text type='success'>{diem.diem}</Text>
 					</div>
 				))}
-				{diemTHPT.length > 3 && <Text type='secondary'>... và {diemTHPT.length - 3} môn khác</Text>}
 			</div>
 		);
 	};
@@ -128,13 +197,14 @@ const ThongTinHocTapPage = () => {
 	};
 
 	const columns: IColumn<ThongTinHocTap.IRecord>[] = [
-		// {
-		//   title: 'ID',
-		//   dataIndex: 'id',
-		//   width: 100,
-		//   sortable: true,
-		//   filterType: 'string',
-		// },
+		{
+			title: 'Thí sinh',
+			dataIndex: 'userId',
+			width: 200,
+			sortable: true,
+			filterType: 'string',
+			render: (userId: string) => renderUserInfo(userId),
+		},
 		{
 			title: 'Thông tin trường THPT',
 			width: 250,
@@ -156,7 +226,7 @@ const ThongTinHocTapPage = () => {
 			title: 'Trạng thái tốt nghiệp',
 			width: 150,
 			filterType: 'select',
-			filters: [
+			filterIcon: [
 				{ text: 'Đã tốt nghiệp', value: true },
 				{ text: 'Chưa tốt nghiệp', value: false },
 			],
@@ -178,7 +248,33 @@ const ThongTinHocTapPage = () => {
 			title: 'Điểm THPT',
 			dataIndex: 'diemTHPT',
 			width: 200,
-			render: (diemTHPT: ThongTinHocTap.IDiemTHPT[]) => renderDiemTHPT(diemTHPT),
+			render: (diemTHPT: ThongTinHocTap.IDiemTHPT[]) => {
+				if (!diemTHPT || diemTHPT.length === 0) {
+					return <Text type='secondary'>Chưa có điểm</Text>;
+				}
+
+				const summary =
+					diemTHPT
+						.slice(0, 3)
+						.map((diem) => `${diem.mon}: ${diem.diem}`)
+						.join(', ') + (diemTHPT.length > 3 ? ', ...' : '');
+
+				return (
+					<Popover content={renderDiemTHPT(diemTHPT)} title='Chi tiết điểm THPT' trigger='click'>
+						<div
+							style={{
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								whiteSpace: 'nowrap',
+								maxWidth: '180px',
+								cursor: 'pointer',
+							}}
+						>
+							{summary}
+						</div>
+					</Popover>
+				);
+			},
 		},
 		{
 			title: 'Điểm ĐGTD',
@@ -286,6 +382,12 @@ const ThongTinHocTapPage = () => {
 				onClose={onCloseExtendedModal}
 				record={selectedRecord}
 				onEdit={onEditFromView}
+			/>
+			<UserDetail
+				isVisible={userDetailModalVisible}
+				onClose={handleCloseUserDetail}
+				record={selectedUser}
+				title='thí sinh'
 			/>
 		</div>
 	);

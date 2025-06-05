@@ -59,6 +59,7 @@ declare module ThongTinHocTap {
 
 	export interface IRecord {
 		id: string;
+		userId: string;
 		thongTinTHPT: IThongTinTHPT;
 		hocBaTHPT: string; // ID tham chiếu đến học bạ
 		diemTHPT: IDiemTHPT[];

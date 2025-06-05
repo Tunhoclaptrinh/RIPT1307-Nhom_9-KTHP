@@ -1,14 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Form, Input, Select, Switch, DatePicker, InputNumber, Row, Col } from 'antd';
+import {
+	Button,
+	Card,
+	Form,
+	Input,
+	Select,
+	Switch,
+	DatePicker,
+	InputNumber,
+	Row,
+	Col,
+	Avatar,
+	Typography,
+	Divider,
+} from 'antd';
 import { useModel, useIntl } from 'umi';
 import { resetFieldsForm } from '@/utils/utils';
 import rules from '@/utils/rules';
 import moment from 'moment';
 import { Space } from 'antd';
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, MinusCircleOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import useUsers from '@/hooks/useUsers';
 
 const { Option } = Select;
+const { Text } = Typography;
 
 interface ThongTinHocTapFormProps {
 	title?: string;
@@ -21,6 +37,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 	...props
 ) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
+	const { users, getUserFullName, getUserInfo, loading: usersLoading } = useUsers();
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
@@ -29,6 +46,65 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 	const [selectedDistrict, setSelectedDistrict] = useState<string>();
 	const [selectedWard, setSelectedWard] = useState<string>();
 
+	// State for student selection
+	const [selectedUserId, setSelectedUserId] = useState<string>('');
+	const [searchValue, setSearchValue] = useState<string>('');
+
+	// Lọc học sinh với khả năng tìm kiếm theo nhiều tiêu chí
+	const getFilteredStudents = React.useMemo(() => {
+		if (!searchValue.trim()) {
+			return users;
+		}
+
+		const searchTerm = searchValue.toLowerCase().trim();
+
+		return users.filter((user) => {
+			const fullName = `${user.ho} ${user.ten}`.toLowerCase();
+			const username = user.username.toLowerCase();
+			const userId = user.id.toLowerCase();
+			const email = user.email.toLowerCase();
+			const soCCCD = user.soCCCD?.toLowerCase() || '';
+
+			return (
+				fullName.includes(searchTerm) ||
+				username.includes(searchTerm) ||
+				userId.includes(searchTerm) ||
+				email.includes(searchTerm) ||
+				soCCCD.includes(searchTerm)
+			);
+		});
+	}, [users, searchValue]);
+
+	// Tạo options cho Select với thông tin đầy đủ
+	const studentOptions = getFilteredStudents.map((user) => ({
+		value: user.id,
+		label: `${user.ho} ${user.ten}`,
+		user: user,
+	}));
+
+	// Custom filter function cho Select
+	const filterOption = (input: string, option: any) => {
+		if (!input) return true;
+
+		const searchTerm = input.toLowerCase();
+		const user = option.user;
+
+		// Kiểm tra an toàn cho tất cả các thuộc tính
+		const fullName = `${user.ho || ''} ${user.ten || ''}`.toLowerCase();
+		const username = (user.username || '').toLowerCase();
+		const userId = (user.id || '').toLowerCase();
+		const email = (user.email || '').toLowerCase();
+		const soCCCD = (user.soCCCD || '').toLowerCase();
+
+		return (
+			fullName.includes(searchTerm) ||
+			username.includes(searchTerm) ||
+			userId.includes(searchTerm) ||
+			email.includes(searchTerm) ||
+			soCCCD.includes(searchTerm)
+		);
+	};
+
 	// Reset form and update values when record changes
 	React.useEffect(() => {
 		if (!visibleForm) {
@@ -36,6 +112,8 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 			setSelectedProvince(undefined);
 			setSelectedDistrict(undefined);
 			setSelectedWard(undefined);
+			setSelectedUserId('');
+			setSearchValue('');
 		} else if (record?.id) {
 			const formData = {
 				...record,
@@ -60,6 +138,9 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 			setSelectedProvince(record.thongTinTHPT?.tinh_ThanhPho);
 			setSelectedDistrict(record.thongTinTHPT?.quanHuyen);
 			setSelectedWard(record.thongTinTHPT?.xaPhuong);
+
+			// Update student selection
+			setSelectedUserId(record.userId || '');
 		}
 	}, [record?.id, visibleForm, form]);
 
@@ -135,6 +216,82 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 		});
 	};
 
+	// Render thông tin thí sinh đã chọn
+	const renderSelectedStudent = () => {
+		if (!selectedUserId) return null;
+
+		const userInfo = getUserInfo(selectedUserId);
+		const fullName = getUserFullName(selectedUserId);
+		const selectedUser = users.find((user) => user.id === selectedUserId);
+
+		if (!userInfo || !selectedUser) return null;
+
+		return (
+			<Card size='small' style={{ marginTop: 8, backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
+				<Row align='middle' gutter={16}>
+					<Col>
+						<Avatar src={userInfo.avatar} icon={<UserOutlined />} />
+					</Col>
+					<Col flex={1}>
+						<div>
+							<Text strong style={{ color: '#52c41a' }}>
+								{fullName}
+							</Text>
+							<br />
+							<Text type='secondary' style={{ fontSize: '14px' }}>
+								Mã thí sinh: {selectedUser.id} | @{userInfo.username}
+							</Text>
+							{selectedUser.email && (
+								<>
+									<br />
+									<Text type='secondary' style={{ fontSize: '12px' }}>
+										Email: {selectedUser.email}
+									</Text>
+								</>
+							)}
+							{selectedUser.soCCCD && (
+								<>
+									<br />
+									<Text type='secondary' style={{ fontSize: '12px' }}>
+										CCCD: {selectedUser.soCCCD}
+									</Text>
+								</>
+							)}
+						</div>
+					</Col>
+				</Row>
+			</Card>
+		);
+	};
+
+	// Render option cho Select với thông tin chi tiết
+	const renderStudentOption = (user: any) => {
+		return (
+			<div style={{ padding: '8px 0' }}>
+				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+					<Avatar size='small' src={user.avatar} icon={<UserOutlined />} />
+					<div style={{ flex: 1 }}>
+						<div style={{ fontWeight: 500, color: '#1890ff' }}>
+							{user.ho} {user.ten}
+						</div>
+						<div style={{ fontSize: '12px', color: '#666' }}>
+							<span>Mã: {user.id}</span>
+							<span style={{ margin: '0 8px' }}>•</span>
+							<span>@{user.username}</span>
+							{user.email && (
+								<>
+									<span style={{ margin: '0 8px' }}>•</span>
+									<span>{user.email}</span>
+								</>
+							)}
+						</div>
+						{user.soCCCD && <div style={{ fontSize: '11px', color: '#999' }}>CCCD: {user.soCCCD}</div>}
+					</div>
+				</div>
+			</div>
+		);
+	};
+
 	// Watch switch states to apply conditional rules
 	const hasDGTD = Form.useWatch('hasDGTD', form);
 	const hasDGNL = Form.useWatch('hasDGNL', form);
@@ -146,6 +303,57 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 		<div>
 			<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
 				<Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
+					{/* Thông tin thí sinh */}
+					<Card type='inner' title='Thông tin thí sinh' style={{ marginBottom: 16 }}>
+						<Row gutter={16}>
+							<Col span={24}>
+								{/* Chọn thí sinh với tìm kiếm nâng cao */}
+								<Form.Item label='Thí sinh' name='userId' rules={[...rules.required]}>
+									<Select
+										showSearch
+										placeholder='Tìm kiếm theo tên, mã thí sinh, username, email, CCCD...'
+										loading={usersLoading}
+										filterOption={filterOption}
+										onChange={(value) => setSelectedUserId(value)}
+										disabled={edit} // Không cho phép thay đổi thí sinh khi chỉnh sửa
+										suffixIcon={<SearchOutlined />}
+										optionLabelProp='label'
+										style={{ width: '100%' }}
+										dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+										notFoundContent={usersLoading ? 'Đang tải...' : 'Không tìm thấy thí sinh phù hợp'}
+									>
+										{studentOptions.map((option) => (
+											<Option key={option.value} value={option.value} label={option.label} user={option.user}>
+												{renderStudentOption(option.user)}
+											</Option>
+										))}
+									</Select>
+								</Form.Item>
+
+								{/* Hiển thị thông tin thí sinh đã chọn */}
+								{renderSelectedStudent()}
+
+								{/* Hướng dẫn tìm kiếm */}
+								{!edit && (
+									<div
+										style={{
+											marginTop: 8,
+											padding: '8px 12px',
+											backgroundColor: '#f0f9ff',
+											borderRadius: '6px',
+											border: '1px solid #d6f7ff',
+										}}
+									>
+										<Text type='secondary' style={{ fontSize: '12px' }}>
+											<SearchOutlined style={{ marginRight: 4 }} />
+											Có thể tìm kiếm theo: Tên thí sinh, Mã thí sinh, Username (@), Email, hoặc số CCCD
+										</Text>
+									</div>
+								)}
+							</Col>
+						</Row>
+					</Card>
+
 					{/* Thông tin THPT */}
 					<Card type='inner' title='Thông tin trường THPT' style={{ marginBottom: 16 }}>
 						<Row gutter={16}>
@@ -499,6 +707,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 					{/* Học bạ THPT */}
 					<Form.Item label='Học bạ THPT' name='hocBaTHPT'>
 						<Input placeholder='Nhập ID học bạ' />
+						{/* <HocBaSelect></HocBaSelect> */}
 					</Form.Item>
 
 					{/* Form actions */}
