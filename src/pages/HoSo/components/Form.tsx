@@ -6,6 +6,7 @@ import { resetFieldsForm } from '@/utils/utils';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import { HoSo } from '@/services/HoSo/typing';
 import { Space } from 'antd';
+import UploadFile from '@/components/Upload/UploadFile';
 const { Option } = Select;
 
 interface HoSoFormProps {
@@ -15,6 +16,8 @@ interface HoSoFormProps {
 
 const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
   const { record, setVisibleForm, edit, postModel, putModel,  visibleForm } = useModel('hoso');
+    const { postAvatar } = useModel('users');
+  
   const [form] = Form.useForm();
   const intl = useIntl();
 
@@ -67,6 +70,7 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
             diaChiCuThe: values.thongTinLienHe?.diaChi?.diaChiCuThe,
           },
         },
+				avatar: undefined,
         thongTinBoSung: {
           ...values.thongTinBoSung,
           noiSinh: {
@@ -75,7 +79,22 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
           },
         },
       };
+      let userId: string;
+			if (edit) {
+				if (!record?.id) {
+					throw new Error('Record ID is required for editing');
+				}
+				userId = record.id;
+				await putModel(userId, submitData);
+			} else {
+				const response = await postModel(submitData);
+				userId = response.id;
+			}
 
+
+			if (values.avatar) {
+				await postAvatar(userId, values.avatar);
+			}
       if (edit) {
         await putModel(record?.id ?? '', submitData);
       } else {
@@ -149,7 +168,17 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
               </Form.Item>
             </Col>
           </Row>
-
+          <Row gutter={16} style={{ marginBottom: 16 }}>
+						<Col span={24}>
+							<Form.Item label='Ảnh đại diện' name='avatar'>
+								<UploadFile
+									isAvatar 
+									maxFileSize={5} 
+									buttonDescription="Tải lên ảnh đại diện"
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
           <Card title="Thông tin bổ sung" style={{ marginTop: 16, border: 'none' }}>
             <Row gutter={16}>
               <Col span={12}>

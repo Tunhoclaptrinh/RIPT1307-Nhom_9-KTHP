@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Popconfirm, Tag, Space, Popover, Image } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
@@ -9,6 +9,7 @@ import moment from 'moment';
 import UserForm from './components/Form';
 import UserDetail from './components/Detail';
 import ExpandText from '@/components/ExpandText';
+
 
 // PasswordCell component (unchanged)
 const PasswordCell = ({ password }: { password: string }) => {
@@ -55,10 +56,40 @@ const PasswordCell = ({ password }: { password: string }) => {
 };
 
 const UsersPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
+	const { handleEdit, handleView, deleteModel, getModel, getAvatar } = useModel('users');
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
 
+const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      try {
+        const response = await getAvatar(userId);
+        if (response?.data?.length > 0) {
+          setAvatarUrl(response.data[0].avatarUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching avatar:', error);
+      }
+    };
+
+    fetchAvatar();
+  }, [userId]);
+
+  return avatarUrl ? (
+    <Image
+      src={avatarUrl}
+      width={80}
+      height={80}
+      style={{ objectFit: 'cover' }}
+      preview={{
+        src: avatarUrl,
+      }}
+    />
+  ) : null;
+};
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);
@@ -77,6 +108,13 @@ const UsersPage = () => {
 	};
 
 	const columns: IColumn<User.IRecord>[] = [
+		{
+			title: 'Avatar',
+			dataIndex: 'id',
+			width: 120,
+			align: 'center',
+			render: (id) => <AvatarCell userId={id} />,
+		},
 		{
 			title: 'Họ tên',
 			dataIndex: 'ho',
@@ -149,27 +187,6 @@ const UsersPage = () => {
 			sorter: true,
 			align: 'center',
 			render: (val) => (val ? moment(val).format('DD/MM/YYYY') : ''),
-		},
-		{
-			title: 'Avatar',
-			dataIndex: ['avatar'] as any,
-			width: 120,
-			sorter: true,
-			align: 'center',
-			render: (val) => {
-				const thumbUrl = val?.fileList?.[0]?.thumbUrl;
-				return thumbUrl ? (
-					<Image
-						src={thumbUrl}
-						width={80}
-						height={80}
-						style={{ objectFit: 'cover' }}
-						preview={{
-							src: thumbUrl,
-						}}
-					/>
-				) : null;
-			},
 		},
 		{
 			title: 'Thao tác',

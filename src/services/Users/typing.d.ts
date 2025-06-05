@@ -22,4 +22,8 @@ declare module User {
 		xaPhuong: string;
 		diaChi: string;
 	};
+	export type AvatarCellProps = {
+  userId: string;
+}
+
 }

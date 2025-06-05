@@ -16,7 +16,7 @@ interface UserFormProps {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFooter, ...props }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('users');
+	const { record, setVisibleForm, edit, postModel, putModel, visibleForm, postAvatar } = useModel('users');
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
@@ -81,20 +81,30 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 					xaPhuong: values.hoKhauThuongTru?.xaPhuong,
 					diaChi: values.hoKhauThuongTru?.diaChi,
 				},
+				avatar: undefined
 			};
 
 			if (!edit && (!values.password || values.password.trim() === '')) {
 				submitData.password = values.soCCCD;
 			}
 
+			let userId: string;
 			if (edit) {
 				if (!record?.id) {
 					throw new Error('Record ID is required for editing');
 				}
-				await putModel(record.id, submitData);
+				userId = record.id;
+				await putModel(userId, submitData);
 			} else {
-				await postModel(submitData);
+				const response = await postModel(submitData);
+				userId = response.id;
 			}
+
+
+			if (values.avatar) {
+				await postAvatar(userId, values.avatar);
+			}
+
 			setVisibleForm(false);
 			resetFieldsForm(form);
 		} catch (error) {
@@ -337,7 +347,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 								}}
 								title='Nhấn và giữ để xem mật khẩu'
 							>
-								{showPassword ? record.password || '••••••••' : '••••••••'}
+								{showPassword ? record?.password || '••••••••' : '••••••••'}
 							</Col>
 							<Col span={6}>
 								<Button
