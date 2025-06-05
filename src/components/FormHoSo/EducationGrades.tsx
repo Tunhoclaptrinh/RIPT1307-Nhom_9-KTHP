@@ -127,7 +127,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 			{/* Thông tin trường THPT */}
 			<Card title='Thông tin trường THPT' style={{ marginBottom: 16 }}>
 				<Row gutter={16}>
-					<Col span={8}>
+					<Col span={12}>
 						<Form.Item
 							label='Tên trường'
 							name={['educationGrades', 'thongTinTHPT', 'ten']}
@@ -136,7 +136,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<Input placeholder='Nhập tên trường' />
 						</Form.Item>
 					</Col>
-					<Col span={8}>
+					<Col span={12}>
 						<Form.Item
 							label='Mã trường'
 							name={['educationGrades', 'thongTinTHPT', 'maTruong']}
@@ -145,6 +145,8 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<Input placeholder='Nhập mã trường' />
 						</Form.Item>
 					</Col>
+				</Row>
+				<Row gutter={16}>
 					<Col span={8}>
 						<Form.Item
 							label='Tỉnh/Thành phố'
@@ -154,8 +156,6 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<ProvincesSelect />
 						</Form.Item>
 					</Col>
-				</Row>
-				<Row gutter={16}>
 					<Col span={8}>
 						<Form.Item
 							label='Quận/Huyện'
@@ -183,8 +183,6 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<Input placeholder='Nhập địa chỉ' />
 						</Form.Item>
 					</Col>
-				</Row>
-				<Row gutter={16}>
 					<Col span={8}>
 						<Form.Item
 							label='Khu vực ưu tiên'
@@ -207,6 +205,8 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							</Select>
 						</Form.Item>
 					</Col>
+				</Row>
+				<Row gutter={16}>
 					<Col span={8}>
 						<Form.Item
 							label='Đã tốt nghiệp'
@@ -216,11 +216,9 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<Switch />
 						</Form.Item>
 					</Col>
-				</Row>
-				<Row gutter={16}>
-					<Col span={12}>
+					<Col span={16}>
 						<Form.Item
-							label='Năm tốt nghiệp'
+							label='Năm tốt nghiệp / dự kiến tốt nghiệp'
 							name={['educationGrades', 'thongTinTHPT', 'namTotNghiep']}
 							rules={[{ required: true, message: 'Vui lòng chọn năm tốt nghiệp!' }]}
 						>
