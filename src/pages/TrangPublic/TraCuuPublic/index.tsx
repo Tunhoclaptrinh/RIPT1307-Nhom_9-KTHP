@@ -207,7 +207,9 @@ const TraCuuTuyenSinhPublic = () => {
 						title='Thông tin tra cứu kết quả xét tuyển'
 						extra={
 							<Space>
-								<span style={{ fontSize: '12px', color: '#666' }}>* Vui lòng nhập ít nhất 2 trường thông tin</span>
+								<span style={{ fontSize: '16px', color: 'red', fontWeight: 600 }}>
+									* Vui lòng nhập ít nhất 2 trường thông tin
+								</span>
 							</Space>
 						}
 					>
