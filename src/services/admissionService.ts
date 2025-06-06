@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Base URL cho json-server (thay đổi theo cấu hình của bạn)
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'http://localhost:3000';
 
 const api = axios.create({
 	baseURL: BASE_URL,
