@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message, Image } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import moment from 'moment';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import UploadFile from '@/components/Upload/UploadFile';
 const { Option } = Select;
 import { Space } from 'antd';
 
@@ -15,7 +16,7 @@ interface UserFormProps {
 }
 
 const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFooter, ...props }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('users');
+	const { record, setVisibleForm, edit, postModel, putModel, visibleForm, postAvatar } = useModel('users');
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
@@ -80,20 +81,30 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 					xaPhuong: values.hoKhauThuongTru?.xaPhuong,
 					diaChi: values.hoKhauThuongTru?.diaChi,
 				},
+				avatar: undefined
 			};
 
 			if (!edit && (!values.password || values.password.trim() === '')) {
 				submitData.password = values.soCCCD;
 			}
 
+			let userId: string;
 			if (edit) {
 				if (!record?.id) {
 					throw new Error('Record ID is required for editing');
 				}
-				await putModel(record.id, submitData);
+				userId = record.id;
+				await putModel(userId, submitData);
 			} else {
-				await postModel(submitData);
+				const response = await postModel(submitData);
+				userId = response.id;
 			}
+
+
+			if (values.avatar) {
+				await postAvatar(userId, values.avatar);
+			}
+
 			setVisibleForm(false);
 			resetFieldsForm(form);
 		} catch (error) {
@@ -246,6 +257,18 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 						</Col>
 					</Row>
 
+					<Row gutter={16} style={{ marginBottom: 16 }}>
+						<Col span={24}>
+							<Form.Item label='Ảnh đại diện' name='avatar'>
+								<UploadFile 
+									isAvatar 
+									maxFileSize={5} 
+									buttonDescription="Tải lên ảnh đại diện"
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+
 					<Row gutter={16}>
 						<Col span={12}>
 							<Form.Item label='Username' name='username'>
@@ -324,7 +347,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 								}}
 								title='Nhấn và giữ để xem mật khẩu'
 							>
-								{showPassword ? record.password || '••••••••' : '••••••••'}
+								{showPassword ? record?.password || '••••••••' : '••••••••'}
 							</Col>
 							<Col span={6}>
 								<Button

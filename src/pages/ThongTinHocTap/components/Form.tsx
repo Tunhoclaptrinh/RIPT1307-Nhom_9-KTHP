@@ -23,6 +23,7 @@ import { PlusOutlined, MinusCircleOutlined, UserOutlined, SearchOutlined } from 
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import useUsers from '@/hooks/useUsers';
 import DiemHocSinhForm from '@/pages/HocBa/components/Form';
+import UploadFile from '@/components/Upload/UploadFile';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -38,6 +39,8 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 	...props
 ) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
+	const { avatarUrl } = useModel('users');
+	
 	const { users, getUserFullName, getUserInfo, loading: usersLoading } = useUsers();
 	const [form] = Form.useForm();
 	const intl = useIntl();
@@ -231,7 +234,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 			<Card size='small' style={{ marginTop: 8, backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
 				<Row align='middle' gutter={16}>
 					<Col>
-						<Avatar src={userInfo.avatar} icon={<UserOutlined />} />
+						<Avatar src={avatarUrl} icon={<UserOutlined />} />
 					</Col>
 					<Col flex={1}>
 						<div>
@@ -643,9 +646,21 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 										<Input placeholder='Nhập nơi cấp' />
 									</Form.Item>
 								</Col>
-								<Col span={12}>
+								{/* <Col span={12}>
 									<Form.Item label='Minh chứng' name={['giaiHSG', 'minhChung']} rules={[...rules.required]}>
 										<Input placeholder='Nhập minh chứng' />
+									</Form.Item>
+								</Col> */}
+								
+								<Col span={12}>
+									<Form.Item label='Ảnh minh chứng, tài liệu đính kèm' name={['giaiHSG', 'minhChung']}
+									rules={[...rules.required]}
+									>
+										<UploadFile 
+											isAvatar 
+											maxFileSize={5} 
+											buttonDescription="Tải lên ảnh minh chứng"
+										/>
 									</Form.Item>
 								</Col>
 							</Row>
@@ -684,9 +699,20 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 														<Input placeholder='Kết quả' />
 													</Form.Item>
 												</Col>
-												<Col span={7}>
+												{/* <Col span={7}>
 													<Form.Item {...restField} name={[name, 'minhChung']} rules={[...rules.required]}>
 														<Input placeholder='Minh chứng' />
+													</Form.Item>
+												</Col> */}
+												<Col span={7}>
+													<Form.Item label='Ảnh minh chứng, tài liệu đính kèm' name={[name, 'minhChung']}
+													rules={[...rules.required]}
+													>
+														<UploadFile 
+															isAvatar 
+															maxFileSize={5} 
+															buttonDescription="Tải lên ảnh minh chứng"
+														/>
 													</Form.Item>
 												</Col>
 												<Col span={3}>

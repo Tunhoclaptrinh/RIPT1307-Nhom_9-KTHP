@@ -6,6 +6,7 @@ import { resetFieldsForm } from '@/utils/utils';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import { HoSo } from '@/services/HoSo/typing';
 import { Space } from 'antd';
+import UploadFile from '@/components/Upload/UploadFile';
 const { Option } = Select;
 
 interface HoSoFormProps {
@@ -14,9 +15,11 @@ interface HoSoFormProps {
 }
 
 const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('hoso');
-	const [form] = Form.useForm();
-	const intl = useIntl();
+  const { record, setVisibleForm, edit, postModel, putModel,  visibleForm } = useModel('hoso');
+    const { postAvatar } = useModel('users');
+  
+  const [form] = Form.useForm();
+  const intl = useIntl();
 
 	// State for address selection
 	const [selectedProvince, setSelectedProvince] = useState<string>();
@@ -52,45 +55,58 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 		}
 	}, [record?.id, visibleForm, form]);
 
-	// Handle form submission
-	const onFinish = async (values: any) => {
-		try {
-			setSubmitting(true);
-			const submitData: HoSo.IRecord = {
-				...values,
-				thongTinLienHe: {
-					...values.thongTinLienHe,
-					diaChi: {
-						tinh_ThanhPho: values.thongTinLienHe?.diaChi?.tinh_ThanhPho,
-						quanHuyen: values.thongTinLienHe?.diaChi?.quanHuyen,
-						xaPhuong: values.thongTinLienHe?.diaChi?.xaPhuong,
-						diaChiCuThe: values.thongTinLienHe?.diaChi?.diaChiCuThe,
-					},
-				},
-				thongTinBoSung: {
-					...values.thongTinBoSung,
-					noiSinh: {
-						trongNuoc: values.thongTinBoSung?.noiSinh?.trongNuoc,
-						tinh_ThanhPho: values.thongTinBoSung?.noiSinh?.tinh_ThanhPho,
-					},
-				},
-				nguyenVong: values.nguyenVong || [],
-				tinhTrang: 'chờ duyệt',
-				ketQua: values.ketQUa || {},
-			};
-
+  // Handle form submission
+  const onFinish = async (values: any) => {
+    try {
+      setSubmitting(true);
+      const submitData: HoSo.IRecord = {
+        ...values,
+        thongTinLienHe: {
+          ...values.thongTinLienHe,
+          diaChi: {
+            tinh_ThanhPho: values.thongTinLienHe?.diaChi?.tinh_ThanhPho,
+            quanHuyen: values.thongTinLienHe?.diaChi?.quanHuyen,
+            xaPhuong: values.thongTinLienHe?.diaChi?.xaPhuong,
+            diaChiCuThe: values.thongTinLienHe?.diaChi?.diaChiCuThe,
+          },
+        },
+				avatar: undefined,
+        thongTinBoSung: {
+          ...values.thongTinBoSung,
+          noiSinh: {
+            trongNuoc: values.thongTinBoSung?.noiSinh?.trongNuoc,
+            tinh_ThanhPho: values.thongTinBoSung?.noiSinh?.tinh_ThanhPho,
+          },
+        },
+      };
+      let userId: string;
 			if (edit) {
-				await putModel(record?.id ?? '', submitData);
+				if (!record?.id) {
+					throw new Error('Record ID is required for editing');
+				}
+				userId = record.id;
+				await putModel(userId, submitData);
 			} else {
-				await postModel(submitData);
+				const response = await postModel(submitData);
+				userId = response.id;
 			}
-			setVisibleForm(false);
-		} catch (error) {
-			console.error('Form submission error:', error);
-		} finally {
-			setSubmitting(false);
-		}
-	};
+
+
+			if (values.avatar) {
+				await postAvatar(userId, values.avatar);
+			}
+      if (edit) {
+        await putModel(record?.id ?? '', submitData);
+      } else {
+        await postModel(submitData);
+      }
+      setVisibleForm(false);
+    } catch (error) {
+      console.error('Form submission error:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
 	const handleProvinceChange = (value: string) => {
 		setSelectedProvince(value);
@@ -137,73 +153,99 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 		});
 	};
 
-	return (
-		<div>
-			<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
-				<Form form={form} layout='vertical' onFinish={onFinish} autoComplete='off'>
-					<Row gutter={[16, 0]} style={{ marginBottom: 16 }}>
+  return (
+    <div>
+      <Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title}`}>
+        <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
+          <Row gutter={[16, 0]} style={{ marginBottom: 16 }}>
+            <Col span={24}>
+              <Form.Item
+                label="Họ và tên"
+                name={['thongTinLienHe', 'ten']}
+                rules={[...rules.required]}
+              >
+                <Input placeholder="Nhập họ và tên" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16} style={{ marginBottom: 16 }}>
 						<Col span={24}>
-							<Form.Item label='Họ và tên' name={['thongTinLienHe', 'ten']} rules={[...rules.required]}>
-								<Input placeholder='Nhập họ và tên' />
+							<Form.Item label='Ảnh đại diện' name='avatar'>
+								<UploadFile
+									isAvatar 
+									maxFileSize={5} 
+									buttonDescription="Tải lên ảnh đại diện"
+								/>
 							</Form.Item>
 						</Col>
 					</Row>
-
-					<Card title='Thông tin bổ sung' style={{ marginTop: 16, border: 'none' }}>
-						<Row gutter={16}>
-							<Col span={12}>
-								<Form.Item label='Dân tộc' name={['thongTinBoSung', 'danToc']} rules={[...rules.required]}>
-									<Select placeholder='Chọn dân tộc'>
-										<Option value='kinh'>Kinh</Option>
-										<Option value='mông'>Mông</Option>
-										<Option value='mèo'>Mèo</Option>
-										<Option value='khác'>Khác</Option>
-									</Select>
-								</Form.Item>
-							</Col>
-							<Col span={12}>
-								<Form.Item label='Quốc tịch' name={['thongTinBoSung', 'quocTich']} rules={[...rules.required]}>
-									<Select placeholder='Chọn quốc tịch'>
-										<Option value='Việt Nam'>Việt Nam</Option>
-										<Option value='Lào'>Lào</Option>
-										<Option value='Campuchia'>Campuchia</Option>
-										<Option value='khác'>Khác</Option>
-									</Select>
-								</Form.Item>
-							</Col>
-						</Row>
-						<Row gutter={16}>
-							<Col span={12}>
-								<Form.Item label='Tôn giáo' name={['thongTinBoSung', 'tonGiao']} rules={[...rules.required]}>
-									<Select placeholder='Chọn tôn giáo'>
-										<Option value='không'>Không</Option>
-										<Option value='Thiên Chúa giáo'>Thiên Chúa giáo</Option>
-										<Option value='Phật giáo'>Phật giáo</Option>
-										<Option value='khác'>Khác</Option>
-									</Select>
-								</Form.Item>
-							</Col>
-							<Col span={12}>
-								<Form.Item
-									label='Nơi sinh (Trong nước)'
-									name={['thongTinBoSung', 'noiSinh', 'trongNuoc']}
-									rules={[...rules.required]}
-								>
-									<Select placeholder='Chọn nơi sinh'>
-										<Option value={true}>Trong nước</Option>
-										<Option value={false}>Nước ngoài</Option>
-									</Select>
-								</Form.Item>
-							</Col>
-						</Row>
-						<Form.Item
-							label='Tỉnh/Thành phố (Nơi sinh)'
-							name={['thongTinBoSung', 'noiSinh', 'tinh_ThanhPho']}
-							rules={[...rules.required]}
-						>
-							<Input placeholder='Nhập tỉnh/thành phố nơi sinh' />
-						</Form.Item>
-					</Card>
+          <Card title="Thông tin bổ sung" style={{ marginTop: 16, border: 'none' }}>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label="Dân tộc"
+                  name={['thongTinBoSung', 'danToc']}
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn dân tộc">
+                    <Option value="kinh">Kinh</Option>
+                    <Option value="mông">Mông</Option>
+                    <Option value="mèo">Mèo</Option>
+                    <Option value="khác">Khác</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Quốc tịch"
+                  name={['thongTinBoSung', 'quocTich']}
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn quốc tịch">
+                    <Option value="Việt Nam">Việt Nam</Option>
+                    <Option value="Lào">Lào</Option>
+                    <Option value="Campuchia">Campuchia</Option>
+                    <Option value="khác">Khác</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label="Tôn giáo"
+                  name={['thongTinBoSung', 'tonGiao']}
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn tôn giáo">
+                    <Option value="không">Không</Option>
+                    <Option value="Thiên Chúa giáo">Thiên Chúa giáo</Option>
+                    <Option value="Phật giáo">Phật giáo</Option>
+                    <Option value="khác">Khác</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label="Nơi sinh (Trong nước)"
+                  name={['thongTinBoSung', 'noiSinh', 'trongNuoc']}
+                  rules={[...rules.required]}
+                >
+                  <Select placeholder="Chọn nơi sinh">
+                    <Option value={true}>Trong nước</Option>
+                    <Option value={false}>Nước ngoài</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Form.Item
+              label="Tỉnh/Thành phố (Nơi sinh)"
+              name={['thongTinBoSung', 'noiSinh', 'tinh_ThanhPho']}
+              rules={[...rules.required]}
+            >
+              <Input placeholder="Nhập tỉnh/thành phố nơi sinh" />
+            </Form.Item>
+          </Card>
 
 					<Card title='Địa chỉ liên hệ' style={{ marginTop: 16, border: 'none' }}>
 						<Row gutter={16}>

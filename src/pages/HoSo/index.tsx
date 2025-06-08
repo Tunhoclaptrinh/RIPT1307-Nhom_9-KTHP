@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Popconfirm, Tag, Space, Image } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import Form from './components/Form'; // Assuming a Form component exists for HoSo
@@ -12,10 +12,40 @@ import { duyetHoSo } from '@/services/HoSo';
 import AdmissionStepModal from '@/components/FormHoSo';
 
 const HoSoPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
+	const { handleEdit, handleView, deleteModel } = useModel('hoso');
+	const { getAvatar } = useModel('users');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
-
+	const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
+	  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+	
+	  useEffect(() => {
+		const fetchAvatar = async () => {
+		  try {
+			const response = await getAvatar(userId);
+			if (response?.data?.length > 0) {
+			  setAvatarUrl(response.data[0].avatarUrl.fileList[0].thumbUrl);
+			}
+		  } catch (error) {
+			console.error('Error fetching avatar:', error);
+		  }
+		};
+	
+		fetchAvatar();
+	  }, [userId]);
+	
+	  return avatarUrl ? (
+		<Image
+		  src={avatarUrl}
+		  width={80}
+		  height={80}
+		  style={{ objectFit: 'cover' }}
+		  preview={{
+			src: avatarUrl,
+		  }}
+		/>
+	  ) : null;
+	};
 	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: HoSo.IRecord) => {
 		setSelectedRecord(record);
@@ -36,6 +66,13 @@ const HoSoPage = () => {
 	};
 
 	const columns: IColumn<HoSo.IRecord>[] = [
+		{
+			title: 'Avatar',
+			dataIndex: 'id',
+			width: 120,
+			align: 'center',
+			render: (id) => <AvatarCell userId={id} />,
+		},
 		{
 			title: 'Họ tên',
 			dataIndex: 'thongTinLienHe',

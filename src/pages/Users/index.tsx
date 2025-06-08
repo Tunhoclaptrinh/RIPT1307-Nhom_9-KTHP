@@ -106,15 +106,51 @@ const AddressCell = ({ address, recordId }: { address: any; recordId: string }) 
 };
 
 const UsersPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
+	const { handleEdit, handleView, deleteModel, getModel, getAvatar } = useModel('users');
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
 	const [admissionModalVisible, setAdmissionModalVisible] = useState(false);
 	const [selectedUserId, setSelectedUserId] = useState<string>('');
 
+	// Use the useAddress hook
+	const { provinces, districts, wards, setSelectedProvince, setSelectedDistrict } = useAddress();
+// hàm render cột avatar
+const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      try {
+        const response = await getAvatar(userId);
+        if (response?.data?.length > 0) {
+          setAvatarUrl(response.data[0].avatarUrl.fileList[0].thumbUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching avatar:', error);
+      }
+    };
+
+    fetchAvatar();
+  }, [userId]);
+
+  return avatarUrl ? (
+    <Image
+      src={avatarUrl}
+      width={80}
+      height={80}
+      style={{ objectFit: 'cover' }}
+      preview={{
+        src: avatarUrl,
+      }}
+    />
+  ) : null;
+	};
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);
+		// Set province and district to fetch corresponding districts and wards
+		setSelectedProvince(record.hoKhauThuongTru?.tinh_ThanhPho);
+		setSelectedDistrict(record.hoKhauThuongTru?.quanHuyen);
 	};
 
 	const onCloseModal = () => {
@@ -140,6 +176,13 @@ const UsersPage = () => {
 	};
 
 	const columns: IColumn<User.IRecord>[] = [
+		{
+			title: 'Avatar',
+			dataIndex: 'id',
+			width: 120,
+			align: 'center',
+			render: (id) => <AvatarCell userId={id} />,
+		},
 		{
 			title: 'Họ tên',
 			dataIndex: 'ho',
