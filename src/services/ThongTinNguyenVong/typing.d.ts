@@ -1,5 +1,6 @@
 declare module ThongTinNguyenVong {
 	export interface IRecord {
+		maNganh: string;
 		id: string;
 		userId: string;
 		thuTuNV: number;

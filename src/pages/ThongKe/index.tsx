@@ -1,24 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Card, Row, Col, Button, Select, Tooltip, Divider, Statistic, notification, Space, Tag } from 'antd';
 import {
-	Card,
-	Row,
-	Col,
-	Button,
-	Modal,
-	Table,
-	Tag,
-	Select,
-	Tooltip,
-	Divider,
-	Statistic,
-	notification,
-	Space,
-	Switch,
-} from 'antd';
-import {
-	EyeOutlined,
 	BarChartOutlined,
-	DownloadOutlined,
 	FileExcelOutlined,
 	UserOutlined,
 	TrophyOutlined,
@@ -29,96 +12,90 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ColumnChart from '../../components/Chart/ColumnChart';
 import DonutChart from '../../components/Chart/DonutChart';
-import LineChart from '../../components/Chart/LineChart';
+import AdmissionMethodChart from './components/AdmissionMethodChart';
+import CandidateModal from './components/CandidateModal';
+import CandidatesByToHopChart from './components/CandidatesByToHopChart';
+import ProfileStatusChart from './components/ProfileStatusChart';
+import WishesByScoreChart from './components/WishesByScoreChart';
+import { ipLocal } from '@/utils/ip';
 
 const { Option } = Select;
-const API = 'http://localhost:3000';
 
-interface NganhDaoTao {
-	ma: string;
-	ten: string;
-	toHopXetTuyenId: string;
-}
-interface NguyenVong {
-	id: string;
-	maNganh: string;
-	tongDiem?: number;
-	ten: string;
-	phuongThucId: string;
-}
-interface PhuongThuc {
-	id: string;
-	ten: string;
-}
-interface ToHop {
-	id: string;
-	monHoc: string[];
-}
-interface HoSo {
-	id: string;
-	thongTinLienHe?: {
-		ten?: string;
-		diaChi?: {
-			diaChiCuThe?: string;
-			xaPhuong?: string;
-			quanHuyen?: string;
-			tinh_ThanhPho?: string;
-		};
-	};
-	tinhTrang?: string;
-	ketQua?: {
-		succes?: boolean;
-		nguyenVong?: string;
-		phuongThucId?: string;
-		diem?: number;
-	};
-	nguyenVong?: string[];
-	diem?: number;
-}
-interface Stats {
-	admittedByMajor: { [key: string]: { count: number; candidates: HoSo[] } };
-	wishesByMajor: { [key: string]: number };
-	wishesByScore: { [key: string]: number };
-	wishesByAdmissionMethod: { [key: string]: number };
-	admittedByAdmissionMethod: { [key: string]: number };
-	profileStats: { total: number; approved: number; pending: number };
-	profileStatus: { [key: string]: { count: number; candidates: HoSo[] } };
-}
+type ModalType = 'major' | 'status';
+type ChartMode = 'wishes' | 'admitted';
 
-const StatisticsPage = () => {
-	const [hoso, setHoSo] = useState<HoSo[]>([]);
-	const [nganhDaoTao, setNganhDaoTao] = useState<NganhDaoTao[]>([]);
-	const [nguyenVong, setNguyenVong] = useState<NguyenVong[]>([]);
-	const [phuongThuc, setPhuongThuc] = useState<PhuongThuc[]>([]);
-	const [toHop, setToHop] = useState<ToHop[]>([]);
-	const [stats, setStats] = useState<Stats | null>(null);
-	const [candidatesByToHop, setCandidatesByToHop] = useState<{ [toHop: string]: number }>({});
+// Type guards
+const isValidHoSo = (item: any): item is ThongKe.HoSo => {
+	return item && typeof item.id === 'string';
+};
+
+const isValidNganhDaoTao = (item: any): item is ThongKe.NganhDaoTao => {
+	return (
+		item && typeof item.ma === 'string' && typeof item.ten === 'string' && typeof item.toHopXetTuyenId === 'string'
+	);
+};
+
+const isValidNguyenVong = (item: any): item is ThongKe.NguyenVong => {
+	return (
+		item && typeof item.id === 'string' && typeof item.maNganh === 'string' && typeof item.phuongThucId === 'string'
+	);
+};
+
+const isValidPhuongThuc = (item: any): item is ThongKe.PhuongThuc => {
+	return item && typeof item.id === 'string' && typeof item.ten === 'string';
+};
+
+const isValidToHop = (item: any): item is ThongKe.ToHop => {
+	return item && typeof item.id === 'string' && Array.isArray(item.monHoc);
+};
+
+const StatisticsPage: React.FC = () => {
+	const [hoso, setHoSo] = useState<ThongKe.HoSo[]>([]);
+	const [nganhDaoTao, setNganhDaoTao] = useState<ThongKe.NganhDaoTao[]>([]);
+	const [nguyenVong, setNguyenVong] = useState<ThongKe.NguyenVong[]>([]);
+	const [phuongThuc, setPhuongThuc] = useState<ThongKe.PhuongThuc[]>([]);
+	const [toHop, setToHop] = useState<ThongKe.ToHop[]>([]);
+	const [stats, setStats] = useState<ThongKe.Stats | null>(null);
+	const [candidatesByToHop, setCandidatesByToHop] = useState<Record<string, number>>({});
 	const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
 	const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-	const [modalVisible, setModalVisible] = useState(false);
-	const [modalType, setModalType] = useState<'major' | 'status'>('major');
-	const [loading, setLoading] = useState(true);
-	const [chartMode, setChartMode] = useState<'wishes' | 'admitted'>('wishes');
+	const [modalVisible, setModalVisible] = useState<boolean>(false);
+	const [modalType, setModalType] = useState<ModalType>('major');
+	const [loading, setLoading] = useState<boolean>(true);
+	const [chartMode, setChartMode] = useState<ChartMode>('wishes');
 
 	useEffect(() => {
-		const fetchData = async () => {
+		const fetchData = async (): Promise<void> => {
 			try {
 				setLoading(true);
 				const [resHoSo, resNganh, resNguyenVong, resPhuongThuc, resToHop] = await Promise.all([
-					axios.get(`${API}/hoSo`),
-					axios.get(`${API}/nganhDaoTao`),
-					axios.get(`${API}/thongTinNguyenVong`),
-					axios.get(`${API}/phuongThucXetTuyen`),
-					axios.get(`${API}/toHop`),
+					axios.get(`${ipLocal}/hoSo`),
+					axios.get(`${ipLocal}/nganhDaoTao`),
+					axios.get(`${ipLocal}/thongTinNguyenVong`),
+					axios.get(`${ipLocal}/phuongThucXetTuyen`),
+					axios.get(`${ipLocal}/toHop`),
 				]);
 
-				const hoso: HoSo[] = resHoSo.data;
-				const nganhDaoTao: NganhDaoTao[] = resNganh.data;
-				const nguyenVong: NguyenVong[] = resNguyenVong.data;
-				const phuongThuc: PhuongThuc[] = resPhuongThuc.data;
-				const toHop: ToHop[] = resToHop.data;
+				// Validate data with type guards
+				const hosoData: ThongKe.HoSo[] = Array.isArray(resHoSo.data) ? resHoSo.data.filter(isValidHoSo) : [];
+				const nganhDaoTaoData: ThongKe.NganhDaoTao[] = Array.isArray(resNganh.data)
+					? resNganh.data.filter(isValidNganhDaoTao)
+					: [];
+				const nguyenVongData: ThongKe.NguyenVong[] = Array.isArray(resNguyenVong.data)
+					? resNguyenVong.data.filter(isValidNguyenVong)
+					: [];
+				const phuongThucData: ThongKe.PhuongThuc[] = Array.isArray(resPhuongThuc.data)
+					? resPhuongThuc.data.filter(isValidPhuongThuc)
+					: [];
+				const toHopData: ThongKe.ToHop[] = Array.isArray(resToHop.data) ? resToHop.data.filter(isValidToHop) : [];
 
-				if (!hoso.length || !nganhDaoTao.length || !nguyenVong.length || !phuongThuc.length || !toHop.length) {
+				if (
+					!hosoData.length ||
+					!nganhDaoTaoData.length ||
+					!nguyenVongData.length ||
+					!phuongThucData.length ||
+					!toHopData.length
+				) {
 					notification.error({
 						message: 'Dữ liệu không đầy đủ',
 						description: 'Một hoặc nhiều API trả về dữ liệu rỗng. Vui lòng kiểm tra JSON-server.',
@@ -127,60 +104,77 @@ const StatisticsPage = () => {
 					return;
 				}
 
-				const admittedByMajor: { [key: string]: { count: number; candidates: HoSo[] } } = {};
-				const wishesByMajor: { [key: string]: number } = {};
-				const wishesByScore: { [key: string]: number } = {
+				const admittedByMajor: Record<string, ThongKe.MajorStats> = {};
+				const wishesByMajor: Record<string, number> = {};
+				const wishesByScore: Record<string, number> = {
 					'0-15': 0,
 					'15-20': 0,
 					'20-25': 0,
 					'25-30': 0,
 				};
-				const wishesByAdmissionMethod: { [key: string]: number } = {};
-				const admittedByAdmissionMethod: { [key: string]: number } = {};
-				const profileStats = { total: hoso.length, approved: 0, pending: 0 };
-				const profileStatus: { [key: string]: { count: number; candidates: HoSo[] } } = {
+				const wishesByAdmissionMethod: Record<string, number> = {};
+				const admittedByAdmissionMethod: Record<string, number> = {};
+				const profileStats = { total: hosoData.length, approved: 0, pending: 0 };
+				const profileStatus: Record<string, ThongKe.StatusStats> = {
 					'đã duyệt': { count: 0, candidates: [] },
 					'chờ duyệt': { count: 0, candidates: [] },
 					'từ chối': { count: 0, candidates: [] },
 				};
 
-				nganhDaoTao.forEach((nganh) => {
+				// Initialize data structures
+				nganhDaoTaoData.forEach((nganh) => {
 					admittedByMajor[nganh.ten] = { count: 0, candidates: [] };
 					wishesByMajor[nganh.ten] = 0;
 				});
 
-				phuongThuc.forEach((pt) => {
+				phuongThucData.forEach((pt) => {
 					wishesByAdmissionMethod[pt.ten] = 0;
 					admittedByAdmissionMethod[pt.ten] = 0;
 				});
 
-				const candidatesByToHop: { [toHop: string]: number } = {};
-				toHop.forEach((th) => {
-					candidatesByToHop[th.id] = 0;
+				const candidatesByToHopData: Record<string, number> = {};
+				toHopData.forEach((th) => {
+					candidatesByToHopData[th.id] = 0;
 				});
 
-				hoso.forEach((h) => {
+				// Process data
+				hosoData.forEach((h) => {
+					// Determine status with type safety
 					let status: string;
 					if (h.tinhTrang === 'đã duyệt') status = 'đã duyệt';
 					else if (h.tinhTrang === 'từ chối') status = 'từ chối';
 					else status = 'chờ duyệt';
-					profileStats[status === 'đã duyệt' ? 'approved' : 'pending'] += 1;
+
+					// Update profile stats
+					if (status === 'đã duyệt') {
+						profileStats.approved += 1;
+					} else {
+						profileStats.pending += 1;
+					}
+
+					// Ensure status exists in profileStatus
+					if (!profileStatus[status]) {
+						profileStatus[status] = { count: 0, candidates: [] };
+					}
 					profileStatus[status].count += 1;
 					profileStatus[status].candidates.push(h);
 
+					// Process admitted candidates - FIX: Check if ketQua exists
 					if (h.ketQua?.succes && h.ketQua.nguyenVong) {
-						const nv = nguyenVong.find((n) => n.id === h.ketQua!.nguyenVong);
+						const nv = nguyenVongData.find((n) => n.id === h.ketQua!.nguyenVong);
 						if (nv) {
-							const nganh = nganhDaoTao.find((n) => n.ma === nv.maNganh);
-							if (nganh) {
+							const nganh = nganhDaoTaoData.find((n) => n.ma === nv.maNganh);
+							if (nganh && admittedByMajor[nganh.ten]) {
 								admittedByMajor[nganh.ten].count += 1;
 								admittedByMajor[nganh.ten].candidates.push({
 									...h,
-									diem: h.ketQua!.diem,
+									diem: h.ketQua?.diem, // FIX: Use optional chaining
 								});
 							}
-							if (h.ketQua.phuongThucId) {
-								const pt = phuongThuc.find((p) => p.id === h.ketQua.phuongThucId);
+
+							// Process admission method - FIX: Check if ketQua and phuongThucId exist
+							if (h.ketQua?.phuongThucId) {
+								const pt = phuongThucData.find((p) => p.id === h.ketQua!.phuongThucId!);
 								if (pt) {
 									admittedByAdmissionMethod[pt.ten] = (admittedByAdmissionMethod[pt.ten] || 0) + 1;
 								}
@@ -188,35 +182,41 @@ const StatisticsPage = () => {
 						}
 					}
 
-					h.nguyenVong?.forEach((nvId) => {
-						const nv = nguyenVong.find((n) => n.id === nvId);
-						if (nv) {
-							const nganh = nganhDaoTao.find((n) => n.ma === nv.maNganh);
-							if (nganh) {
-								wishesByMajor[nganh.ten] += 1;
-								candidatesByToHop[nganh.toHopXetTuyenId] += 1;
-							}
+					// Process wishes
+					if (h.nguyenVong && Array.isArray(h.nguyenVong)) {
+						h.nguyenVong.forEach((nvId) => {
+							const nv = nguyenVongData.find((n) => n.id === nvId);
+							if (nv) {
+								const nganh = nganhDaoTaoData.find((n) => n.ma === nv.maNganh);
+								if (nganh) {
+									wishesByMajor[nganh.ten] = (wishesByMajor[nganh.ten] || 0) + 1;
+									candidatesByToHopData[nganh.toHopXetTuyenId] =
+										(candidatesByToHopData[nganh.toHopXetTuyenId] || 0) + 1;
+								}
 
-							const score = nv.tongDiem || 0;
-							if (score <= 15) wishesByScore['0-15'] += 1;
-							else if (score <= 20) wishesByScore['15-20'] += 1;
-							else if (score <= 25) wishesByScore['20-25'] += 1;
-							else wishesByScore['25-30'] += 1;
+								// Process score ranges
+								const score = nv.tongDiem || 0;
+								if (score <= 15) wishesByScore['0-15'] += 1;
+								else if (score <= 20) wishesByScore['15-20'] += 1;
+								else if (score <= 25) wishesByScore['20-25'] += 1;
+								else wishesByScore['25-30'] += 1;
 
-							const pt = phuongThuc.find((p) => p.id === nv.phuongThucId);
-							if (pt) {
-								wishesByAdmissionMethod[pt.ten] = (wishesByAdmissionMethod[pt.ten] || 0) + 1;
+								// Process admission method for wishes
+								const pt = phuongThucData.find((p) => p.id === nv.phuongThucId);
+								if (pt) {
+									wishesByAdmissionMethod[pt.ten] = (wishesByAdmissionMethod[pt.ten] || 0) + 1;
+								}
 							}
-						}
-					});
+						});
+					}
 				});
 
-				setHoSo(hoso);
-				setNganhDaoTao(nganhDaoTao);
-				setNguyenVong(nguyenVong);
-				setPhuongThuc(phuongThuc);
-				setToHop(toHop);
-				setCandidatesByToHop(candidatesByToHop);
+				setHoSo(hosoData);
+				setNganhDaoTao(nganhDaoTaoData);
+				setNguyenVong(nguyenVongData);
+				setPhuongThuc(phuongThucData);
+				setToHop(toHopData);
+				setCandidatesByToHop(candidatesByToHopData);
 				setStats({
 					admittedByMajor,
 					wishesByMajor,
@@ -240,27 +240,33 @@ const StatisticsPage = () => {
 		fetchData();
 	}, []);
 
-	const showCandidateList = (major: string) => {
+	const showCandidateList = (major: string): void => {
 		setSelectedMajor(major);
 		setModalType('major');
 		setModalVisible(true);
 	};
 
-	const showStatusList = (status: string) => {
+	const showStatusList = (status: string): void => {
 		setSelectedStatus(status);
 		setModalType('status');
 		setModalVisible(true);
 	};
 
-	const handleSelectChange = (value: string, type: 'major' | 'status') => {
-		if (type === 'major' && value && stats?.admittedByMajor[value]?.count > 0) {
+	const handleSelectChange = (value: string, type: ModalType): void => {
+		if (type === 'major' && value && stats && stats.admittedByMajor[value] && stats.admittedByMajor[value].count > 0) {
 			showCandidateList(value);
-		} else if (type === 'status' && value && stats?.profileStatus[value]?.count > 0) {
+		} else if (
+			type === 'status' &&
+			value &&
+			stats &&
+			stats.profileStatus[value] &&
+			stats.profileStatus[value].count > 0
+		) {
 			showStatusList(value);
 		}
 	};
 
-	const exportToExcel = (major: string) => {
+	const exportToExcel = (major: string): void => {
 		const candidates = stats?.admittedByMajor[major]?.candidates || [];
 
 		if (candidates.length === 0) {
@@ -271,7 +277,7 @@ const StatisticsPage = () => {
 			return;
 		}
 
-		const exportData = candidates.map((candidate: HoSo, index: number) => ({
+		const exportData = candidates.map((candidate: ThongKe.HoSo, index: number) => ({
 			STT: index + 1,
 			'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
 			Điểm: candidate.diem?.toFixed(1) || 'N/A',
@@ -311,7 +317,7 @@ const StatisticsPage = () => {
 		});
 	};
 
-	const exportStatusToExcel = (status: string) => {
+	const exportStatusToExcel = (status: string): void => {
 		const candidates = stats?.profileStatus[status]?.candidates || [];
 
 		if (candidates.length === 0) {
@@ -322,7 +328,7 @@ const StatisticsPage = () => {
 			return;
 		}
 
-		const exportData = candidates.map((candidate: HoSo, index: number) => ({
+		const exportData = candidates.map((candidate: ThongKe.HoSo, index: number) => ({
 			STT: index + 1,
 			'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
 			Điểm: (candidate.ketQua?.diem ?? candidate.diem)?.toFixed(1) || 'N/A',
@@ -360,9 +366,18 @@ const StatisticsPage = () => {
 		});
 	};
 
-	const exportAllMajors = () => {
-		const majorsWithStudents = Object.keys(stats?.admittedByMajor || {}).filter(
-			(major) => stats?.admittedByMajor[major].count > 0,
+	const exportAllMajors = (): void => {
+		// FIX: Add null check for stats
+		if (!stats) {
+			notification.warning({
+				message: 'Không có dữ liệu',
+				description: 'Dữ liệu thống kê chưa được tải.',
+			});
+			return;
+		}
+
+		const majorsWithStudents = Object.keys(stats.admittedByMajor).filter(
+			(major) => stats.admittedByMajor[major].count > 0,
 		);
 
 		if (majorsWithStudents.length === 0) {
@@ -376,8 +391,8 @@ const StatisticsPage = () => {
 		const workbook = XLSX.utils.book_new();
 
 		majorsWithStudents.forEach((major) => {
-			const candidates = stats?.admittedByMajor[major].candidates;
-			const exportData = candidates.map((candidate: HoSo, index: number) => ({
+			const candidates = stats.admittedByMajor[major].candidates || [];
+			const exportData = candidates.map((candidate: ThongKe.HoSo, index: number) => ({
 				STT: index + 1,
 				'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
 				Điểm: candidate.diem?.toFixed(1) || 'N/A',
@@ -415,72 +430,6 @@ const StatisticsPage = () => {
 		});
 	};
 
-	const majorsWithStudents = Object.keys(stats?.admittedByMajor || {}).filter(
-		(major) => stats?.admittedByMajor[major].count > 0,
-	);
-
-	const statusesWithProfiles = Object.keys(stats?.profileStatus || {}).filter(
-		(status) => stats?.profileStatus[status].count > 0,
-	);
-
-	const columns = [
-		{
-			title: 'STT',
-			key: 'index',
-			width: 60,
-			render: (_: any, __: any, index: number) => index + 1,
-		},
-		{
-			title: 'Họ tên',
-			dataIndex: ['thongTinLienHe', 'ten'],
-			key: 'ten',
-			render: (text: string) => text || 'N/A',
-		},
-		{
-			archie: 'Điểm',
-			key: 'diem',
-			width: 80,
-			render: (record: HoSo) => {
-				const diem = record.ketQua?.diem ?? record.diem;
-				return (
-					<Tag color='blue' style={{ fontWeight: 'bold' }}>
-						{typeof diem === 'number' ? diem.toFixed(1) : 'N/A'}
-					</Tag>
-				);
-			},
-			sorter: (a: HoSo, b: HoSo) => {
-				const diemA = a.ketQua?.diem ?? a.diem ?? 0;
-				const diemB = b.ketQua?.diem ?? b.diem ?? 0;
-				return diemA - diemB;
-			},
-		},
-		{
-			title: 'Địa chỉ',
-			key: 'diaChi',
-			render: (record: HoSo) =>
-				record.thongTinLienHe?.diaChi
-					? `${record.thongTinLienHe.diaChi.diaChiCuThe || ''}, ${record.thongTinLienHe.diaChi.xaPhuong || ''}, ${
-							record.thongTinLienHe.diaChi.quanHuyen || ''
-					  }, ${record.thongTinLienHe.diaChi.tinh_ThanhPho || ''}`
-					: 'N/A',
-			ellipsis: true,
-		},
-		{
-			title: 'Tình trạng',
-			dataIndex: 'tinhTrang',
-			key: 'tinhTrang',
-			width: 120,
-			render: (text: string) => (
-				<Tag
-					color={text === 'đã duyệt' ? 'green' : text === 'từ chối' ? 'red' : 'orange'}
-					icon={text === 'đã duyệt' ? <CheckCircleOutlined /> : undefined}
-				>
-					{text || 'N/A'}
-				</Tag>
-			),
-		},
-	];
-
 	if (loading) {
 		return (
 			<div
@@ -499,10 +448,23 @@ const StatisticsPage = () => {
 
 	if (!stats) return null;
 
-	const totalAdmitted = Object.values(stats.admittedByMajor).reduce((sum: number, item: any) => sum + item.count, 0);
+	const totalAdmitted = Object.values(stats.admittedByMajor).reduce(
+		(sum: number, item: ThongKe.MajorStats) => sum + item.count,
+		0,
+	);
+
+	// FIX: Add null check for stats
+	const majorsWithStudents = Object.keys(stats?.admittedByMajor || {}).filter(
+		(major) => stats?.admittedByMajor[major].count > 0,
+	);
+
+	const statusesWithProfiles = Object.keys(stats?.profileStatus || {}).filter(
+		(status) => stats?.profileStatus[status].count > 0,
+	);
 
 	return (
 		<div className='statistics-page' style={{ background: '#f5f5f5', minHeight: '100vh', padding: '20px' }}>
+			{/* Statistics Cards */}
 			<Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
 				<Col span={6}>
 					<Card>
@@ -546,6 +508,7 @@ const StatisticsPage = () => {
 				</Col>
 			</Row>
 
+			{/* Charts Section */}
 			<Card
 				title={
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -556,6 +519,7 @@ const StatisticsPage = () => {
 				style={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
 			>
 				<Row gutter={[20, 20]} style={{ display: 'flex', flexWrap: 'wrap' }}>
+					{/* Admitted by Major Chart */}
 					<Col span={12} style={{ display: 'flex' }}>
 						<Card
 							title={
@@ -568,7 +532,7 @@ const StatisticsPage = () => {
 						>
 							<ColumnChart
 								xAxis={Object.keys(stats.admittedByMajor)}
-								yAxis={[Object.values(stats.admittedByMajor).map((item: any) => item.count)]}
+								yAxis={[Object.values(stats.admittedByMajor).map((item: ThongKe.MajorStats) => item.count)]}
 								yLabel={['Số lượng thí sinh']}
 								colors={['#1890ff']}
 								height={300}
@@ -636,6 +600,8 @@ const StatisticsPage = () => {
 							</div>
 						</Card>
 					</Col>
+
+					{/* Wishes by Major Chart */}
 					<Col span={12} style={{ display: 'flex' }}>
 						<Card
 							title='📈 Số lượng nguyện vọng theo ngành'
@@ -652,233 +618,53 @@ const StatisticsPage = () => {
 							/>
 						</Card>
 					</Col>
+				</Row>
+
+				<Row gutter={[20, 20]} style={{ display: 'flex', flexWrap: 'wrap' }}>
+					{/* Wishes by Score Chart */}
 					<Col span={12} style={{ display: 'flex' }}>
-						<Card
-							title='📊 Nguyện vọng theo khoảng điểm'
-							style={{ borderRadius: '8px', flex: 1, display: 'flex', flexDirection: 'column' }}
-							bodyStyle={{ padding: '16px', flex: 1 }}
-						>
-							<LineChart
-								xAxis={Object.keys(stats.wishesByScore)}
-								yAxis={[Object.values(stats.wishesByScore)]}
-								yLabel={['Số lượng nguyện vọng']}
-								colors={['#52c41a']}
-								height={300}
-							/>
-						</Card>
+						<WishesByScoreChart stats={stats} />
 					</Col>
+
+					{/* Admission Method Chart */}
 					<Col span={12} style={{ display: 'flex' }}>
-						<Card
-							title='🎯 Phương thức xét tuyển'
-							style={{
-								borderRadius: '8px',
-								flex: 1,
-								display: 'flex',
-								flexDirection: 'column',
+						<AdmissionMethodChart stats={stats} chartMode={chartMode} onChartModeChange={setChartMode} />
+					</Col>
+				</Row>
+
+				<Row gutter={[20, 20]} style={{ display: 'flex', flexWrap: 'wrap' }}>
+					{/* Candidates by ToHop Chart */}
+					<Col span={12} style={{ display: 'flex' }}>
+						<CandidatesByToHopChart candidatesByToHop={candidatesByToHop} />
+					</Col>
+
+					{/* Profile Status Chart */}
+					<Col span={12} style={{ display: 'flex' }}>
+						<ProfileStatusChart
+							stats={stats}
+							statusesWithProfiles={statusesWithProfiles}
+							selectedStatus={selectedStatus}
+							onStatusSelect={(status) => {
+								setSelectedStatus(status);
+								handleSelectChange(status, 'status');
 							}}
-							bodyStyle={{ padding: '16px', flex: 1 }}
-						>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-								<span>Phương thức xét tuyển</span>
-								<Switch
-									checkedChildren='Nguyện vọng trúng tuyển'
-									unCheckedChildren='Tổng nguyện vọng'
-									checked={chartMode === 'admitted'}
-									onChange={(checked) => setChartMode(checked ? 'admitted' : 'wishes')}
-								/>
-							</div>
-							<DonutChart
-								xAxis={Object.keys(
-									chartMode === 'wishes' ? stats.wishesByAdmissionMethod : stats.admittedByAdmissionMethod,
-								)}
-								yAxis={[
-									Object.values(
-										chartMode === 'wishes' ? stats.wishesByAdmissionMethod : stats.admittedByAdmissionMethod,
-									),
-								]}
-								yLabel={[chartMode === 'wishes' ? 'Số lượng nguyện vọng' : 'Số lượng nguyện vọng trúng tuyển']}
-								colors={['#1890ff', '#52c41a', '#faad14']}
-								showTotal
-								height={300}
-							/>
-						</Card>
-					</Col>
-					<Col span={12} style={{ display: 'flex' }}>
-						<Card
-							title='📈 Số lượng thí sinh đăng ký theo tổ hợp xét tuyển'
-							style={{ borderRadius: '8px', flex: 1, display: 'flex', flexDirection: 'column' }}
-							bodyStyle={{ padding: '16px', flex: 1 }}
-						>
-							<ColumnChart
-								xAxis={Object.keys(candidatesByToHop)}
-								yAxis={[Object.values(candidatesByToHop)]}
-								yLabel={['Số lượng thí sinh']}
-								colors={['#1890ff']}
-								height={300}
-							/>
-						</Card>
-					</Col>
-					<Col span={12} style={{ display: 'flex' }}>
-						<Card
-							title='📋 Trạng thái hồ sơ'
-							style={{ borderRadius: '8px', flex: 1, display: 'flex', flexDirection: 'column' }}
-							bodyStyle={{ padding: '16px', flex: 1 }}
-						>
-							<DonutChart
-								xAxis={Object.keys(stats.profileStatus)}
-								yAxis={[Object.values(stats.profileStatus).map((item: any) => item.count)]}
-								yLabel={['Số lượng hồ sơ']}
-								colors={['#52c41a', '#ff4d4f', '#faad14']}
-								showTotal
-								height={300}
-							/>
-							<Divider style={{ margin: '16px 0' }} />
-							<div>
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '12px',
-										flexWrap: 'wrap',
-										marginBottom: '16px',
-									}}
-								>
-									<span style={{ fontWeight: 600, color: '#262626', minWidth: 'fit-content' }}>Xem danh sách:</span>
-									{statusesWithProfiles.length > 0 ? (
-										<>
-											<Select
-												placeholder='Chọn trạng thái để xem danh sách'
-												style={{ minWidth: 280, flex: 1 }}
-												onChange={(value) => handleSelectChange(value, 'status')}
-												allowClear
-												size='large'
-											>
-												{statusesWithProfiles.map((status) => (
-													<Option key={status} value={status}>
-														<div
-															style={{
-																display: 'flex',
-																justifyContent: 'space-between',
-																alignItems: 'center',
-															}}
-														>
-															<span style={{ fontWeight: 500 }}>{status}</span>
-															<Tag color='blue' style={{ margin: 0, fontWeight: 'bold' }}>
-																{stats.profileStatus[status].count}
-															</Tag>
-														</div>
-													</Option>
-												))}
-											</Select>
-											<Space wrap>
-												<Tooltip title='Xuất danh sách hồ sơ'>
-													<Button
-														type='primary'
-														icon={<FileExcelOutlined />}
-														onClick={() => selectedStatus && exportStatusToExcel(selectedStatus)}
-														style={{
-															background: 'linear-gradient(135deg, #52c41a, #73d13d)',
-															border: 'none',
-															borderRadius: '6px',
-															fontWeight: 500,
-														}}
-														disabled={!selectedStatus}
-													>
-														Xuất Excel
-													</Button>
-												</Tooltip>
-											</Space>
-										</>
-									) : (
-										<span style={{ color: '#8c8c8c', fontStyle: 'italic' }}>Chưa có hồ sơ</span>
-									)}
-								</div>
-							</div>
-						</Card>
+							onExportStatus={exportStatusToExcel}
+						/>
 					</Col>
 				</Row>
 			</Card>
 
-			<Modal
+			{/* Candidate Modal */}
+			<CandidateModal
 				visible={modalVisible}
-				title={
-					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '40px' }}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-							{modalType === 'major' ? (
-								<>
-									<TrophyOutlined style={{ color: '#faad14', fontSize: '20px' }} />
-									<span style={{ fontSize: '18px', fontWeight: 600 }}>
-										Danh sách thí sinh đậu ngành {selectedMajor}
-									</span>
-									{selectedMajor && (
-										<Tag color='blue' style={{ fontSize: '14px', padding: '4px 8px' }}>
-											{stats.admittedByMajor[selectedMajor]?.count || 0} thí sinh
-										</Tag>
-									)}
-								</>
-							) : (
-								<>
-									<CheckCircleOutlined style={{ color: '#52c41a', fontSize: '20px' }} />
-									<span style={{ fontSize: '18px', fontWeight: 600 }}>Danh sách hồ sơ trạng thái {selectedStatus}</span>
-									{selectedStatus && (
-										<Tag color='blue' style={{ fontSize: '14px', padding: '4px 8px' }}>
-											{stats.profileStatus[selectedStatus]?.count || 0} hồ sơ
-										</Tag>
-									)}
-								</>
-							)}
-						</div>
-					</div>
-				}
-				onCancel={() => setModalVisible(false)}
-				footer={
-					<Space>
-						<Button onClick={() => setModalVisible(false)}>Đóng</Button>
-						<Button
-							type='primary'
-							icon={<FileExcelOutlined />}
-							onClick={() => {
-								if (modalType === 'major' && selectedMajor) {
-									exportToExcel(selectedMajor);
-								} else if (modalType === 'status' && selectedStatus) {
-									exportStatusToExcel(selectedStatus);
-								}
-							}}
-							style={{
-								background: 'linear-gradient(135deg, #52c41a, #73d13d)',
-								border: 'none',
-							}}
-						>
-							Xuất Excel
-						</Button>
-					</Space>
-				}
-				width={900}
-				style={{ top: 20 }}
-			>
-				<Table
-					dataSource={
-						modalType === 'major' && selectedMajor
-							? stats.admittedByMajor[selectedMajor]?.candidates
-							: modalType === 'status' && selectedStatus
-							? stats.profileStatus[selectedStatus]?.candidates
-							: []
-					}
-					columns={columns}
-					rowKey='id'
-					pagination={{
-						pageSize: 8,
-						showSizeChanger: true,
-						showQuickJumper: true,
-						showTotal: (total, range) =>
-							`${range[0]}-${range[1]} của ${total} ${modalType === 'major' ? 'thí sinh' : 'hồ sơ'}`,
-						pageSizeOptions: ['5', '8', '10', '20'],
-					}}
-					scroll={{ x: 700 }}
-					size='middle'
-					style={{ marginTop: '16px' }}
-				/>
-			</Modal>
+				modalType={modalType}
+				selectedMajor={selectedMajor}
+				selectedStatus={selectedStatus}
+				stats={stats}
+				onClose={() => setModalVisible(false)}
+				onExportMajor={exportToExcel}
+				onExportStatus={exportStatusToExcel}
+			/>
 		</div>
 	);
 };
