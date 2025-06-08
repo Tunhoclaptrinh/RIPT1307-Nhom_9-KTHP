@@ -1,3 +1,31 @@
-.apexcharts-canvas {
-	margin: auto;
+.donut-chart-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 0 10px;
+
+	.apexcharts-canvas {
+		flex: 1;
+		max-width: 70%; // Giới hạn chiều rộng của biểu đồ
+		margin: auto; // Giữ nguyên căn giữa canvas
+	}
+
+	.apexcharts-legend {
+		flex: 0 0 30%; // Legend chiếm 30% chiều rộng
+		max-width: 200px; // Giới hạn chiều rộng tối đa
+		padding: 0 10px;
+		text-align: left; // Căn trái legend
+	}
+
+	@media screen and (max-width: 480px) {
+		flex-direction: column; // Trên mobile, xếp dọc
+		.apexcharts-canvas {
+			max-width: 100%; // Biểu đồ chiếm toàn bộ chiều rộng
+		}
+		.apexcharts-legend {
+			max-width: 100%; // Legend chiếm toàn bộ chiều rộng
+			text-align: center; // Căn giữa trên mobile
+		}
+	}
 }

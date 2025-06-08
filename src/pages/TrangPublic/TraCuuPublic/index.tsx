@@ -91,7 +91,7 @@ const TraCuuTuyenSinhPublic = () => {
 
 						// Lọc theo mã hồ sơ nếu có
 						if (values.maHoSo?.trim()) {
-							hoSoList = hoSoList.filter((h: any) => h.id && h.id.toLowerCase() === values.maHoSo.trim().toLowerCase());
+							hoSoList = hoSoList.filter((h: any) => h.id && h.id.toLowerCase() == values.maHoSo.trim().toLowerCase());
 						}
 						// Nếu không có hồ sơ nào phù hợp, bỏ qua user này
 						if (hoSoList.length === 0) {

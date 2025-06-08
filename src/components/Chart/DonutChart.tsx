@@ -63,7 +63,7 @@ const DonutChart = (props: DataChartType) => {
 			options={{ ...options, ...otherOptions }}
 			series={series}
 			type='donut'
-			style={{display: 'flex', justifyContent: 'space-between'}}
+			style={{ display: 'flex', justifyContent: 'space-between' }}
 			height={height ?? 350}
 			width={width}
 		/>
