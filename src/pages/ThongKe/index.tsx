@@ -28,7 +28,7 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ColumnChart from '../../components/Chart/ColumnChart';
 import DonutChart from '../../components/Chart/DonutChart';
-import LineChart from '../../components/Chart/LineChart'; // Import LineChart từ file bạn cung cấp
+import LineChart from '../../components/Chart/LineChart';
 
 const { Option } = Select;
 const API = 'http://localhost:3000';
@@ -140,6 +140,13 @@ const StatisticsPage = () => {
                 });
               }
             }
+            // Count admitted candidates by admission method
+            if (h.ketQua.phuongThucId) {
+              const pt = phuongThuc.find((p) => p.id === h.ketQua!.phuongThucId);
+              if (pt) {
+                admissionMethods[pt.ten] += 1;
+              }
+            }
           }
 
           h.nguyenVong?.forEach((nvId) => {
@@ -155,14 +162,9 @@ const StatisticsPage = () => {
               else wishesByScore['25-30'] += 1;
             }
           });
-
-          if (h.ketQua?.phuongThucId) {
-            const pt = phuongThuc.find((p) => p.id === h.ketQua!.phuongThucId);
-            if (pt) admissionMethods[pt.ten] += 1;
-          }
         });
 
-        // Process candidatesDk by toHop across score ranges
+        // Process candidates by toHop across score ranges
         const scoreRanges = ['0-15', '15-20', '20-25', '25-30'];
         const candidatesByToHop: { [toHop: string]: number[] } = {};
         toHop.forEach((th) => {
@@ -737,7 +739,7 @@ const StatisticsPage = () => {
               <LineChart
                 xAxis={['0-15', '15-20', '20-25', '25-30']}
                 yAxis={Object.keys(candidatesByToHop).map(toHopId => candidatesByToHop[toHopId])}
-                yLabel={['Số lượng thí sinh']}
+                yLabel={Object.keys(candidatesByToHop)}
                 colors={['#1890ff', '#52c41a', '#faad14', '#ff4d4f']}
                 height={300}
               />
