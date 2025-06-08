@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Descriptions, Button } from 'antd';
 import moment from 'moment';
+import { useAddress } from '@/hooks/useAddress';
 
 interface ViewModalProps {
 	isVisible: boolean;
@@ -20,6 +21,31 @@ const UserDetail: React.FC<ViewModalProps> = ({
 	hideFooter,
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
+	const [addressName, setAddressName] = useState('');
+	const [loadingAddress, setLoadingAddress] = useState(false);
+	const { getAddressName } = useAddress();
+
+	// Load địa chỉ khi record thay đổi hoặc modal mở
+	useEffect(() => {
+		const loadAddress = async () => {
+			if (record?.hoKhauThuongTru && isVisible) {
+				setLoadingAddress(true);
+				try {
+					const name = await getAddressName(record.hoKhauThuongTru);
+					setAddressName(name || 'Không có thông tin địa chỉ');
+				} catch (error) {
+					console.error('Error loading address:', error);
+					setAddressName('Lỗi khi tải địa chỉ');
+				} finally {
+					setLoadingAddress(false);
+				}
+			} else {
+				setAddressName('');
+			}
+		};
+
+		loadAddress();
+	}, [record, isVisible, getAddressName]);
 
 	if (!record) return null;
 
@@ -44,15 +70,13 @@ const UserDetail: React.FC<ViewModalProps> = ({
 				hideFooter
 					? null
 					: [
-							<div style={{ textAlign: 'center' }}>
+							<div key='footer' style={{ textAlign: 'center' }}>
 								<Button key='back' onClick={onClose}>
 									Đóng
 								</Button>
-								,
-								<Button key='edit' type='primary' onClick={onEdit}>
+								<Button key='edit' type='primary' onClick={onEdit} style={{ marginLeft: 8 }}>
 									Chỉnh sửa
 								</Button>
-								,
 							</div>,
 					  ]
 			}
@@ -60,11 +84,12 @@ const UserDetail: React.FC<ViewModalProps> = ({
 		>
 			<Descriptions column={2} bordered>
 				<Descriptions.Item label='Họ và tên' span={2}>
-					<strong style={{ fontSize: 20 }}>{`${record.ho} ${record.ten}`}</strong>
+					<strong style={{ fontSize: 20 }}>{`${record.ho || ''} ${record.ten || ''}`}</strong>
 				</Descriptions.Item>
-				<Descriptions.Item label='Username'>{record.username}</Descriptions.Item>
-				<Descriptions.Item label='Email'>{record.email}</Descriptions.Item>
-				<Descriptions.Item label='Số CCCD'>{record.soCCCD}</Descriptions.Item>
+				<Descriptions.Item label='Username'>{record.username || 'Chưa có'}</Descriptions.Item>
+				<Descriptions.Item label='Email'>{record.email || 'Chưa có'}</Descriptions.Item>
+				<Descriptions.Item label='Số CCCD'>{record.soCCCD || 'Chưa có'}</Descriptions.Item>
+				<Descriptions.Item label='Số điện thoại'>{record.soDT || 'Chưa có'}</Descriptions.Item>
 				<Descriptions.Item label='Mật khẩu'>
 					<span
 						onMouseDown={handleMouseDown}
@@ -86,17 +111,16 @@ const UserDetail: React.FC<ViewModalProps> = ({
 						{showPassword ? record.password || '••••••••' : '••••••••'}
 					</span>
 				</Descriptions.Item>
-				<Descriptions.Item label='Ngày cấp'>
-					{record.ngayCap ? moment(record.ngayCap).format('DD/MM/YYYY') : ''}
-				</Descriptions.Item>
-				<Descriptions.Item label='Nơi cấp'>{record.noiCap}</Descriptions.Item>
 				<Descriptions.Item label='Ngày sinh'>
-					{record.ngaySinh ? moment(record.ngaySinh).format('DD/MM/YYYY') : ''}
+					{record.ngaySinh ? moment(record.ngaySinh).format('DD/MM/YYYY') : 'Chưa có'}
 				</Descriptions.Item>
-				<Descriptions.Item label='Giới tính'>{record.gioiTinh}</Descriptions.Item>
+				<Descriptions.Item label='Giới tính'>{record.gioiTinh || 'Chưa có'}</Descriptions.Item>
+				<Descriptions.Item label='Ngày cấp CCCD'>
+					{record.ngayCap ? moment(record.ngayCap).format('DD/MM/YYYY') : 'Chưa có'}
+				</Descriptions.Item>
+				<Descriptions.Item label='Nơi cấp'>{record.noiCap || 'Chưa có'}</Descriptions.Item>
 				<Descriptions.Item label='Địa chỉ' span={2}>
-					{record.hoKhauThuongTru?.diaChi},{record.hoKhauThuongTru?.xaPhuong},{record.hoKhauThuongTru?.quanHuyen},
-					{record.hoKhauThuongTru?.tinh_ThanhPho}
+					{loadingAddress ? 'Đang tải địa chỉ...' : addressName || 'Chưa có thông tin địa chỉ'}
 				</Descriptions.Item>
 			</Descriptions>
 		</Modal>

@@ -7,7 +7,12 @@ import WishList from './NguyenVong';
 
 const { Title, Text } = Typography;
 
-const StepContent = ({ currentStep }) => {
+
+interface StepContentProps {
+	currentStep: number;
+}
+
+const StepContent: React.FC<StepContentProps> = ({ currentStep }) => {
 	switch (currentStep) {
 		case 0:
 			return <PersonalInfo />;

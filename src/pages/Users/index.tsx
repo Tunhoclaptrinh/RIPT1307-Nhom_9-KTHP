@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Popconfirm, Tag, Space, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
@@ -9,9 +9,10 @@ import moment from 'moment';
 import UserForm from './components/Form';
 import UserDetail from './components/Detail';
 import AdmissionStepModal from '../../components/FormHoSo';
-import { useAddress } from '@/hooks/useAddress'; // Import the useAddress hook
+import { useAddress } from '@/hooks/useAddress';
+import ExpandText from '@/components/ExpandText';
 
-// PasswordCell component (unchanged)
+// PasswordCell component
 const PasswordCell = ({ password }: { password: string }) => {
 	const content = (
 		<div style={{ padding: '8px', maxWidth: '200px' }}>
@@ -55,6 +56,55 @@ const PasswordCell = ({ password }: { password: string }) => {
 	);
 };
 
+// Component hiển thị địa chỉ trong bảng
+const AddressCell = ({ address, recordId }: { address: any; recordId: string }) => {
+	const [addressName, setAddressName] = useState('');
+	const [loading, setLoading] = useState(true);
+	const { getAddressName } = useAddress();
+
+	useEffect(() => {
+		const loadAddress = async () => {
+			setLoading(true);
+			try {
+				if (address) {
+					const name = await getAddressName(address);
+					setAddressName(name || 'Không có thông tin');
+				} else {
+					setAddressName('Không có thông tin');
+				}
+			} catch (error) {
+				console.error('Error loading address for record:', recordId, error);
+				setAddressName('Lỗi tải địa chỉ');
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		loadAddress();
+	}, [address, recordId, getAddressName]);
+
+	if (loading) {
+		return <span style={{ color: '#999' }}>Đang tải...</span>;
+	}
+
+	return (
+		<Popover
+			content={<div style={{ maxWidth: 300, wordBreak: 'break-word' }}>{addressName}</div>}
+			trigger='click'
+			placement='top'
+		>
+			<span
+				style={{
+					maxWidth: 250,
+					cursor: 'pointer',
+				}}
+			>
+				{addressName?.length > 50 ? `${addressName.substring(0, 50)}...` : addressName}
+			</span>
+		</Popover>
+	);
+};
+
 const UsersPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
 	const [viewModalVisible, setViewModalVisible] = useState(false);
@@ -62,15 +112,9 @@ const UsersPage = () => {
 	const [admissionModalVisible, setAdmissionModalVisible] = useState(false);
 	const [selectedUserId, setSelectedUserId] = useState<string>('');
 
-	// Use the useAddress hook
-	const { provinces, districts, wards, setSelectedProvince, setSelectedDistrict } = useAddress();
-
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);
-		// Set province and district to fetch corresponding districts and wards
-		setSelectedProvince(record.hoKhauThuongTru?.tinh_ThanhPho);
-		setSelectedDistrict(record.hoKhauThuongTru?.quanHuyen);
 	};
 
 	const onCloseModal = () => {
@@ -95,19 +139,6 @@ const UsersPage = () => {
 		setSelectedUserId('');
 	};
 
-	// Helper function to get address names from codes
-	const getAddressName = (record: User.IRecord) => {
-		const { hoKhauThuongTru } = record;
-		if (!hoKhauThuongTru) return '';
-
-		const province = provinces.find((p) => p.code === hoKhauThuongTru.tinh_ThanhPho)?.name || '';
-		const district = districts.find((d) => d.code === hoKhauThuongTru.quanHuyen)?.name || '';
-		const ward = wards.find((w) => w.code === hoKhauThuongTru.xaPhuong)?.name || '';
-		const address = hoKhauThuongTru.diaChi || '';
-
-		return [address, ward, district, province].filter(Boolean).join(', ');
-	};
-
 	const columns: IColumn<User.IRecord>[] = [
 		{
 			title: 'Họ tên',
@@ -115,7 +146,15 @@ const UsersPage = () => {
 			width: 180,
 			sortable: true,
 			filterType: 'string',
-			render: (ho, record) => `${ho} ${record.ten}`,
+			render: (ho, record) => `${ho || ''} ${record.ten || ''}`,
+		},
+		{
+			title: 'Username',
+			dataIndex: 'username',
+			width: 150,
+			sortable: true,
+			filterType: 'string',
+			render: (val) => val || 'Chưa có',
 		},
 		{
 			title: 'Email',
@@ -123,6 +162,7 @@ const UsersPage = () => {
 			width: 200,
 			sortable: true,
 			filterType: 'string',
+			render: (val) => val || 'Chưa có',
 		},
 		{
 			title: 'Mật khẩu',
@@ -137,13 +177,15 @@ const UsersPage = () => {
 			width: 130,
 			sortable: true,
 			filterType: 'string',
+			render: (val) => val || 'Chưa có',
 		},
 		{
 			title: 'Số điện thoại',
 			dataIndex: 'soDT',
-			width: 120,
+			width: 130,
 			sortable: true,
 			filterType: 'string',
+			render: (val) => val || 'Chưa có',
 		},
 		{
 			title: 'Ngày sinh',
@@ -151,7 +193,7 @@ const UsersPage = () => {
 			width: 120,
 			sortable: true,
 			align: 'center',
-			render: (val) => (val ? moment(val).format('DD/MM/YYYY') : ''),
+			render: (val) => (val ? moment(val).format('DD/MM/YYYY') : 'Chưa có'),
 		},
 		{
 			title: 'Giới tính',
@@ -161,23 +203,32 @@ const UsersPage = () => {
 			filterType: 'select',
 			filterData: ['nam', 'nữ', 'khác'],
 			render: (val) => {
+				if (!val) return <Tag color='gray'>Chưa có</Tag>;
 				const colors = { nam: 'blue', nữ: 'pink', khác: 'gray' };
 				return <Tag color={colors[val as keyof typeof colors]}>{val}</Tag>;
 			},
 		},
 		{
+			title: 'Ngày cấp CCCD',
+			dataIndex: 'ngayCap',
+			width: 130,
+			sorter: true,
+			align: 'center',
+			render: (val) => (val ? moment(val).format('DD/MM/YYYY') : 'Chưa có'),
+		},
+		{
+			title: 'Nơi cấp',
+			dataIndex: 'noiCap',
+			width: 150,
+			sortable: true,
+			filterType: 'string',
+			render: (val) => val || 'Chưa có',
+		},
+		{
 			title: 'Địa chỉ',
 			dataIndex: 'hoKhauThuongTru',
 			width: 250,
-			render: (_, record) => getAddressName(record), // Use helper function to render address
-		},
-		{
-			title: 'Ngày cấp CCCD',
-			dataIndex: 'ngayCap',
-			width: 120,
-			sorter: true,
-			align: 'center',
-			render: (val) => (val ? moment(val).format('DD/MM/YYYY') : ''),
+			render: (address, record) => <AddressCell address={address} recordId={record.id} />,
 		},
 		{
 			title: 'Thao tác',

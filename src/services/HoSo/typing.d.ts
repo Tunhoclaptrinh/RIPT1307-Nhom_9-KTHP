@@ -8,7 +8,9 @@ declare module HoSo {
 
 	export interface INoiSinh {
 		trongNuoc: boolean;
-		tinh_ThanhPho: string;
+		tinh_ThanhPho: string | number;
+		quanHuyen: string | number;
+		xaPhuong: string | number;
 	}
 
 	export interface IThongTinBoSung {

@@ -223,8 +223,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					soCCCD: formData.personalInfo.soCCCD,
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
-					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || formData.personalInfo.thongTinLienHe || {},
-					thongTinBoSung: formData.personalInfo.thongTinBoSung || {},
+					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
 				};
 				await axios.put(`${ipLocal}/users/${userId}`, userUpdateData);
 			}
@@ -232,16 +231,16 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			// Prepare data for hoSo submission
 			const submissionData: Partial<HoSo.IRecord> = {
 				thongTinCaNhanId: userId,
+				thongTinHocTapId: apiData.thongTinHocTap?.id || '',
 				thongTinBoSung: {
-					danToc: formData.personalInfo?.thongTinBoSung?.danToc || 'kinh',
+					danToc: formData.personalInfo?.thongTinBoSung?.danToc || 'none',
 					quocTich: formData.personalInfo?.thongTinBoSung?.quocTich || 'Việt Nam',
-					tonGiao: formData.personalInfo?.thongTinBoSung?.tonGiao || 'không',
-					noiSinh: {
+					tonGiao: formData.personalInfo?.thongTinBoSung?.tonGiao || 'Không',
+					noiSinh: formData.personalInfo?.thongTinBoSung?.noiSinh || {
 						trongNuoc: true,
-						tinh_ThanhPho:
-							formData.personalInfo?.thongTinLienHe?.tinh_ThanhPho ||
-							formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho ||
-							'',
+						tinh_ThanhPho: formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho || '',
+						quanHuyen: formData.personalInfo?.hoKhauThuongTru?.quanHuyen || '',
+						xaPhuong: formData.personalInfo?.hoKhauThuongTru?.xaPhuong || '',
 					},
 				},
 				thongTinLienHe: {
@@ -267,10 +266,34 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			};
 
 			// Create or update thongTinHocTap
+			// if (formData.educationGrades) {
+			// 	const educationData = {
+			// 		...formData.educationGrades,
+			// 		userId: userId,
+			// 	};
+			// 	if (apiData.thongTinHocTap) {
+			// 		await axios.put(`${ipLocal}/thongTinHocTap/${apiData.thongTinHocTap.id}`, educationData);
+			// 	} else {
+			// 		await axios.post(`${ipLocal}/thongTinHocTap`, educationData);
+			// 	}
+			// }
+			// Create or update thongTinHocTap
 			if (formData.educationGrades) {
 				const educationData = {
 					...formData.educationGrades,
 					userId: userId,
+					thongTinTHPT: {
+						...formData.educationGrades.thongTinTHPT,
+						tinh_ThanhPho: formData.educationGrades.thongTinTHPT?.tinh_ThanhPho || '',
+						quanHuyen: formData.educationGrades.thongTinTHPT?.quanHuyen || '',
+						xaPhuong: formData.educationGrades.thongTinTHPT?.xaPhuong || '',
+						diaChi: formData.educationGrades.thongTinTHPT?.diaChi || '',
+						maTruong: formData.educationGrades.thongTinTHPT?.maTruong || '',
+						doiTuongUT: formData.educationGrades.thongTinTHPT?.doiTuongUT || '',
+						khuVucUT: formData.educationGrades.thongTinTHPT?.khuVucUT || '',
+						daTotNghiep: formData.educationGrades.thongTinTHPT?.daTotNghiep || false,
+						namTotNghiep: formData.educationGrades.thongTinTHPT?.namTotNghiep || '',
+					},
 				};
 				if (apiData.thongTinHocTap) {
 					await axios.put(`${ipLocal}/thongTinHocTap/${apiData.thongTinHocTap.id}`, educationData);
@@ -294,13 +317,11 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 
 			// Create or update nguyenVong
 			if (formData.wishes && formData.wishes.length > 0) {
-				// Delete existing wishes
 				if (apiData.thongTinNguyenVong.length > 0) {
 					await Promise.all(
 						apiData.thongTinNguyenVong.map((wish) => axios.delete(`${ipLocal}/thongTinNguyenVong/${wish.id}`)),
 					);
 				}
-				// Create new wishes
 				await Promise.all(
 					formData.wishes.map((wish) =>
 						axios.post(`${ipLocal}/thongTinNguyenVong`, {

@@ -1,4 +1,5 @@
 import axios from '@/utils/axios';
+import { ipLocal } from '@/utils/ip';
 
 // Hàm request wrapper đơn giản
 async function request(url: string, options?: any) {
@@ -10,7 +11,7 @@ async function request(url: string, options?: any) {
 
 // Đăng nhập
 export async function login(username: string, password: string) {
-	const response = await request(`http://localhost:3000/users?username=${username}`, {
+	const response = await request(`${ipLocal}/users?username=${username}`, {
 		method: 'GET',
 	});
 
@@ -34,14 +35,14 @@ export async function register(userData: any) {
 	}
 
 	// Kiểm tra username hoặc email đã tồn tại
-	const checkUser = await request(`http://localhost:3000/users?username=${userData.username}&email=${userData.email}`);
+	const checkUser = await request(`${ipLocal}/users?username=${userData.username}&email=${userData.email}`);
 
 	if (checkUser.data.length > 0) {
 		throw new Error('Username hoặc email đã tồn tại');
 	}
 
 	// Tạo user mới
-	const response = await request('http://localhost:3000/users', {
+	const response = await request(`${ipLocal}/users`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
