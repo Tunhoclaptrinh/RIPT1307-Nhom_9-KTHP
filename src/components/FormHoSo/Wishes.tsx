@@ -91,7 +91,7 @@ const WishesForm: React.FC<WishesFormProps> = ({
 											</Form.Item>
 										</Col>
 									</Row>
-
+									{/* 
 									<Row gutter={16}>
 										<Col span={8}>
 											<Form.Item
@@ -153,9 +153,9 @@ const WishesForm: React.FC<WishesFormProps> = ({
 												/>
 											</Form.Item>
 										</Col>
-									</Row>
+									</Row> */}
 
-									<Row gutter={16}>
+									{/* <Row gutter={16}>
 										<Col span={12}>
 											<Form.Item
 												{...restField}
@@ -190,7 +190,7 @@ const WishesForm: React.FC<WishesFormProps> = ({
 												/>
 											</Form.Item>
 										</Col>
-									</Row>
+									</Row> */}
 
 									<Form.Item
 										{...restField}
