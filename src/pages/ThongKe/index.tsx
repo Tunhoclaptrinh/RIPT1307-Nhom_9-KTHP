@@ -12,8 +12,7 @@ import {
   Divider,
   Statistic,
   notification,
-  Space,
-  Popconfirm
+  Space
 } from 'antd';
 import { 
   EyeOutlined, 
@@ -29,13 +28,15 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ColumnChart from '../../components/Chart/ColumnChart';
 import DonutChart from '../../components/Chart/DonutChart';
+import LineChart from '../../components/Chart/LineChart'; // Import LineChart từ file bạn cung cấp
 
 const { Option } = Select;
 const API = 'http://localhost:3000';
 
-type NganhDaoTao = { ma: string; ten: string };
+type NganhDaoTao = { ma: string; ten: string; toHopXetTuyenId: string };
 type NguyenVong = { id: string; maNganh: string; tongDiem?: number; ten: string };
 type PhuongThuc = { id: string; ten: string };
+type ToHop = { id: string; monHoc: string[] };
 type HoSo = {
   id: string;
   thongTinLienHe?: {
@@ -63,26 +64,32 @@ const StatisticsPage = () => {
   const [nganhDaoTao, setNganhDaoTao] = useState<NganhDaoTao[]>([]);
   const [nguyenVong, setNguyenVong] = useState<NguyenVong[]>([]);
   const [phuongThuc, setPhuongThuc] = useState<PhuongThuc[]>([]);
+  const [toHop, setToHop] = useState<ToHop[]>([]);
   const [stats, setStats] = useState<any>(null);
+  const [candidatesByToHop, setCandidatesByToHop] = useState<{ [toHop: string]: number[] }>({});
   const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'major' | 'status'>('major');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [resHoSo, resNganh, resNguyenVong, resPhuongThuc] = await Promise.all([
+        const [resHoSo, resNganh, resNguyenVong, resPhuongThuc, resToHop] = await Promise.all([
           axios.get(`${API}/hoSo`),
           axios.get(`${API}/nganhDaoTao`),
           axios.get(`${API}/thongTinNguyenVong`),
           axios.get(`${API}/phuongThucXetTuyen`),
+          axios.get(`${API}/toHop`),
         ]);
 
         const hoso: HoSo[] = resHoSo.data;
         const nganhDaoTao: NganhDaoTao[] = resNganh.data;
         const nguyenVong: NguyenVong[] = resNguyenVong.data;
         const phuongThuc: PhuongThuc[] = resPhuongThuc.data;
+        const toHop: ToHop[] = resToHop.data;
 
         const admittedByMajor: { [key: string]: { count: number; candidates: HoSo[] } } = {};
         const wishesByMajor: { [key: string]: number } = {};
@@ -94,6 +101,11 @@ const StatisticsPage = () => {
         };
         const admissionMethods: { [key: string]: number } = {};
         const profileStats = { total: hoso.length, approved: 0, pending: 0 };
+        const profileStatus: { [key: string]: { count: number; candidates: HoSo[] } } = {
+          'đã duyệt': { count: 0, candidates: [] },
+          'chờ duyệt': { count: 0, candidates: [] },
+          'từ chối': { count: 0, candidates: [] },
+        };
 
         // Initialize statistics for each major
         nganhDaoTao.forEach((nganh) => {
@@ -108,8 +120,13 @@ const StatisticsPage = () => {
 
         // Process hoso data
         hoso.forEach((h) => {
-          if (h.tinhTrang === 'đã duyệt') profileStats.approved += 1;
-          else profileStats.pending += 1;
+          let status: string;
+          if (h.tinhTrang === 'đã duyệt') status = 'đã duyệt';
+          else if (h.tinhTrang === 'từ chối') status = 'từ chối';
+          else status = 'chờ duyệt';
+          profileStats[status === 'đã duyệt' ? 'approved' : 'pending'] += 1;
+          profileStatus[status].count += 1;
+          profileStatus[status].candidates.push(h);
 
           if (h.ketQua?.succes && h.ketQua.nguyenVong) {
             const nv = nguyenVong.find((n) => n.id === h.ketQua!.nguyenVong);
@@ -145,11 +162,34 @@ const StatisticsPage = () => {
           }
         });
 
+        // Process candidatesDk by toHop across score ranges
+        const scoreRanges = ['0-15', '15-20', '20-25', '25-30'];
+        const candidatesByToHop: { [toHop: string]: number[] } = {};
+        toHop.forEach((th) => {
+          candidatesByToHop[th.id] = scoreRanges.map(() => 0);
+        });
+
+        nguyenVong.forEach((nv) => {
+          const nganh = nganhDaoTao.find((n) => n.ma === nv.maNganh);
+          if (nganh) {
+            const toHopId = nganh.toHopXetTuyenId;
+            const score = nv.tongDiem || 0;
+            let rangeIndex;
+            if (score <= 15) rangeIndex = 0;
+            else if (score <= 20) rangeIndex = 1;
+            else if (score <= 25) rangeIndex = 2;
+            else rangeIndex = 3;
+            candidatesByToHop[toHopId][rangeIndex] += 1;
+          }
+        });
+
         setHoSo(hoso);
         setNganhDaoTao(nganhDaoTao);
         setNguyenVong(nguyenVong);
         setPhuongThuc(phuongThuc);
-        setStats({ admittedByMajor, wishesByMajor, wishesByScore, admissionMethods, profileStats });
+        setToHop(toHop);
+        setCandidatesByToHop(candidatesByToHop);
+        setStats({ admittedByMajor, wishesByMajor, wishesByScore, admissionMethods, profileStats, profileStatus });
       } catch (err) {
         console.error('Error fetching data:', err);
         notification.error({
@@ -166,12 +206,21 @@ const StatisticsPage = () => {
 
   const showCandidateList = (major: string) => {
     setSelectedMajor(major);
+    setModalType('major');
     setModalVisible(true);
   };
 
-  const handleSelectChange = (value: string) => {
-    if (value && stats.admittedByMajor[value]?.count > 0) {
+  const showStatusList = (status: string) => {
+    setSelectedStatus(status);
+    setModalType('status');
+    setModalVisible(true);
+  };
+
+  const handleSelectChange = (value: string, type: 'major' | 'status') => {
+    if (type === 'major' && value && stats.admittedByMajor[value]?.count > 0) {
       showCandidateList(value);
+    } else if (type === 'status' && value && stats.profileStatus[value]?.count > 0) {
+      showStatusList(value);
     }
   };
 
@@ -186,7 +235,7 @@ const StatisticsPage = () => {
       return;
     }
 
-    const exportData = candidates.map((candidate, index) => ({
+    const exportData = candidates.map((candidate: HoSo, index: number) => ({
       'STT': index + 1,
       'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
       'Điểm': candidate.diem?.toFixed(1) || 'N/A',
@@ -201,17 +250,9 @@ const StatisticsPage = () => {
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     
-    // Set column widths
     worksheet['!cols'] = [
-      { wch: 5 },   // STT
-      { wch: 25 },  // Họ và tên
-      { wch: 10 },  // Điểm
-      { wch: 30 },  // Địa chỉ cụ thể
-      { wch: 20 },  // Xã/Phường
-      { wch: 20 },  // Quận/Huyện
-      { wch: 20 },  // Tỉnh/Thành phố
-      { wch: 15 },  // Tình trạng
-      { wch: 15 }   // ID hồ sơ
+      { wch: 5 }, { wch: 25 }, { wch: 10 }, { wch: 30 },
+      { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }
     ];
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách thí sinh');
@@ -222,6 +263,48 @@ const StatisticsPage = () => {
     notification.success({
       message: 'Xuất Excel thành công',
       description: `Đã xuất danh sách thí sinh đậu ngành ${major}.`,
+    });
+  };
+
+  const exportStatusToExcel = (status: string) => {
+    const candidates = stats.profileStatus[status]?.candidates || [];
+    
+    if (candidates.length === 0) {
+      notification.warning({
+        message: 'Không có dữ liệu',
+        description: `Không có hồ sơ ở trạng thái ${status}.`,
+      });
+      return;
+    }
+
+    const exportData = candidates.map((candidate: HoSo, index: number) => ({
+      'STT': index + 1,
+      'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
+      'Điểm': (candidate.ketQua?.diem ?? candidate.diem)?.toFixed(1) || 'N/A',
+      'Địa chỉ cụ thể': candidate.thongTinLienHe?.diaChi?.diaChiCuThe || '',
+      'Xã/Phường': candidate.thongTinLienHe?.diaChi?.xaPhuong || '',
+      'Quận/Huyện': candidate.thongTinLienHe?.diaChi?.quanHuyen || '',
+      'Tỉnh/Thành phố': candidate.thongTinLienHe?.diaChi?.tinh_ThanhPho || '',
+      'Tình trạng': candidate.tinhTrang || 'N/A',
+      'ID hồ sơ': candidate.id
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    
+    worksheet['!cols'] = [
+      { wch: 5 }, { wch: 25 }, { wch: 10 }, { wch: 30 },
+      { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh sách hồ sơ');
+    
+    const fileName = `Danh_sach_ho_so_${status.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+    
+    notification.success({
+      message: 'Xuất Excel thành công',
+      description: `Đã xuất danh sách hồ sơ ở trạng thái ${status}.`,
     });
   };
 
@@ -242,29 +325,17 @@ const StatisticsPage = () => {
 
     majorsWithStudents.forEach(major => {
       const candidates = stats.admittedByMajor[major].candidates;
-    interface ExportCandidate {
-      'STT': number;
-      'Họ và tên': string;
-      'Điểm': string;
-      'Địa chỉ cụ thể': string;
-      'Xã/Phường': string;
-      'Quận/Huyện': string;
-      'Tỉnh/Thành phố': string;
-      'Tình trạng': string;
-      'ID hồ sơ': string;
-    }
-
-    const exportData: ExportCandidate[] = candidates.map((candidate: HoSo, index: number): ExportCandidate => ({
-      'STT': index + 1,
-      'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
-      'Điểm': candidate.diem?.toFixed(1) || 'N/A',
-      'Địa chỉ cụ thể': candidate.thongTinLienHe?.diaChi?.diaChiCuThe || '',
-      'Xã/Phường': candidate.thongTinLienHe?.diaChi?.xaPhuong || '',
-      'Quận/Huyện': candidate.thongTinLienHe?.diaChi?.quanHuyen || '',
-      'Tỉnh/Thành phố': candidate.thongTinLienHe?.diaChi?.tinh_ThanhPho || '',
-      'Tình trạng': candidate.tinhTrang || 'N/A',
-      'ID hồ sơ': candidate.id
-    }));
+      const exportData = candidates.map((candidate, index) => ({
+        'STT': index + 1,
+        'Họ và tên': candidate.thongTinLienHe?.ten || 'N/A',
+        'Điểm': candidate.diem?.toFixed(1) || 'N/A',
+        'Địa chỉ cụ thể': candidate.thongTinLienHe?.diaChi?.diaChiCuThe || '',
+        'Xã/Phường': candidate.thongTinLienHe?.diaChi?.xaPhuong || '',
+        'Quận/Huyện': candidate.thongTinLienHe?.diaChi?.quanHuyen || '',
+        'Tỉnh/Thành phố': candidate.thongTinLienHe?.diaChi?.tinh_ThanhPho || '',
+        'Tình trạng': candidate.tinhTrang || 'N/A',
+        'ID hồ sơ': candidate.id
+      }));
 
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       worksheet['!cols'] = [
@@ -285,9 +356,12 @@ const StatisticsPage = () => {
     });
   };
 
-  // Get majors with admitted students
   const majorsWithStudents = Object.keys(stats?.admittedByMajor || {}).filter(
     major => stats.admittedByMajor[major].count > 0
+  );
+
+  const statusesWithProfiles = Object.keys(stats?.profileStatus || {}).filter(
+    status => stats.profileStatus[status].count > 0
   );
 
   const columns = [
@@ -305,15 +379,21 @@ const StatisticsPage = () => {
     },
     {
       title: 'Điểm',
-      dataIndex: 'diem',
       key: 'diem',
       width: 80,
-      render: (text: number) => (
-        <Tag color="blue" style={{ fontWeight: 'bold' }}>
-          {text?.toFixed(1) || 'N/A'}
-        </Tag>
-      ),
-      sorter: (a: HoSo, b: HoSo) => (a.diem || 0) - (b.diem || 0),
+      render: (record: HoSo) => {
+        const diem = record.ketQua?.diem ?? record.diem;
+        return (
+          <Tag color="blue" style={{ fontWeight: 'bold' }}>
+            {typeof diem === 'number' ? diem.toFixed(1) : 'N/A'}
+          </Tag>
+        );
+      },
+      sorter: (a: HoSo, b: HoSo) => {
+        const diemA = a.ketQua?.diem ?? a.diem ?? 0;
+        const diemB = b.ketQua?.diem ?? b.diem ?? 0;
+        return diemA - diemB;
+      },
     },
     {
       title: 'Địa chỉ',
@@ -331,8 +411,18 @@ const StatisticsPage = () => {
       width: 120,
       render: (text: string) => (
         <Tag 
-          color={text === 'đã duyệt' ? 'green' : 'orange'}
-          icon={text === 'đã duyệt' ? <CheckCircleOutlined /> : undefined}
+          color={
+            text === 'đã duyệt'
+              ? 'green'
+              : text === 'từ chối'
+              ? 'red'
+              : 'orange'
+          }
+          icon={
+            text === 'đã duyệt'
+              ? <CheckCircleOutlined />
+              : undefined
+          }
         >
           {text || 'N/A'}
         </Tag>
@@ -434,7 +524,6 @@ const StatisticsPage = () => {
               
               <Divider style={{ margin: '16px 0' }} />
               
-              {/* Enhanced UI for viewing and exporting candidate lists */}
               <div>
                 <div style={{ 
                     display: 'flex', 
@@ -442,7 +531,7 @@ const StatisticsPage = () => {
                     gap: '12px',
                     flexWrap: 'wrap',
                     marginBottom: '16px'
-                    }}>
+                }}>
                     <span style={{ 
                         fontWeight: 600,
                         color: '#262626',
@@ -456,7 +545,7 @@ const StatisticsPage = () => {
                         <Select
                             placeholder="Chọn ngành để xem danh sách"
                             style={{ minWidth: 280, flex: 1 }}
-                            onChange={handleSelectChange}
+                            onChange={(value) => handleSelectChange(value, 'major')}
                             allowClear
                             size="large"
                         >
@@ -499,7 +588,7 @@ const StatisticsPage = () => {
                         Chưa có thí sinh đậu
                         </span>
                     )}
-                    </div>
+                </div>
               </div>
             </Card>
           </Col>
@@ -507,7 +596,7 @@ const StatisticsPage = () => {
           <Col span={12}>
             <Card 
               title="📈 Số lượng nguyện vọng theo ngành"
-              style={{ height: '100%', borderRadius: '8px' , alignItems: 'left' }}
+              style={{ height: '100%', borderRadius: '8px' }}
               bodyStyle={{ padding: '16px' }}
             >
               <DonutChart
@@ -517,7 +606,6 @@ const StatisticsPage = () => {
                 colors={['#1890ff', '#52c41a', '#faad14', '#ff4d4f', '#722ed1', '#eb2f96']}
                 showTotal
                 height={300}
-
               />
             </Card>
           </Col>
@@ -541,7 +629,7 @@ const StatisticsPage = () => {
           <Col span={12}>
             <Card  
               title="🎯 Phương thức xét tuyển"
-              style={{alignContent: 'left' ,borderRadius: '8px' }}
+              style={{ borderRadius: '8px' }}
               bodyStyle={{ padding: '16px' }}
             >
               <DonutChart
@@ -554,10 +642,110 @@ const StatisticsPage = () => {
               />
             </Card>
           </Col>
+          <Col span={12}>
+            <Card 
+              title="📋 Trạng thái hồ sơ"
+              style={{ borderRadius: '8px' }}
+              bodyStyle={{ padding: '16px' }}
+            >
+              <DonutChart
+                xAxis={Object.keys(stats.profileStatus)}
+                yAxis={[Object.values(stats.profileStatus).map((item: any) => item.count)]}
+                yLabel={['Số lượng hồ sơ']}
+                colors={['#52c41a', '#ff4d4f', '#faad14']}
+                showTotal
+                height={300}
+              />
+              
+              <Divider style={{ margin: '16px 0' }} />
+              
+              <div>
+                <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '12px',
+                    flexWrap: 'wrap',
+                    marginBottom: '16px'
+                }}>
+                    <span style={{ 
+                        fontWeight: 600,
+                        color: '#262626',
+                        minWidth: 'fit-content'
+                    }}>
+                        Xem danh sách:
+                    </span>
+
+                    {statusesWithProfiles.length > 0 ? (
+                        <>
+                        <Select
+                            placeholder="Chọn trạng thái để xem danh sách"
+                            style={{ minWidth: 280, flex: 1 }}
+                            onChange={(value) => handleSelectChange(value, 'status')}
+                            allowClear
+                            size="large"
+                        >
+                            {statusesWithProfiles.map((status) => (
+                            <Option key={status} value={status}>
+                                <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center' 
+                                }}>
+                                <span style={{ fontWeight: 500 }}>{status}</span>
+                                <Tag color="blue" style={{ margin: 0, fontWeight: 'bold' }}>
+                                    {stats.profileStatus[status].count}
+                                </Tag>
+                                </div>
+                            </Option>
+                            ))}
+                        </Select>
+
+                        <Space wrap>
+                            <Tooltip title="Xuất danh sách hồ sơ">
+                            <Button
+                                type="primary"
+                                icon={<FileExcelOutlined />}
+                                onClick={() => selectedStatus && exportStatusToExcel(selectedStatus)}
+                                style={{ 
+                                background: 'linear-gradient(135deg, #52c41a, #73d13d)',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontWeight: 500
+                                }}
+                                disabled={!selectedStatus}
+                            >
+                                Xuất Excel
+                            </Button>
+                            </Tooltip>
+                        </Space>
+                        </>
+                    ) : (
+                        <span style={{ color: '#8c8c8c', fontStyle: 'italic' }}>
+                        Chưa có hồ sơ
+                        </span>
+                    )}
+                </div>
+              </div>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card
+              title="📈 Số lượng thí sinh đăng ký theo tổ hợp xét tuyển qua khoảng điểm"
+              style={{ borderRadius: '8px' }}
+              bodyStyle={{ padding: '16px' }}
+            >
+              <LineChart
+                xAxis={['0-15', '15-20', '20-25', '25-30']}
+                yAxis={Object.keys(candidatesByToHop).map(toHopId => candidatesByToHop[toHopId])}
+                yLabel={['Số lượng thí sinh']}
+                colors={['#1890ff', '#52c41a', '#faad14', '#ff4d4f']}
+                height={300}
+              />
+            </Card>
+          </Col>
         </Row>
       </Card>
 
-      {/* Enhanced Modal */}
       <Modal
         visible={modalVisible}
         title={
@@ -568,14 +756,30 @@ const StatisticsPage = () => {
             paddingRight: '40px' 
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <TrophyOutlined style={{ color: '#faad14', fontSize: '20px' }} />
-              <span style={{ fontSize: '18px', fontWeight: 600 }}>
-                Danh sách thí sinh đậu ngành {selectedMajor}
-              </span>
-              {selectedMajor && (
-                <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>
-                  {stats.admittedByMajor[selectedMajor]?.count || 0} thí sinh
-                </Tag>
+              {modalType === 'major' ? (
+                <>
+                  <TrophyOutlined style={{ color: '#faad14', fontSize: '20px' }} />
+                  <span style={{ fontSize: '18px', fontWeight: 600 }}>
+                    Danh sách thí sinh đậu ngành {selectedMajor}
+                  </span>
+                  {selectedMajor && (
+                    <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>
+                      {stats.admittedByMajor[selectedMajor]?.count || 0} thí sinh
+                    </Tag>
+                  )}
+                </>
+              ) : (
+                <>
+                  <CheckCircleOutlined style={{ color: '#52c41a', fontSize: '20px' }} />
+                  <span style={{ fontSize: '18px', fontWeight: 600 }}>
+                    Danh sách hồ sơ trạng thái {selectedStatus}
+                  </span>
+                  {selectedStatus && (
+                    <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>
+                      {stats.profileStatus[selectedStatus]?.count || 0} hồ sơ
+                    </Tag>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -589,7 +793,13 @@ const StatisticsPage = () => {
             <Button
               type="primary"
               icon={<FileExcelOutlined />}
-              onClick={() => selectedMajor && exportToExcel(selectedMajor)}
+              onClick={() => {
+                if (modalType === 'major' && selectedMajor) {
+                  exportToExcel(selectedMajor);
+                } else if (modalType === 'status' && selectedStatus) {
+                  exportStatusToExcel(selectedStatus);
+                }
+              }}
               style={{ 
                 background: 'linear-gradient(135deg, #52c41a, #73d13d)',
                 border: 'none'
@@ -603,7 +813,13 @@ const StatisticsPage = () => {
         style={{ top: 20 }}
       >
         <Table
-          dataSource={selectedMajor ? stats.admittedByMajor[selectedMajor]?.candidates : []}
+          dataSource={
+            modalType === 'major' && selectedMajor
+              ? stats.admittedByMajor[selectedMajor]?.candidates
+              : modalType === 'status' && selectedStatus
+              ? stats.profileStatus[selectedStatus]?.candidates
+              : []
+          }
           columns={columns}
           rowKey="id"
           pagination={{
@@ -611,7 +827,7 @@ const StatisticsPage = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) => 
-              `${range[0]}-${range[1]} của ${total} thí sinh`,
+              `${range[0]}-${range[1]} của ${total} ${modalType === 'major' ? 'thí sinh' : 'hồ sơ'}`,
             pageSizeOptions: ['5', '8', '10', '20'],
           }}
           scroll={{ x: 700 }}
