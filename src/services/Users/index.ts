@@ -45,19 +45,19 @@ export async function deleteAvatar(userId: string) {
 export async function postUserProof(userId: string, proofData: any) {
 	try {
 		// Kiểm tra xem user đã có proof chưa
-		const response = await axios.get(`${ipLocal}/userProofs?userId=${userId}`);
+		const response = await axios.get(`${ipLocal}/userCertificates?userId=${userId}`);
 		const existingProofs = response?.data;
 
 		if (Array.isArray(existingProofs) && existingProofs.length > 0) {
 			// Nếu đã có, cập nhật bản ghi đầu tiên
 			const existingProof = existingProofs[0];
-			return axios.put(`${ipLocal}/userProofs/${existingProof.id}`, {
+			return axios.put(`${ipLocal}/userCertificates/${existingProof.id}`, {
 				userId,
 				...proofData,
 			});
 		} else {
 			// Nếu chưa có, tạo mới
-			return axios.post(`${ipLocal}/userProofs`, {
+			return axios.post(`${ipLocal}/userCertificates`, {
 				userId,
 				...proofData,
 			});
@@ -69,6 +69,39 @@ export async function postUserProof(userId: string, proofData: any) {
 }
 export async function getUserProof(userId: string) {
 	return axios.get(`${ipLocal}/userProofs?userId=${userId}`);
+}
+
+
+
+export async function postUserCerf(userId: string, data: any) {
+    try {
+
+        const newData = {
+            userId, 
+            ...data, 
+        };
+
+        return await axios.post(`${ipLocal}/userCertificates`, newData);
+
+    } catch (error: any) {
+        console.error('Lỗi tạo mới chứng chỉ:', error?.message || error);
+        throw new Error('Không thể tạo chứng chỉ mới cho người dùng.');
+    }
+}
+
+export async function getUserCertificates(userId: string) {
+    try {
+        // json-server cho phép lọc theo thuộc tính bằng cách dùng query parameter.
+        // Yêu cầu này sẽ tìm tất cả các đối tượng trong 'userCertificates' có trường 'userId' khớp.
+        const response = await axios.get(`${ipLocal}/userCertificates?userId=${userId}`);
+        
+        // response.data sẽ là một mảng các chứng chỉ, ví dụ: [{...}, {...}]
+        return response.data;
+    } catch (error: any) {
+        console.error(`Lỗi khi lấy danh sách chứng chỉ cho người dùng ${userId}:`, error?.message || error);
+        // Ném lỗi để nơi gọi hàm có thể xử lý (ví dụ: hiển thị thông báo lỗi trên UI)
+        throw new Error('Không thể tải danh sách chứng chỉ.');
+    }
 }
 // Giả api lập đăng ký
 export async function dangKy(users: User.IRecord) {

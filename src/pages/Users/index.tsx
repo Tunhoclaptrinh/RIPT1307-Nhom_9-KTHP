@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Popconfirm, Tag, Space, Popover } from 'antd';
+import { Popconfirm, Tag, Space, Popover, Image } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';

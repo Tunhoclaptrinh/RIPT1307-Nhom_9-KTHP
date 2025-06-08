@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Descriptions, Tag, Button, Typography, Divider, Card, Row, Col, Avatar, Space } from 'antd';
+import { Modal, Descriptions, Tag, Button, Typography, Divider, Card, Row, Col, Avatar, Space, Image } from 'antd';
 import { UserOutlined, BookOutlined, TrophyOutlined, FileTextOutlined } from '@ant-design/icons';
 import useUsers from '@/hooks/useUsers';
 import { useModel } from 'umi';
@@ -263,7 +263,7 @@ const HocBaDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) =>
 							</div>
 						)}
 
-						{record.minhChung && (
+						
 							<div>
 								<Title level={5} style={{ color: '#1890ff', marginBottom: '8px' }}>
 									Minh chứng và thành tích:
@@ -276,10 +276,18 @@ const HocBaDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) =>
 										borderLeft: '4px solid #1890ff',
 									}}
 								>
-									{record.minhChung}
+									{record.minhChung ? (
+									<Image
+                                        width={100}
+                                        src={record.minhChung} 
+                                        alt={`Minh chứng cho ${record.minhChung}`}
+                                    />
+									) : (
+                                    <Text type="secondary">Không có ảnh</Text>
+                                )
+									}
 								</div>
 							</div>
-						)}
 					</Card>
 				)}
 			</Card>

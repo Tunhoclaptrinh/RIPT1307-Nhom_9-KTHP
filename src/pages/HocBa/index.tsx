@@ -15,13 +15,14 @@ const { Text } = Typography;
 
 const DiemHocSinhPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hocba');
-	const { getUserProof, avatarUrl, setAvatarUrl, getAvatar, poofUrl,  setPoofUrl} = useModel('users');
+	const { getUserProof, getAvatar} = useModel('users');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<DiemHocSinh.IRecord | undefined>();
 	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // User được chọn
-
+	const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  	const [poofUrl, setPoofUrl] = useState<string | null>(null);
 	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: DiemHocSinh.IRecord) => {
 		setSelectedRecord(record);
@@ -142,8 +143,8 @@ const PoofCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
 	
 		fetchAvatar();
 		}, [userId]);
-		return avatarUrl ? (
-			<Avatar size='small' src={avatarUrl} icon={<UserOutlined />} />
+		return userInfo ? (
+			<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
 		) : null;
 		};
 

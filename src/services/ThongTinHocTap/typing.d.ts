@@ -55,7 +55,11 @@ declare module ThongTinHocTap {
 	export interface IChungChi {
 		loaiCC: LoaiCC;
 		ketQua: string | number;
-		minhChung: string;
+		minhChung: {
+			fileList: {
+				thumbUrl: string;
+			}[];
+		};
 	}
 
 	export interface IRecord {

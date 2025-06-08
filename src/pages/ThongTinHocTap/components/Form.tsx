@@ -39,8 +39,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 	...props
 ) => {
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('thongtinhoctap');
-	const { avatarUrl } = useModel('users');
-	
+	const { postUserCerf } = useModel('users');
 	const { users, getUserFullName, getUserInfo, loading: usersLoading } = useUsers();
 	const [form] = Form.useForm();
 	const intl = useIntl();
@@ -148,42 +147,94 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 		}
 	}, [record?.id, visibleForm, form]);
 
-	const onFinish = async (values: any) => {
-		try {
-			const formattedValues = {
-				...values,
-				thongTinTHPT: {
-					...values.thongTinTHPT,
-					namTotNghiep:
-						values.thongTinTHPT.daTotNghiep && values.thongTinTHPT.namTotNghiep
-							? moment(values.thongTinTHPT.namTotNghiep).format('YYYY')
-							: '',
-					tinh_ThanhPho: values.thongTinTHPT?.tinh_ThanhPho,
-					quanHuyen: values.thongTinTHPT?.quanHuyen,
-					xaPhuong: values.thongTinTHPT?.xaPhuong,
-				},
-				diemDGTD: values.hasDGTD ? values.diemDGTD : undefined,
-				diemDGNL: values.hasDGNL ? values.diemDGNL : undefined,
-				giaiHSG: values.hasGiaiHSG
-					? {
-							...values.giaiHSG,
-							nam: values.giaiHSG?.nam ? moment(values.giaiHSG.nam).format('YYYY') : '',
-					  }
-					: undefined,
-				chungChi: values.hasChungChi ? values.chungChi : [],
-			};
-			if (edit) {
-				await putModel(record?.id ?? '', formattedValues);
-			} else {
-				await postModel(formattedValues);
-			}
-			setVisibleForm(false);
-		} catch (error) {
-			console.error('Form submission error:', error);
-		}
-	};
+	// const onFinish = async (values: any) => {
+	// 	try {
+	// 		const formattedValues = {
+	// 			...values,
+	// 			thongTinTHPT: {
+	// 				...values.thongTinTHPT,
+	// 				namTotNghiep:
+	// 					values.thongTinTHPT.daTotNghiep && values.thongTinTHPT.namTotNghiep
+	// 						? moment(values.thongTinTHPT.namTotNghiep).format('YYYY')
+	// 						: '',
+	// 				tinh_ThanhPho: values.thongTinTHPT?.tinh_ThanhPho,
+	// 				quanHuyen: values.thongTinTHPT?.quanHuyen,
+	// 				xaPhuong: values.thongTinTHPT?.xaPhuong,
+	// 			},
+	// 			diemDGTD: values.hasDGTD ? values.diemDGTD : undefined,
+	// 			diemDGNL: values.hasDGNL ? values.diemDGNL : undefined,
+	// 			giaiHSG: values.hasGiaiHSG
+	// 				? {
+	// 						...values.giaiHSG,
+	// 						nam: values.giaiHSG?.nam ? moment(values.giaiHSG.nam).format('YYYY') : '',
+	// 				  }
+	// 				: undefined,
+	// 			chungChi: values.hasChungChi ? values.chungChi : [],
+	// 		};
+	// 		if (edit) {
+	// 			await putModel(record?.id ?? '', formattedValues);
+	// 		} else {
+	// 			await postModel(formattedValues);
+	// 		}
+	// 		setVisibleForm(false);
+	// 	} catch (error) {
+	// 		console.error('Form submission error:', error);
+	// 	}
+	// };
 
 	// Handle address changes
+	
+	const onFinish = async (values: any) => {
+    try {
+        const formattedValues = {
+            ...values,
+            thongTinTHPT: {
+                ...values.thongTinTHPT,
+                namTotNghiep:
+                    values.thongTinTHPT.daTotNghiep && values.thongTinTHPT.namTotNghiep
+                        ? moment(values.thongTinTHPT.namTotNghiep).format('YYYY')
+                        : '',
+                tinh_ThanhPho: values.thongTinTHPT?.tinh_ThanhPho,
+                quanHuyen: values.thongTinTHPT?.quanHuyen,
+                xaPhuong: values.thongTinTHPT?.xaPhuong,
+            },
+            diemDGTD: values.hasDGTD ? values.diemDGTD : undefined,
+            diemDGNL: values.hasDGNL ? values.diemDGNL : undefined,
+            giaiHSG: values.hasGiaiHSG
+                ? {
+                      ...values.giaiHSG,
+                      nam: values.giaiHSG?.nam ? moment(values.giaiHSG.nam).format('YYYY') : '',
+                  }
+                : undefined,
+            // Giữ lại mảng chứng chỉ để xử lý sau
+            chungChi: values.hasChungChi ? values.chungChi : [],
+        };
+
+        // Xử lý dữ liệu chính (không bao gồm chứng chỉ)
+        if (edit) {
+            await putModel(record?.id ?? '', formattedValues);
+        } else {
+            await postModel(formattedValues);
+        }
+
+        // Xử lý đăng tải chứng chỉ
+        if (formattedValues.chungChi && formattedValues.chungChi.length > 0) {
+            // Sử dụng Promise.all để gửi tất cả các chứng chỉ song song
+            const certificatePromises = formattedValues.chungChi.map((certificate: any) =>
+                postUserCerf(record?.userId, certificate)
+            );
+
+            await Promise.all(certificatePromises);
+            console.log('Tất cả chứng chỉ đã được tải lên thành công!');
+        }
+
+        setVisibleForm(false);
+    } catch (error) {
+        console.error('Lỗi khi gửi biểu mẫu hoặc chứng chỉ:', error);
+        // Tùy chọn: Hiển thị thông báo lỗi cho người dùng
+    }
+};
+	
 	const handleProvinceChange = (value: string) => {
 		setSelectedProvince(value);
 		setSelectedDistrict(undefined);
@@ -234,7 +285,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 			<Card size='small' style={{ marginTop: 8, backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
 				<Row align='middle' gutter={16}>
 					<Col>
-						<Avatar src={avatarUrl} icon={<UserOutlined />} />
+						<Avatar src={userInfo?.avatar} icon={<UserOutlined />} />
 					</Col>
 					<Col flex={1}>
 						<div>

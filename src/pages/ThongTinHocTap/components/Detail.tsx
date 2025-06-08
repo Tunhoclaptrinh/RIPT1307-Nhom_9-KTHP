@@ -1,9 +1,8 @@
 import React from 'react';
-import { Modal, Descriptions, Button, Tag, Typography, Divider, Avatar, Card, Row, Col } from 'antd';
+import { Modal, Descriptions, Button, Tag, Typography, Divider, Avatar, Card, Row, Col, Image } from 'antd';
 import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, CalendarOutlined } from '@ant-design/icons';
 import useUsers from '@/hooks/useUsers';
 import moment from 'moment';
-import { useModel } from 'umi';
 
 interface Props {
 	isVisible: boolean;
@@ -43,26 +42,48 @@ const renderMonTuDuy = (monArr: ThongTinHocTap.IDiemMonTuDuy[] = []) => {
 const renderChungChi = (arr: ThongTinHocTap.IChungChi[] = []) => {
 	if (!arr.length) return <Text type='secondary'>Không có</Text>;
 	return (
-		<div>
-			{arr.map((cc, idx) => (
-				<div key={idx} style={{ marginBottom: 4 }}>
-					<Tag color='blue'>{cc.loaiCC}</Tag> - Kết quả: <Text>{cc.ketQua}</Text>
-					{cc.minhChung && (
-						<span>
-							{' '}
-							| Minh chứng: <Text type='secondary'>{cc.minhChung}</Text>
-						</span>
-					)}
-				</div>
-			))}
-		</div>
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {arr.map((cc, idx) => {
+                // Lấy URL ảnh (dạng base64) từ file đầu tiên trong fileList một cách an toàn
+                const imageUrl = cc.minhChung?.fileList?.[0]?.thumbUrl;
+
+                return (
+                    // Mỗi chứng chỉ được bọc trong một box để dễ nhìn hơn
+                    <div key={idx} style={{ padding: '12px', border: '1px solid #f0f0f0', borderRadius: '4px' }}>
+                        <Row gutter={16} align="middle">
+                            {/* Cột cho thông tin chữ */}
+                            <Col flex="auto">
+                                <div>
+                                    <Tag color='blue'>{cc.loaiCC}</Tag>
+                                </div>
+                                <div style={{ marginTop: '8px' }}>
+                                    <Text>Kết quả: </Text>
+                                    <Text strong>{cc.ketQua}</Text>
+                                </div>
+                            </Col>
+
+                            {/* Cột cho ảnh minh chứng */}
+                            <Col flex="100px">
+                                {imageUrl ? (
+                                    <Image
+                                        width={100}
+                                        src={imageUrl} 
+                                        alt={`Minh chứng cho ${cc.loaiCC}`}
+                                    />
+                                ) : (
+                                    <Text type="secondary">Không có ảnh</Text>
+                                )}
+                            </Col>
+                        </Row>
+                    </div>
+                );
+            })}
+        </div>
 	);
 };
 
 const ThongTinHocTapDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) => {
 	const { getUserFullName, getUserInfo, getUserById } = useUsers();
-	const { avatarUrl } = useModel('users');
-	
 
 	if (!record) return null;
 
@@ -104,7 +125,7 @@ const ThongTinHocTapDetail: React.FC<Props> = ({ isVisible, onClose, record, onE
 				<Row gutter={16}>
 					<Col span={6}>
 						<div style={{ textAlign: 'center' }}>
-							<Avatar size={80} src={avatarUrl} icon={<UserOutlined />} style={{ marginBottom: 8 }} />
+							<Avatar size={80} src={studentUserInfo?.avatar} icon={<UserOutlined />} style={{ marginBottom: 8 }} />
 							<br />
 							<Text strong style={{ fontSize: '16px', color: '#1890ff' }}>
 								{studentFullName}
@@ -295,6 +316,17 @@ const ThongTinHocTapDetail: React.FC<Props> = ({ isVisible, onClose, record, onE
 								<Text type='secondary'> Nơi cấp: {giaiHSG.noiCap}</Text>
 								<br />
 								<Text type='secondary'>Minh chứng: {giaiHSG.minhChung || 'Không có'}</Text>
+								<Col flex="100px">
+                                {giaiHSG.minhChung ? (
+                                    <Image
+                                        width={100}
+                                        src={giaiHSG.minhChung} // Sử dụng trực tiếp chuỗi base64
+                                        alt={`Minh chứng cho ${giaiHSG.minhChung}`}
+                                    />
+                                ) : (
+                                    <Text type="secondary">Không có ảnh</Text>
+                                )}
+                            </Col>
 							</div>
 						) : (
 							<Text type='secondary'>Không có</Text>

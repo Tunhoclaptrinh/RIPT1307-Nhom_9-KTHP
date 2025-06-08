@@ -16,7 +16,6 @@ const { Text } = Typography;
 
 const ThongTinHocTapPage = () => {
 	const { handleEdit, handleView, deleteModel } = useModel('thongtinhoctap');
-	const { avatarUrl } = useModel('users');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false); // Modal xem thông tin user
@@ -88,7 +87,7 @@ const ThongTinHocTapPage = () => {
 				}}
 				title='Click để xem thông tin chi tiết'
 			>
-				<Avatar size='small' src={avatarUrl} icon={<UserOutlined />} />
+				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
 				<div>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
 					{userInfo?.username && (
