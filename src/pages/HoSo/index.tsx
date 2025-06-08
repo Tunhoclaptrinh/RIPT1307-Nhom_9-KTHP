@@ -24,7 +24,7 @@ const HoSoPage = () => {
 		  try {
 			const response = await getAvatar(userId);
 			if (response?.data?.length > 0) {
-			  setAvatarUrl(response.data[0].avatarUrl);
+			  setAvatarUrl(response.data[0].avatarUrl.fileList[0].thumbUrl);
 			}
 		  } catch (error) {
 			console.error('Error fetching avatar:', error);

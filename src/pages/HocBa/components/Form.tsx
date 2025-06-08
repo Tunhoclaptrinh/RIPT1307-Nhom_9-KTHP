@@ -19,6 +19,7 @@ import { PlusOutlined, MinusCircleOutlined, UserOutlined, SearchOutlined } from 
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import useUsers from '@/hooks/useUsers';
+import UploadFile from '@/components/Upload/UploadFile';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -31,7 +32,9 @@ interface DiemHocSinhFormProps {
 }
 
 const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm học sinh', hideFooter, userId }) => {
-	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('hocba');
+	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } = useModel('hocba');	
+	const { postUserProof, avatarUrl } = useModel('users');
+
 	const { users, getUserFullName, getUserInfo, loading: usersLoading } = useUsers();
 	const [form] = Form.useForm();
 	const intl = useIntl();
@@ -156,6 +159,7 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 			const filteredValues = {
 				...values,
 				diemMonHoc: values.diemMonHoc.filter((item) => item.mon && item.hocKy && item.diemTongKet !== undefined),
+				minhChung: undefined,
 			};
 
 			if (edit) {
@@ -163,6 +167,9 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 			} else {
 				await postModel(filteredValues);
 			}
+			if (values.minhChung) {
+			await postUserProof(selectedUserId, values.minhChung);
+		}
 			setVisibleForm(false);
 		} catch (error) {
 			console.error('Form submission error:', error);
@@ -183,7 +190,7 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 			<Card size='small' style={{ marginTop: 8, backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
 				<Row align='middle' gutter={16}>
 					<Col>
-						<Avatar src={userInfo.avatar} icon={<UserOutlined />} />
+						<Avatar src={avatarUrl} icon={<UserOutlined />} />
 					</Col>
 					<Col flex={1}>
 						<div>
@@ -466,14 +473,19 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 					</Form.Item>
 
 					{/* Minh chứng */}
-					<Form.Item label='Minh chứng, tài liệu đính kèm' name='minhChung' rules={[...rules.required]}>
-						<TextArea
-							placeholder='Nhập minh chứng, tài liệu đính kèm, thành tích đạt được...'
-							rows={4}
-							showCount
-							maxLength={1000}
-						/>
-					</Form.Item>
+					<Row gutter={16} style={{ marginBottom: 16 }}>
+						<Col span={24}>
+							<Form.Item label='Ảnh minh chứng, tài liệu đính kèm' name='minhChung' 
+							rules={[...rules.required]}
+							>
+								<UploadFile 
+									isAvatar 
+									maxFileSize={5} 
+									buttonDescription="Tải lên ảnh minh chứng"
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
 
 					{!hideFooter && (
 						<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>

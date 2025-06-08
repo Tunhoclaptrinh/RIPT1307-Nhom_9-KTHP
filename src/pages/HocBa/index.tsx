@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, Typography, Popover, Avatar } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Popconfirm, Tag, Space, Typography, Popover, Avatar, Image } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
@@ -15,11 +15,13 @@ const { Text } = Typography;
 
 const DiemHocSinhPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hocba');
+	const { getUserProof, avatarUrl, setAvatarUrl, getAvatar, poofUrl,  setPoofUrl} = useModel('users');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<DiemHocSinh.IRecord | undefined>();
 	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // User được chọn
+
 
 	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: DiemHocSinh.IRecord) => {
@@ -53,6 +55,39 @@ const DiemHocSinhPage = () => {
 	const handleCloseUserDetail = () => {
 		setUserDetailModalVisible(false);
 		setSelectedUser(undefined);
+	};
+
+	// hàm render cột minh chứng 
+const PoofCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
+
+  useEffect(() => {
+    const fetchPoof = async () => {
+      try {
+        const response = await getUserProof(userId);
+
+        if (response?.data?.length > 0) {
+          setPoofUrl(response.data[0].fileList[0].thumbUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching poof:', error);
+      }
+    };
+
+	fetchPoof();
+  }, [userId]);
+
+	
+  return poofUrl ? (
+    <Image
+      src={poofUrl}
+      width={80}
+      height={80}
+      style={{ objectFit: 'cover' }}
+      preview={{
+        src: poofUrl,
+      }}
+    />
+  ) : null;
 	};
 
 	const renderLoaiHanhKiem = (loai?: DiemHocSinh.LoaiHanhKiem) => {
@@ -91,6 +126,27 @@ const DiemHocSinhPage = () => {
 	const renderUserInfo = (userId: string) => {
 		const userInfo = getUserInfo(userId);
 		const fullName = getUserFullName(userId);
+		// ham lay avatar 
+		const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
+	
+		useEffect(() => {
+		const fetchAvatar = async () => {
+			try {
+			const response = await getAvatar(userId);
+			if (response?.data?.length > 0) {
+				setAvatarUrl(response.data[0].avatarUrl.fileList[0].thumbUrl);
+			}
+			} catch (error) {
+			console.error('Error fetching avatar:', error);
+			}
+		};
+	
+		fetchAvatar();
+		}, [userId]);
+		return avatarUrl ? (
+			<Avatar size='small' src={avatarUrl} icon={<UserOutlined />} />
+		) : null;
+		};
 
 		if (usersLoading) {
 			return <Text type='secondary'>Đang tải...</Text>;
@@ -118,7 +174,8 @@ const DiemHocSinhPage = () => {
 				}}
 				title='Click để xem thông tin chi tiết'
 			>
-				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
+				{/* <Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} /> */}
+				<AvatarCell userId={userId} />,
 				<div>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
 					{userInfo?.username && (
@@ -193,15 +250,11 @@ const DiemHocSinhPage = () => {
 			render: (loai: DiemHocSinh.LoaiHanhKiem) => renderLoaiHanhKiem(loai),
 		},
 		{
-			title: 'Minh chứng',
+			title: 'Ảnh minh chứng',
 			dataIndex: 'minhChung',
 			width: 200,
-			filterType: 'string',
-			render: (text: string) => (
-				<Text ellipsis={{ tooltip: text }} style={{ maxWidth: 180 }}>
-					{text}
-				</Text>
-			),
+			align: 'center',
+			render: (_, record) => <PoofCell userId={record.userId} />,
 		},
 		{
 			title: 'Thao tác',

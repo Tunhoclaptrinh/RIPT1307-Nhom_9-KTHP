@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Descriptions, Tag, Button, Typography, Divider, Card, Row, Col, Avatar, Space } from 'antd';
 import { UserOutlined, BookOutlined, TrophyOutlined, FileTextOutlined } from '@ant-design/icons';
 import useUsers from '@/hooks/useUsers';
+import { useModel } from 'umi';
 
 interface Props {
 	isVisible: boolean;
@@ -132,7 +133,8 @@ const renderDiemMonHoc = (diemMonHoc: DiemHocSinh.IDiemMonHoc[]) => {
 
 const HocBaDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) => {
 	const { getUserFullName, getUserInfo, getUserById } = useUsers();
-
+	const { avatarUrl} = useModel('users');
+	
 	if (!record) return null;
 
 	// Lấy thông tin học sinh
@@ -177,7 +179,7 @@ const HocBaDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) =>
 				>
 					<Row align='middle' gutter={16}>
 						<Col>
-							<Avatar size={64} src={userInfo?.avatar} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
+							<Avatar size={64} src={avatarUrl} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
 						</Col>
 						<Col flex={1}>
 							<Title level={4} style={{ color: 'white', margin: 0 }}>

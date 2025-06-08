@@ -66,7 +66,7 @@ const UsersPage = () => {
 
 	// Use the useAddress hook
 	const { provinces, districts, wards, setSelectedProvince, setSelectedDistrict } = useAddress();
-
+// hàm render cột avatar
 const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -75,7 +75,7 @@ const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
       try {
         const response = await getAvatar(userId);
         if (response?.data?.length > 0) {
-          setAvatarUrl(response.data[0].avatarUrl);
+          setAvatarUrl(response.data[0].avatarUrl.fileList[0].thumbUrl);
         }
       } catch (error) {
         console.error('Error fetching avatar:', error);
@@ -96,7 +96,7 @@ const AvatarCell: React.FC<User.AvatarCellProps> = ({ userId }) => {
       }}
     />
   ) : null;
-};
+	};
 	const onView = (record: User.IRecord) => {
 		setSelectedRecord(record);
 		setViewModalVisible(true);

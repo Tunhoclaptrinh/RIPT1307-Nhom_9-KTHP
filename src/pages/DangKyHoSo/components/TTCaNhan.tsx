@@ -6,6 +6,7 @@ import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Addr
 import useAuth from '../../../hooks/useAuth';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
+import UploadFile from '@/components/Upload/UploadFile';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -163,7 +164,17 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
 							</Form.Item>
 						</Col>
 					</Row>
-
+					<Row gutter={16} style={{ marginBottom: 16 }}>
+						<Col span={24}>
+							<Form.Item label='Ảnh đại diện' name='avatar'>
+								<UploadFile 
+									isAvatar 
+									maxFileSize={5} 
+									buttonDescription="Tải lên ảnh đại diện"
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
 					<Row gutter={16}>
 						<Col span={12}>
 							<Form.Item label='Username' name='username'>
