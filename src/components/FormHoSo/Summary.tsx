@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Descriptions, Divider } from 'antd';
+import { Card, Descriptions, Image } from 'antd';
 import moment from 'moment';
 
 interface SummaryFormProps {
@@ -8,9 +8,10 @@ interface SummaryFormProps {
 	showHocBa: boolean;
 	apiData: any;
 }
-
 const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, apiData }) => {
-	// Extract relevant data from formData and apiData
+	
+// console.log('formData', formData);
+
 	const personalInfo = formData.personalInfo || {};
 	const educationGrades = formData.educationGrades || {};
 	const hocBa = formData.hocBa || {};
@@ -115,7 +116,17 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 								</Descriptions.Item>
 							))}
 							<Descriptions.Item label='Loại hạnh kiểm'>{hocBa.loaiHanhKiem || 'Chưa cung cấp'}</Descriptions.Item>
-							<Descriptions.Item label='Minh chứng'>{hocBa.minhChung || 'Không bắt buộc'}</Descriptions.Item>
+									<Descriptions.Item label='Minh chứng'>
+										{hocBa.minhChung?.fileList?.[0]?.thumbUrl ? (
+											<Image
+												src={hocBa.minhChung.fileList[0].thumbUrl}
+												alt="Minh chứng học bạ"
+												width={200}
+												height={200}
+												style={{ objectFit: 'contain' }}
+											/>
+										) : 'không có'}
+									</Descriptions.Item>
 						</Descriptions>
 					) : (
 						<p>Chưa nhập điểm học bạ.</p>
@@ -133,7 +144,17 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 							</Descriptions.Item>
 						))}
 						<Descriptions.Item label='Tổng điểm'>{diemDGTD.tongDiem || 0}</Descriptions.Item>
-						<Descriptions.Item label='Minh chứng'>{diemDGTD.minhChung || 'Không bắt buộc'}</Descriptions.Item>
+						<Descriptions.Item label='Minh chứng'>
+							{diemDGTD.minhChung?.fileList?.[0]?.thumbUrl ? (
+								<Image
+									src={diemDGTD.minhChung.fileList[0].thumbUrl}
+									alt="Minh chứng DGTD"
+									width={200}
+									height={200}
+									style={{ objectFit: 'contain' }}
+								/>
+							) : 'không có'}
+						</Descriptions.Item>
 					</Descriptions>
 				) : (
 					<p>Chưa nhập điểm DGTD.</p>
@@ -150,7 +171,17 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 							</Descriptions.Item>
 						))}
 						<Descriptions.Item label='Tổng điểm'>{diemDGNL.tongDiem || 0}</Descriptions.Item>
-						<Descriptions.Item label='Minh chứng'>{diemDGNL.minhChung || 'Không bắt buộc'}</Descriptions.Item>
+						<Descriptions.Item label='Minh chứng'>
+							{diemDGNL.minhChung?.fileList?.[0]?.thumbUrl ? (
+								<Image
+									src={diemDGNL.minhChung.fileList[0].thumbUrl}
+									alt="Minh chứng DGNL"
+									width={200}
+									height={200}
+									style={{ objectFit: 'contain' }}
+								/>
+							) : 'không có'}
+						</Descriptions.Item>
 					</Descriptions>
 				) : (
 					<p>Chưa nhập điểm DGNL.</p>
@@ -166,7 +197,17 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 						<Descriptions.Item label='Loại giải'>{giaiHSG.loaiGiai || 'Chưa cung cấp'}</Descriptions.Item>
 						<Descriptions.Item label='Năm'>{giaiHSG.nam || 'Chưa cung cấp'}</Descriptions.Item>
 						<Descriptions.Item label='Nơi cấp'>{giaiHSG.noiCap || 'Chưa cung cấp'}</Descriptions.Item>
-						<Descriptions.Item label='Minh chứng'>{giaiHSG.minhChung || 'Không bắt buộc'}</Descriptions.Item>
+						<Descriptions.Item label='Minh chứng'>
+							{giaiHSG.minhChung?.fileList?.[0]?.thumbUrl ? (
+								<Image
+									src={giaiHSG.minhChung.fileList[0].thumbUrl}
+									alt="Minh chứng giải HSG"
+									width={200}
+									height={200}
+									style={{ objectFit: 'contain' }}
+								/>
+							) : 'không có'}
+						</Descriptions.Item>
 					</Descriptions>
 				) : (
 					<p>Chưa nhập thông tin giải học sinh giỏi.</p>
@@ -179,7 +220,21 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 					<Descriptions column={1} bordered>
 						{chungChi.map((cc: any, index: number) => (
 							<Descriptions.Item key={index} label={cc.loaiCC}>
-								{cc.ketQua} {cc.minhChung && `(Minh chứng: ${cc.minhChung})`}
+								{cc.ketQua} 
+								{cc.minhChung && (
+									<>
+										<br />
+										{cc.minhChung?.fileList?.[0]?.thumbUrl ? (
+											<Image
+												src={cc.minhChung.fileList[0].thumbUrl}
+												alt={`Minh chứng ${cc.loaiCC}`}
+												width={200}
+												height={200}
+												style={{ objectFit: 'contain', marginTop: 8 }}
+											/>
+										) : null}
+									</>
+								)}
 							</Descriptions.Item>
 						))}
 					</Descriptions>

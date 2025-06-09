@@ -14,11 +14,15 @@ import {
 	Divider,
 	Checkbox,
 	Space,
+	Upload,
+	message
 } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import UploadFile from '@/components/Upload/UploadFile';
 
 const { Option } = Select;
+
 
 interface EducationGradesFormProps {
 	userId: string;
@@ -48,7 +52,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 }) => {
 	const [form] = Form.useForm();
 
-	// Convert string dates to Moment objects for initial values
+
 	const formattedInitialData = {
 		...initialData,
 		educationGrades: {
@@ -88,43 +92,42 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 		'Mỹ thuật',
 	];
 
-	const handleNext = async () => {
+		const handleNext = async () => {
 		try {
 			const values = await form.validateFields();
-			const submissionData = {
-				educationGrades: {
-					...values.educationGrades,
-					userId,
-					id: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
-					thongTinTHPT: {
-						...values.educationGrades.thongTinTHPT,
-						namTotNghiep: values.educationGrades.thongTinTHPT?.namTotNghiep
-							? values.educationGrades.thongTinTHPT.namTotNghiep.format('YYYY')
-							: undefined,
-					},
-					giaiHSG: values.educationGrades.giaiHSG
-						? {
-								...values.educationGrades.giaiHSG,
-								nam: values.educationGrades.giaiHSG.nam ? values.educationGrades.giaiHSG.nam.format('YYYY') : undefined,
-						  }
-						: undefined,
-				},
-				hocBa: showHocBa
-					? {
-							...values.hocBa,
-							userId,
-							id: existingHocBa?.id || `hb_${Date.now()}`,
-							thongTinHocTapId: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
-					  }
-					: null,
-			};
-			console.log('Education grades submission for user:', userId, submissionData);
-			onNext(submissionData);
+            const submissionData = JSON.parse(JSON.stringify(values)); 
+
+			message.info('Đang xử lý minh chứng...');
+
+            message.info('Đang xử lý dữ liệu...');
+		const finalData = {
+			educationGrades: { 
+				...submissionData.educationGrades,
+				userId,
+				id: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
+				hocBaId: (showHocBa && submissionData.hocBa) ? (existingHocBa?.id || `hb_${Date.now()}`) : null,
+			},
+			hocBa: showHocBa
+				? {
+						...submissionData.hocBa,
+						userId,
+						id: existingHocBa?.id || `hb_${Date.now()}`,
+				}
+				
+				: null, 
+		};
+			
+            message.success('Xử lý minh chứng thành công!');
+			console.log('Dữ liệu cuối cùng:', finalData);
+            
+			onNext(finalData);
 		} catch (error) {
-			console.error('Validation failed:', error);
-		}
+			console.error('Xác thực thất bại:', error);
+            message.error('Biểu mẫu có lỗi, vui lòng kiểm tra lại!');
+		} 
 	};
 
+	
 	return (
 		<Form form={form} layout='vertical' initialValues={formattedInitialData}>
 			{/* Thông tin trường THPT */}
@@ -397,7 +400,11 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 										name={['hocBa', 'minhChung']}
 										rules={[{ required: true, message: 'Nhập minh chứng!' }]}
 									>
-										<Input placeholder='Đường dẫn file học bạ hoặc mô tả minh chứng' />
+										<UploadFile 
+											isAvatar
+											maxFileSize={5}
+											buttonDescription="Tải lên minh chứng học bạ"
+										/>
 									</Form.Item>
 								</Col>
 							</Row>
@@ -461,7 +468,11 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 					<Col span={12}>
 						<Form.Item label='Minh chứng DGTD' name={['educationGrades', 'diemDGTD', 'minhChung']}>
-							<Input placeholder='Đường dẫn file minh chứng' />
+							<UploadFile 
+								isAvatar
+								maxFileSize={5}
+								buttonDescription="Tải lên minh chứng DGTD"
+							/>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -522,7 +533,11 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 					<Col span={12}>
 						<Form.Item label='Minh chứng DGNL' name={['educationGrades', 'diemDGNL', 'minhChung']}>
-							<Input placeholder='Đường dẫn file minh chứng' />
+							<UploadFile 
+								isAvatar
+								maxFileSize={5}
+								buttonDescription="Tải lên minh chứng DGNL"
+							/>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -575,7 +590,11 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 				</Row>
 				<Form.Item label='Minh chứng' name={['educationGrades', 'giaiHSG', 'minhChung']}>
-					<Input placeholder='Đường dẫn file minh chứng' />
+					<UploadFile 
+						isAvatar
+						maxFileSize={5}
+						buttonDescription="Tải lên minh chứng giải HSG"
+					/>
 				</Form.Item>
 			</Card>
 
@@ -621,7 +640,11 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 											label='Minh chứng'
 											rules={[{ required: true, message: 'Nhập minh chứng!' }]}
 										>
-											<Input placeholder='Đường dẫn file' />
+											<UploadFile 
+												isAvatar
+												maxFileSize={5}
+												buttonDescription="Tải lên minh chứng chứng chỉ"
+											/>
 										</Form.Item>
 									</Col>
 									<Col span={2}>
