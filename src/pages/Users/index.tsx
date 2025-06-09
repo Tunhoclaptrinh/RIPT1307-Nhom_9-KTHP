@@ -273,7 +273,7 @@ const UsersPage = () => {
 					fileName: 'DanhSachNguoiDung.xlsx',
 					getExportFieldsModel,
 					postExportModel,
-					maskCloseableForm: false
+					maskCloseableForm: false,
 				}}
 			/>
 			{selectedRecord && (
