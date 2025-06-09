@@ -90,19 +90,19 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 			const values = await form.validateFields();
 			const submissionData = {
 				educationGrades: {
-					...values,
+					...values.educationGrades,
 					userId,
 					id: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
 					thongTinTHPT: {
-						...values.thongTinTHPT,
-						namTotNghiep: values.thongTinTHPT?.namTotNghiep
-							? values.thongTinTHPT.namTotNghiep.format('YYYY')
+						...values.educationGrades.thongTinTHPT,
+						namTotNghiep: values.educationGrades.thongTinTHPT?.namTotNghiep
+							? values.educationGrades.thongTinTHPT.namTotNghiep.format('YYYY')
 							: undefined,
 					},
-					giaiHSG: values.giaiHSG
+					giaiHSG: values.educationGrades.giaiHSG
 						? {
-								...values.giaiHSG,
-								nam: values.giaiHSG.nam ? values.giaiHSG.nam.format('YYYY') : undefined,
+								...values.educationGrades.giaiHSG,
+								nam: values.educationGrades.giaiHSG.nam ? values.educationGrades.giaiHSG.nam.format('YYYY') : undefined,
 						  }
 						: undefined,
 				},
