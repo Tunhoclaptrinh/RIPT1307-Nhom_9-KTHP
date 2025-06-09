@@ -10,7 +10,7 @@ import PhuongThucXTForm from './components/Form';
 import PhuongThucXTDetail from './components/Detail';
 
 const PhuongThucXetTuyenPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('phuongthucxt');
+	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } = useModel('phuongthucxt');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<PhuongThucXT.IRecord | undefined>();
 
@@ -85,6 +85,13 @@ const PhuongThucXetTuyenPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				// Cấu hình export
+				exportConfig={{
+					fileName: 'DanhSachPhuongThucXetTuyen.xlsx',
+					getExportFieldsModel,
+					postExportModel,
+					maskCloseableForm: false
+				}}
 			/>
 			<PhuongThucXTDetail
 				isVisible={extendedModalVisible}

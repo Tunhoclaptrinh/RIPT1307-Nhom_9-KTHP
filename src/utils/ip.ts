@@ -9,8 +9,8 @@ const ip3 = ipRoot + 'slink'; // ip dev
 const ipNotif = ipRoot + 'notification'; // ip dev
 const ipSlink = ipRoot + 'slink'; // ip dev
 
-// const ipLocal = 'http://localhost:3000';
-const ipLocal = 'https://ript1307-nhom-9-kthp-mockapi.onrender.com';
+const ipLocal = 'http://localhost:3000';
+// const ipLocal = 'https://ript1307-nhom-9-kthp-mockapi.onrender.com';
 
 const currentRole = EModuleKey.CONNECT;
 const oneSignalRole = EModuleKey.CONNECT;

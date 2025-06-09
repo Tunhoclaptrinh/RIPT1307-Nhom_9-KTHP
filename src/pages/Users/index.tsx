@@ -106,7 +106,7 @@ const AddressCell = ({ address, recordId }: { address: any; recordId: string }) 
 };
 
 const UsersPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('users');
+	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } = useModel('users');
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<User.IRecord | undefined>();
 	const [admissionModalVisible, setAdmissionModalVisible] = useState(false);
@@ -268,6 +268,13 @@ const UsersPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				// Cấu hình export
+				exportConfig={{
+					fileName: 'DanhSachNguoiDung.xlsx',
+					getExportFieldsModel,
+					postExportModel,
+					maskCloseableForm: false
+				}}
 			/>
 			{selectedRecord && (
 				<UserDetail

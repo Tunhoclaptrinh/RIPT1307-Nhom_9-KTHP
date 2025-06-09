@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Popconfirm, Tag, Space, message } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
-import Form from './components/Form'; // Assuming a Form component exists for HoSo
+import Form from './components/Form';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { CheckOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
@@ -16,18 +16,15 @@ const HoSoPage = () => {
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
 
-	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: HoSo.IRecord) => {
 		setSelectedRecord(record);
 		setExtendedModalVisible(true);
 	};
 
-	// Hàm đóng
 	const onCloseExtendedModal = () => {
 		setExtendedModalVisible(false);
 	};
 
-	// Hàm chuyển sang chế độ edit
 	const onEditFromView = () => {
 		setExtendedModalVisible(false);
 		if (selectedRecord) {
@@ -134,7 +131,6 @@ const HoSoPage = () => {
 							disabled={record.tinhTrang === 'đã duyệt'}
 						/>
 					</Popconfirm>
-
 					<ButtonExtend
 						tooltip='Chỉnh sửa'
 						onClick={() => handleEdit(record)}
@@ -165,6 +161,10 @@ const HoSoPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				exportConfig={{
+					fileName: 'DanhSachHoSo.xlsx',
+					maskCloseableForm: false,
+				}}
 			/>
 			<HoSoDetail
 				isVisible={extendedModalVisible}

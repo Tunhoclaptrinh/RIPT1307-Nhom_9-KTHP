@@ -1,7 +1,6 @@
 import useInitModel from '@/hooks/useInitModel';
 import { ipLocal } from '@/utils/ip';
 import { message } from 'antd';
-import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
 export default () => {
