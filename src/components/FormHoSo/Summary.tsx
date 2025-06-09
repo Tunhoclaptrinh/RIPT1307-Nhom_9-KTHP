@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, Divider } from 'antd';
 import moment from 'moment';
-import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
 
 interface SummaryFormProps {
 	userId: string;
