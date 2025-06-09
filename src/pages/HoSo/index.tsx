@@ -27,18 +27,15 @@ const HoSoPage = () => {
 	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
 	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // State for selected user
 
-	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: HoSo.IRecord) => {
 		setSelectedRecord(record);
 		setExtendedModalVisible(true);
 	};
 
-	// Hàm đóng modal mở rộng
 	const onCloseExtendedModal = () => {
 		setExtendedModalVisible(false);
 	};
 
-	// Hàm chuyển sang chế độ edit
 	const onEditFromView = () => {
 		setExtendedModalVisible(false);
 		if (selectedRecord) {
@@ -279,6 +276,10 @@ const HoSoPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				exportConfig={{
+					fileName: 'DanhSachHoSo.xlsx',
+					maskCloseableForm: false,
+				}}
 			/>
 			<HoSoDetail
 				isVisible={extendedModalVisible}

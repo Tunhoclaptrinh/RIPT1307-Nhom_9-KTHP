@@ -15,7 +15,7 @@ import useUsers from '@/hooks/useUsers'; // Import hook
 const { Text } = Typography;
 
 const ThongTinHocTapPage = () => {
-	const { handleEdit, handleView, deleteModel } = useModel('thongtinhoctap');
+	const { handleEdit, handleView, deleteModel, getExportFieldsModel, postExportModel } = useModel('thongtinhoctap');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false); // Modal xem thông tin user
@@ -376,6 +376,13 @@ const ThongTinHocTapPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				// Cấu hình export
+				exportConfig={{
+					fileName: 'DanhSachThongTinHocTap.xlsx',
+					getExportFieldsModel,
+					postExportModel,
+					maskCloseableForm: false
+				}}
 			/>
 			<ThongTinHocTapDetail
 				isVisible={extendedModalVisible}

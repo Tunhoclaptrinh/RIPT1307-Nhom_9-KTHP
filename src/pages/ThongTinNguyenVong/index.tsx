@@ -13,7 +13,7 @@ import UserDetail from '../Users/components/Detail';
 const { Text } = Typography;
 
 const ThongTinNguyenVongPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('thongtinnguyenvong');
+	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } = useModel('thongtinnguyenvong');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<ThongTinNguyenVong.IRecord | undefined>();
@@ -263,6 +263,7 @@ const ThongTinNguyenVongPage = () => {
 			title: 'Phương thức xét tuyển',
 			dataIndex: 'phuongThucXT',
 			width: 200,
+			render: (phuongThucXT: string[]) => phuongThucXT && phuongThucXT.length > 0 ? phuongThucXT.join(', ') : 'N/A',
 		},
 		{
 			title: 'Điểm chưa ưu tiên',
@@ -338,6 +339,13 @@ const ThongTinNguyenVongPage = () => {
 				deleteMany
 				rowSortable
 				rowSelection
+				// Cấu hình export
+				exportConfig={{
+					fileName: 'DanhSachNguyenVong.xlsx',
+					getExportFieldsModel,
+					postExportModel,
+					maskCloseableForm: false
+				}}
 			/>
 			<ThongTinNguyenVongDetail
 				isVisible={extendedModalVisible}

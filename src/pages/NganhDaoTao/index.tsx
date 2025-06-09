@@ -9,7 +9,7 @@ import moment from 'moment';
 import NganhDaoTaoForm from './components/Form';
 import NganhDaoTaoDetail from './components/Detail';
 
-const UsersPage = () => {
+const NganhDaoTao = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('nganhdaotao');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<NganhDaoTao.IRecord | undefined>();
@@ -103,4 +103,4 @@ const UsersPage = () => {
 	);
 };
 
-export default UsersPage;
+export default NganhDaoTao;
