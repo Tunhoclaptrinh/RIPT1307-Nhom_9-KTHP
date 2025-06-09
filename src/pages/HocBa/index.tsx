@@ -10,6 +10,7 @@ import DiemHocSinhForm from './components/Form';
 import HocBaDetail from './components/Detail';
 import UserDetail from '../Users/components/Detail';
 import useUsers from '@/hooks/useUsers';
+import ModalExport from '@/components/Table/Export';
 
 const { Text } = Typography;
 
@@ -240,6 +241,11 @@ const DiemHocSinhPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				// Cấu hình export
+				exportConfig={{
+					fileName: 'DanhSachHocBa.xlsx',
+					maskCloseableForm: false
+				}}
 			/>
 			<HocBaDetail
 				isVisible={extendedModalVisible}
