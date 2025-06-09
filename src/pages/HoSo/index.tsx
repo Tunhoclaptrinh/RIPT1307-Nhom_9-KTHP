@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, message } from 'antd';
+import { Popconfirm, Tag, Space, message, Button, Popover } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import Form from './components/Form'; // Assuming a Form component exists for HoSo
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
-import { CheckOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
 import HoSoDetail from './components/Detail';
-import { duyetHoSo } from '@/services/HoSo';
+import { duyetHoSo, tuChoiHoSo } from '@/services/HoSo';
 import AdmissionStepModal from '@/components/FormHoSo';
 
 const HoSoPage = () => {
@@ -114,17 +114,47 @@ const HoSoPage = () => {
 						icon={<EyeOutlined />}
 					/>
 					<Popconfirm
-						title='Bạn có chắc chắn muốn duyệt hồ sơ này?'
+						title={
+							<Popover>
+								<Button
+									type='primary'
+									size='small'
+									icon={<CheckOutlined />}
+									onClick={async (e) => {
+										e.stopPropagation();
+										try {
+											await duyetHoSo(record);
+											message.success('Duyệt hồ sơ thành công!');
+											getModel();
+										} catch (error) {
+											message.error('Duyệt hồ sơ thất bại!');
+										}
+									}}
+								>
+									Duyệt
+								</Button>
+								<Button
+									danger
+									size='small'
+									icon={<CloseOutlined />}
+									onClick={async (e) => {
+										e.stopPropagation();
+										try {
+											await tuChoiHoSo(record);
+											message.success('Từ chối hồ sơ thành công!');
+											getModel();
+										} catch (error) {
+											message.error('Từ chối hồ sơ thất bại!');
+										}
+									}}
+								>
+									Từ chối
+								</Button>
+							</Popover>
+						}
+						showCancel={false}
 						placement='topLeft'
-						onConfirm={async () => {
-							try {
-								await duyetHoSo(record);
-								message.success('Duyệt hồ sơ thành công!');
-								getModel();
-							} catch (error) {
-								message.error('Duyệt hồ sơ thất bại!');
-							}
-						}}
+						onConfirm={() => {}}
 					>
 						<ButtonExtend
 							tooltip='Duyệt'
