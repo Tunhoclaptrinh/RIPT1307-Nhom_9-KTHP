@@ -31,8 +31,6 @@ const WardsSelect: React.FC<WardsSelectProps> = ({
 		onChange?.(selectedValue);
 	};
 
-	console.log('WardsSelect - districtCode:', districtCode, 'wards:', wards, 'value:', value);
-
 	return (
 		<Select
 			value={value}

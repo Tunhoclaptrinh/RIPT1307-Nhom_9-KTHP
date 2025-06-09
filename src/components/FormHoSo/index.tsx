@@ -229,7 +229,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					noiCap: formData.personalInfo.noiCap,
 					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
 				};
-				await axios.put(`${ipLocal}/users/${userId}`);
+				await axios.put(`${ipLocal}/users/${userId}`, userUpdateData);
 			}
 
 			// Prepare data for hoSo submission

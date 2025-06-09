@@ -33,8 +33,6 @@ const DistrictsSelect: React.FC<DistrictsSelectProps> = ({
 		onChange?.(selectedValue);
 	};
 
-	console.log('DistrictsSelect - provinceCode:', provinceCode, 'districts:', districts, 'value:', value);
-
 	return (
 		<Select
 			value={value}
