@@ -48,7 +48,7 @@ const UniversityRegistrationForm: React.FC = () => {
 	const onFinish = async (values: Login.IUser) => {
 		try {
 			// Gửi dữ liệu form đến API sử dụng Axios
-			const response = await axios.post('http://localhost:3001/registrations', {
+			const response = await axios.post('http://localhost:3000/registrations', {
 				userId: user?.id,
 				...values,
 				ngaySinh: values.ngaySinh ? moment(values.ngaySinh).format('YYYY-MM-DD') : undefined,

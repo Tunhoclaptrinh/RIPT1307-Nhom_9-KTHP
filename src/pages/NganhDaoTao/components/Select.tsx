@@ -29,7 +29,7 @@ const NganhDaoTaoSelect: React.FC<NganhDaoTaoSelectProps> = ({
 				}
 			});
 		}
-	}, [selectData, getAllModel, hasDefault, onChange]);
+	}, []);
 
 	const dataSource = selectData || danhSach;
 

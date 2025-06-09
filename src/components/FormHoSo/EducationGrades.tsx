@@ -26,6 +26,8 @@ interface EducationGradesFormProps {
 	showHocBa: boolean;
 	setShowHocBa: (value: boolean) => void;
 	onNext: (values: any) => void;
+	onPrev: (data: any) => void;
+
 	heDaoTaoData: HeDaoTao.IRecord[];
 	toHopData: ToHop.IRecord[];
 	existingThongTinHocTap: ThongTinHocTap.IRecord | null;
@@ -38,6 +40,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 	showHocBa,
 	setShowHocBa,
 	onNext,
+	onPrev,
 	heDaoTaoData,
 	toHopData,
 	existingThongTinHocTap,
@@ -90,19 +93,19 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 			const values = await form.validateFields();
 			const submissionData = {
 				educationGrades: {
-					...values,
+					...values.educationGrades,
 					userId,
 					id: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
 					thongTinTHPT: {
-						...values.thongTinTHPT,
-						namTotNghiep: values.thongTinTHPT?.namTotNghiep
-							? values.thongTinTHPT.namTotNghiep.format('YYYY')
+						...values.educationGrades.thongTinTHPT,
+						namTotNghiep: values.educationGrades.thongTinTHPT?.namTotNghiep
+							? values.educationGrades.thongTinTHPT.namTotNghiep.format('YYYY')
 							: undefined,
 					},
-					giaiHSG: values.giaiHSG
+					giaiHSG: values.educationGrades.giaiHSG
 						? {
-								...values.giaiHSG,
-								nam: values.giaiHSG.nam ? values.giaiHSG.nam.format('YYYY') : undefined,
+								...values.educationGrades.giaiHSG,
+								nam: values.educationGrades.giaiHSG.nam ? values.educationGrades.giaiHSG.nam.format('YYYY') : undefined,
 						  }
 						: undefined,
 				},
@@ -638,10 +641,23 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 				</Form.List>
 			</Card>
 
-			<div style={{ textAlign: 'center', marginTop: 16 }}>
-				<Button type='primary' onClick={handleNext}>
-					Tiếp tục
-				</Button>
+			<div
+				style={{
+					textAlign: 'center',
+				}}
+			>
+				<Space
+					style={{
+						textAlign: 'center',
+						marginTop: 16,
+						gap: 16,
+					}}
+				>
+					<Button onClick={onPrev}>Quay lại</Button>
+					<Button type='primary' onClick={handleNext}>
+						Tiếp tục
+					</Button>
+				</Space>
 			</div>
 		</Form>
 	);

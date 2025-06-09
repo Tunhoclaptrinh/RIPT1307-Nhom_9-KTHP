@@ -162,6 +162,12 @@ export default [
 		component: './HoSo',
 		icon: 'IdcardOutlined',
 	},
+	{
+		path: '/thong-ke',
+		name: 'Thống kê',
+		component: './ThongKe',
+		icon: 'BarChartOutlined',
+	},
 
 	// {
 	// 	name: 'Public',

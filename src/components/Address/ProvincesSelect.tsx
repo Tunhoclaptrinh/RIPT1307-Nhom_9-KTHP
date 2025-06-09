@@ -18,8 +18,6 @@ const ProvincesSelect: React.FC<ProvincesSelectProps> = ({ value, onChange, plac
 		onChange?.(selectedValue);
 	};
 
-	console.log('ProvincesSelect - provinces:', provinces, 'value:', value);
-
 	return (
 		<Select
 			value={value}

@@ -602,3 +602,63 @@ export const createTextLinks = (text: string, targetBlank: boolean = true) => {
 		},
 	);
 };
+
+// Format số lượng (thí sinh, nguyện vọng, hồ sơ)
+export const formatSoLuong = (val: number): string => {
+	if (val === 0) return '0';
+	if (val < 1000) return val.toString();
+	if (val < 1000000) return (val / 1000).toFixed(1) + 'K';
+	return (val / 1000000).toFixed(1) + 'M';
+};
+
+// Format điểm số (0-30)
+export const formatDiem = (val: number): string => {
+	if (val === 0) return '0';
+	return val.toFixed(1);
+};
+
+// Format phần trăm
+export const formatPhanTram = (val: number): string => {
+	return val.toFixed(1) + '%';
+};
+
+// Format số nguyên đơn giản
+export const formatSoNguyen = (val: number): string => {
+	return Math.round(val).toString();
+};
+
+// Format với đơn vị người
+export const formatNguoi = (val: number): string => {
+	if (val === 0) return '0 người';
+	if (val === 1) return '1 người';
+	if (val < 1000) return val + ' người';
+	if (val < 1000000) return (val / 1000).toFixed(1) + 'K người';
+	return (val / 1000000).toFixed(1) + 'M người';
+};
+
+// Format với đơn vị người
+export const formatThiSinh = (val: number): string => {
+	if (val === 0) return '0 thí sinh';
+	if (val === 1) return '1 thí sinh';
+	if (val < 1000) return val + ' thí sinh';
+	if (val < 1000000) return (val / 1000).toFixed(1) + 'K thí sinh';
+	return (val / 1000000).toFixed(1) + 'M thí sinh';
+};
+
+// Format với đơn vị nguyện vọng
+export const formatNguyenVong = (val: number): string => {
+	if (val === 0) return '0 nguyện vọng';
+	if (val === 1) return '1 nguyện vọng';
+	if (val < 1000) return val + ' nguyện vọng';
+	if (val < 1000000) return (val / 1000).toFixed(1) + 'K nguyện vọng';
+	return (val / 1000000).toFixed(1) + 'M nguyện vọng';
+};
+
+// Format với đơn vị hồ sơ
+export const formatHoSo = (val: number): string => {
+	if (val === 0) return '0 hồ sơ';
+	if (val === 1) return '1 hồ sơ';
+	if (val < 1000) return val + ' hồ sơ';
+	if (val < 1000000) return (val / 1000).toFixed(1) + 'K hồ sơ';
+	return (val / 1000000).toFixed(1) + 'M hồ sơ';
+};

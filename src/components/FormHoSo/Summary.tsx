@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, Divider } from 'antd';
 import moment from 'moment';
-import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
 
 interface SummaryFormProps {
 	userId: string;
@@ -20,7 +19,7 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 	const thongTinBoSung = hoSo.thongTinBoSung || {};
 	const thongTinLienHe = hoSo.thongTinLienHe || {};
 	const thongTinHocTap = educationGrades || apiData.thongTinHocTap || {};
-	const thongTinTHPT = thongTinHocTap.thongTinTHPT || {};
+	const thongTinTHPT = formData.educationGrades?.thongTinTHPT || apiData.thongTinHocTap?.thongTinTHPT || {};
 	const diemTHPT = thongTinHocTap.diemTHPT || [];
 	const diemDGTD = thongTinHocTap.diemDGTD || {};
 	const diemDGNL = thongTinHocTap.diemDGNL || {};
@@ -69,7 +68,7 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 			</Card>
 
 			{/* High School Information */}
-			{thongTinTHPT && (
+			{thongTinTHPT && Object.keys(thongTinTHPT).length > 0 && (
 				<Card title='Thông tin trường THPT' style={{ marginBottom: 16 }}>
 					<Descriptions column={2} bordered>
 						<Descriptions.Item label='Tên trường'>{thongTinTHPT.ten || 'Chưa cung cấp'}</Descriptions.Item>

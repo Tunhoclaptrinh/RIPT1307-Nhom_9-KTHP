@@ -8,14 +8,16 @@ declare module HoSo {
 
 	export interface INoiSinh {
 		trongNuoc: boolean;
-		tinh_ThanhPho: string;
+		tinh_ThanhPho: string | number;
+		quanHuyen: string | number;
+		xaPhuong: string | number;
 	}
 
 	export interface IThongTinBoSung {
 		danToc: DanToc;
 		quocTich: QuocTich;
 		tonGiao: TonGiao;
-		noiSinh: INoiSinh;
+		noiSinh: INoiSinh | {};
 	}
 
 	export interface IDiaChi {
@@ -38,7 +40,7 @@ declare module HoSo {
 		thongTinLienHe: IThongTinLienHe;
 		tinhTrang: TTinhTrang;
 		nguyenVong: TNguyenVong;
-		ketQua: IKetQua;
+		ketQua: IKetQua | null;
 	}
 
 	// export type nguyenVong = string;

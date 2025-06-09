@@ -211,13 +211,13 @@ const ThongTinHocTapPage = () => {
 			render: (_, record) => (
 				<div>
 					<div>
+						<Text strong>Tên:</Text> {record.thongTinTHPT.ten}
+					</div>
+					<div>
 						<Text strong>Mã trường:</Text> {record.thongTinTHPT.maTruong}
 					</div>
 					<div>
 						<Text strong>Tỉnh/TP:</Text> {record.thongTinTHPT.tinh_ThanhPho}
-					</div>
-					<div>
-						<Text strong>Quận/Huyện:</Text> {record.thongTinTHPT.quanHuyen}
 					</div>
 				</div>
 			),

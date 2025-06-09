@@ -29,6 +29,10 @@ interface FormData {
 	educationGrades?: Partial<ThongTinHocTap.IRecord>;
 	hocBa?: Partial<DiemHocSinh.IRecord>;
 	wishes?: ThongTinNguyenVong.IRecord[];
+	hoSoInfo: {
+		thongTinBoSung: Partial<HoSo.IThongTinBoSung>;
+		thongTinLienHe: Partial<HoSo.IThongTinLienHe>;
+	};
 }
 
 interface StepInfo {
@@ -139,6 +143,10 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				educationGrades: thongTinHocTapResponse.data[0] || {},
 				hocBa: hocBaResponse.data[0] || {},
 				wishes: nguyenVongResponse.data || [],
+				hoSoInfo: {
+					thongTinBoSung: hoSoResponse.data[0].thongTinBoSung || {},
+					thongTinLienHe: hoSoResponse.data[0].thongTinLienHe || {},
+				},
 			};
 
 			setFormData(initialFormData);
@@ -223,8 +231,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					soCCCD: formData.personalInfo.soCCCD,
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
-					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || formData.personalInfo.thongTinLienHe || {},
-					thongTinBoSung: formData.personalInfo.thongTinBoSung || {},
+					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
 				};
 				await axios.put(`${ipLocal}/users/${userId}`, userUpdateData);
 			}
@@ -232,33 +239,24 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			// Prepare data for hoSo submission
 			const submissionData: Partial<HoSo.IRecord> = {
 				thongTinCaNhanId: userId,
+				thongTinHocTapId: apiData.thongTinHocTap?.id || '',
 				thongTinBoSung: {
-					danToc: formData.personalInfo?.thongTinBoSung?.danToc || 'kinh',
-					quocTich: formData.personalInfo?.thongTinBoSung?.quocTich || 'Việt Nam',
-					tonGiao: formData.personalInfo?.thongTinBoSung?.tonGiao || 'không',
-					noiSinh: {
-						trongNuoc: true,
-						tinh_ThanhPho:
-							formData.personalInfo?.thongTinLienHe?.tinh_ThanhPho ||
-							formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho ||
-							'',
-					},
+					danToc: formData?.hoSoInfo.thongTinBoSung?.danToc || 'none',
+					quocTich: formData?.hoSoInfo.thongTinBoSung?.quocTich || 'Việt Nam',
+					tonGiao: formData?.hoSoInfo.thongTinBoSung?.tonGiao || 'Không',
+					noiSinh: formData?.hoSoInfo.thongTinBoSung?.noiSinh || {},
 				},
 				thongTinLienHe: {
 					ten: `${formData.personalInfo?.ho || ''} ${formData.personalInfo?.ten || ''}`.trim(),
 					diaChi: {
-						tinh_ThanhPho:
-							formData.personalInfo?.thongTinLienHe?.tinh_ThanhPho ||
-							formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho ||
-							'',
-						quanHuyen:
-							formData.personalInfo?.thongTinLienHe?.quanHuyen ||
-							formData.personalInfo?.hoKhauThuongTru?.quanHuyen ||
-							'',
-						xaPhuong:
-							formData.personalInfo?.thongTinLienHe?.xaPhuong || formData.personalInfo?.hoKhauThuongTru?.xaPhuong || '',
+						tinh_ThanhPho: formData?.hoSoInfo.thongTinLienHe?.diaChi?.tinh_ThanhPho || '',
+						quanHuyen: formData.hoSoInfo.thongTinLienHe?.diaChi?.quanHuyen || '',
+						xaPhuong: formData.hoSoInfo.thongTinLienHe?.diaChi?.xaPhuong || '',
 						diaChiCuThe:
-							formData.personalInfo?.thongTinLienHe?.diaChi || formData.personalInfo?.hoKhauThuongTru?.diaChi || '',
+							formData?.hoSoInfo.thongTinLienHe?.diaChi?.diaChiCuThe ||
+							// formData.personalInfo?.thongTinLienHe?.diaChi ||
+							// formData.personalInfo?.hoKhauThuongTru?.diaChi ||
+							'',
 					},
 				},
 				nguyenVong: formData.wishes?.map((wish) => wish.id) || [],
@@ -267,10 +265,34 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			};
 
 			// Create or update thongTinHocTap
+			// if (formData.educationGrades) {
+			// 	const educationData = {
+			// 		...formData.educationGrades,
+			// 		userId: userId,
+			// 	};
+			// 	if (apiData.thongTinHocTap) {
+			// 		await axios.put(`${ipLocal}/thongTinHocTap/${apiData.thongTinHocTap.id}`, educationData);
+			// 	} else {
+			// 		await axios.post(`${ipLocal}/thongTinHocTap`, educationData);
+			// 	}
+			// }
+			// Create or update thongTinHocTap
 			if (formData.educationGrades) {
 				const educationData = {
 					...formData.educationGrades,
 					userId: userId,
+					thongTinTHPT: {
+						...formData.educationGrades.thongTinTHPT,
+						tinh_ThanhPho: formData.educationGrades.thongTinTHPT?.tinh_ThanhPho || '',
+						quanHuyen: formData.educationGrades.thongTinTHPT?.quanHuyen || '',
+						xaPhuong: formData.educationGrades.thongTinTHPT?.xaPhuong || '',
+						diaChi: formData.educationGrades.thongTinTHPT?.diaChi || '',
+						maTruong: formData.educationGrades.thongTinTHPT?.maTruong || '',
+						doiTuongUT: formData.educationGrades.thongTinTHPT?.doiTuongUT || '',
+						khuVucUT: formData.educationGrades.thongTinTHPT?.khuVucUT || '',
+						daTotNghiep: formData.educationGrades.thongTinTHPT?.daTotNghiep || false,
+						namTotNghiep: formData.educationGrades.thongTinTHPT?.namTotNghiep || '',
+					},
 				};
 				if (apiData.thongTinHocTap) {
 					await axios.put(`${ipLocal}/thongTinHocTap/${apiData.thongTinHocTap.id}`, educationData);
@@ -294,13 +316,11 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 
 			// Create or update nguyenVong
 			if (formData.wishes && formData.wishes.length > 0) {
-				// Delete existing wishes
 				if (apiData.thongTinNguyenVong.length > 0) {
 					await Promise.all(
 						apiData.thongTinNguyenVong.map((wish) => axios.delete(`${ipLocal}/thongTinNguyenVong/${wish.id}`)),
 					);
 				}
-				// Create new wishes
 				await Promise.all(
 					formData.wishes.map((wish) =>
 						axios.post(`${ipLocal}/thongTinNguyenVong`, {
@@ -367,6 +387,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 						userId={userId}
 						initialData={formData}
 						onNext={handleNext}
+						onPrev={handlePrev}
 						userData={apiData.user}
 						existingHoSo={apiData.hoSo}
 					/>
@@ -379,6 +400,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 						showHocBa={showHocBa}
 						setShowHocBa={setShowHocBa}
 						onNext={handleNext}
+						onPrev={handlePrev}
 						heDaoTaoData={apiData.heDaoTao}
 						toHopData={apiData.toHop}
 						existingThongTinHocTap={apiData.thongTinHocTap}
@@ -391,6 +413,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 						userId={userId}
 						initialData={formData}
 						onNext={handleNext}
+						onPrev={handlePrev}
 						phuongThucXetTuyenData={apiData.phuongThucXetTuyen}
 						nganhDaoTaoData={apiData.nganhDaoTao}
 						toHopData={apiData.toHop}
@@ -412,6 +435,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			width={1000}
 			footer={null}
 			destroyOnClose
+			// className='modal-full'
 		>
 			<Steps current={currentStep} style={{ marginBottom: 24 }}>
 				{steps.map((step, index) => (
@@ -422,14 +446,15 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			<div style={{ marginBottom: 24 }}>{getStepContent()}</div>
 
 			<div style={{ textAlign: 'center' }}>
-				<Space>
-					{currentStep > 0 && <Button onClick={handlePrev}>Quay lại</Button>}
-					{currentStep === steps.length - 1 && (
+				{currentStep === steps.length - 1 && (
+					<Space>
+						{currentStep > 0 && <Button onClick={handlePrev}>Quay lại</Button>}
+
 						<Button type='primary' onClick={handleSubmit} loading={loading}>
 							Nộp hồ sơ
 						</Button>
-					)}
-				</Space>
+					</Space>
+				)}
 			</div>
 		</Modal>
 	);

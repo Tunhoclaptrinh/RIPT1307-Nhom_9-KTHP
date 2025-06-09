@@ -29,7 +29,7 @@ const PhuongThucXTSelect: React.FC<PhuongThucXTSelectProps> = ({
 				}
 			});
 		}
-	}, [selectData, getAllModel, hasDefault, onChange]);
+	}, []);
 
 	const dataSource = selectData || danhSach;
 
