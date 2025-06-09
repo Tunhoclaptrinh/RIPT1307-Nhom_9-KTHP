@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, Card, Select, InputNumber, Row, Col, Input } from 'antd';
+import { Form, Button, Card, Select, InputNumber, Row, Col, Input, Space } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
 import NganhDaoTaoSelect from '@/pages/NganhDaoTao/components/Select';
@@ -10,6 +10,7 @@ interface WishesFormProps {
 	userId: string;
 	initialData: { wishes?: ThongTinNguyenVong.IRecord[] };
 	onNext: (data: { wishes: ThongTinNguyenVong.IRecord[] }) => void;
+	onPrev: (data: any) => void;
 	phuongThucXetTuyenData: PhuongThucXT.IRecord[];
 	nganhDaoTaoData: NganhDaoTao.IRecord[];
 	toHopData: ToHop.IRecord[];
@@ -20,6 +21,7 @@ const WishesForm: React.FC<WishesFormProps> = ({
 	userId,
 	initialData,
 	onNext,
+	onPrev,
 	phuongThucXetTuyenData,
 	nganhDaoTaoData,
 	toHopData,
@@ -220,10 +222,23 @@ const WishesForm: React.FC<WishesFormProps> = ({
 				</Form.List>
 			</Card>
 
-			<div style={{ textAlign: 'right', marginTop: 16 }}>
-				<Button type='primary' onClick={handleNext}>
-					Tiếp tục
-				</Button>
+			<div
+				style={{
+					textAlign: 'center',
+				}}
+			>
+				<Space
+					style={{
+						textAlign: 'center',
+						marginTop: 16,
+						gap: 16,
+					}}
+				>
+					<Button onClick={onPrev}>Quay lại</Button>
+					<Button type='primary' onClick={handleNext}>
+						Tiếp tục
+					</Button>
+				</Space>
 			</div>
 		</Form>
 	);

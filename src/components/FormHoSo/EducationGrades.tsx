@@ -26,6 +26,8 @@ interface EducationGradesFormProps {
 	showHocBa: boolean;
 	setShowHocBa: (value: boolean) => void;
 	onNext: (values: any) => void;
+	onPrev: (data: any) => void;
+
 	heDaoTaoData: HeDaoTao.IRecord[];
 	toHopData: ToHop.IRecord[];
 	existingThongTinHocTap: ThongTinHocTap.IRecord | null;
@@ -38,6 +40,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 	showHocBa,
 	setShowHocBa,
 	onNext,
+	onPrev,
 	heDaoTaoData,
 	toHopData,
 	existingThongTinHocTap,
@@ -638,10 +641,23 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 				</Form.List>
 			</Card>
 
-			<div style={{ textAlign: 'center', marginTop: 16 }}>
-				<Button type='primary' onClick={handleNext}>
-					Tiếp tục
-				</Button>
+			<div
+				style={{
+					textAlign: 'center',
+				}}
+			>
+				<Space
+					style={{
+						textAlign: 'center',
+						marginTop: 16,
+						gap: 16,
+					}}
+				>
+					<Button onClick={onPrev}>Quay lại</Button>
+					<Button type='primary' onClick={handleNext}>
+						Tiếp tục
+					</Button>
+				</Space>
 			</div>
 		</Form>
 	);

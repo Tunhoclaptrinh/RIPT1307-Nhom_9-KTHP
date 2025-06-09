@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Row, Col, Select, DatePicker, Divider, Card, Radio, RadioChangeEvent } from 'antd';
+import { Form, Input, Button, Row, Col, Select, DatePicker, Divider, Card, Radio, RadioChangeEvent, Space } from 'antd';
 import moment from 'moment';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 
@@ -82,11 +82,19 @@ interface PersonalInfoFormProps {
 	userId: string | number;
 	initialData?: InitialData;
 	onNext: (data: any) => void;
+	onPrev: (data: any) => void;
 	userData?: UserData;
 	existingHoSo?: ExistingHoSo;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData, onNext, userData, existingHoSo }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
+	userId,
+	initialData,
+	onNext,
+	userData,
+	existingHoSo,
+	onPrev,
+}) => {
 	const [form] = Form.useForm();
 
 	// State để lưu giá trị địa chỉ hộ khẩu thường trú (từ userData)
@@ -709,10 +717,23 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				</Row>
 			</Card>
 
-			<div style={{ textAlign: 'center', marginTop: 16 }}>
-				<Button type='primary' onClick={handleNext}>
-					Tiếp tục
-				</Button>
+			<div
+				style={{
+					textAlign: 'center',
+				}}
+			>
+				<Space
+					style={{
+						textAlign: 'center',
+						marginTop: 16,
+						gap: 16,
+					}}
+				>
+					<Button onClick={onPrev}>Quay lại</Button>
+					<Button type='primary' onClick={handleNext}>
+						Tiếp tục
+					</Button>
+				</Space>
 			</div>
 		</Form>
 	);

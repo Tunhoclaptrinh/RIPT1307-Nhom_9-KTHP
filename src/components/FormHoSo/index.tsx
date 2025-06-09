@@ -387,6 +387,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 						userId={userId}
 						initialData={formData}
 						onNext={handleNext}
+						onPrev={handlePrev}
 						userData={apiData.user}
 						existingHoSo={apiData.hoSo}
 					/>
@@ -399,6 +400,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 						showHocBa={showHocBa}
 						setShowHocBa={setShowHocBa}
 						onNext={handleNext}
+						onPrev={handlePrev}
 						heDaoTaoData={apiData.heDaoTao}
 						toHopData={apiData.toHop}
 						existingThongTinHocTap={apiData.thongTinHocTap}
@@ -411,6 +413,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 						userId={userId}
 						initialData={formData}
 						onNext={handleNext}
+						onPrev={handlePrev}
 						phuongThucXetTuyenData={apiData.phuongThucXetTuyen}
 						nganhDaoTaoData={apiData.nganhDaoTao}
 						toHopData={apiData.toHop}
@@ -432,6 +435,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			width={1000}
 			footer={null}
 			destroyOnClose
+			// className='modal-full'
 		>
 			<Steps current={currentStep} style={{ marginBottom: 24 }}>
 				{steps.map((step, index) => (
@@ -442,14 +446,15 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			<div style={{ marginBottom: 24 }}>{getStepContent()}</div>
 
 			<div style={{ textAlign: 'center' }}>
-				<Space>
-					{currentStep > 0 && <Button onClick={handlePrev}>Quay lại</Button>}
-					{currentStep === steps.length - 1 && (
+				{currentStep === steps.length - 1 && (
+					<Space>
+						{currentStep > 0 && <Button onClick={handlePrev}>Quay lại</Button>}
+
 						<Button type='primary' onClick={handleSubmit} loading={loading}>
 							Nộp hồ sơ
 						</Button>
-					)}
-				</Space>
+					</Space>
+				)}
 			</div>
 		</Modal>
 	);
