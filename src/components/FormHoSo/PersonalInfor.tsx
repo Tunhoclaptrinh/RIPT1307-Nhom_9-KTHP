@@ -28,6 +28,18 @@ interface AdditionalInfo {
 	noiSinh?: BirthPlaceInfo;
 }
 
+// Thông tin liên hệ theo cấu trúc hồ sơ
+interface ContactInfo {
+	ten?: string;
+	diaChi?: {
+		tinh_ThanhPho?: string;
+		quanHuyen?: string;
+		xaPhuong?: string;
+		diaChiCuThe?: string;
+	};
+}
+
+// Thông tin cá nhân (user data)
 interface UserData {
 	ho?: string;
 	ten?: string;
@@ -40,7 +52,6 @@ interface UserData {
 	ngayCap?: string;
 	noiCap?: string;
 	hoKhauThuongTru?: AddressInfo;
-	thongTinBoSung?: AdditionalInfo;
 }
 
 interface PersonalInfo {
@@ -61,9 +72,10 @@ interface InitialData {
 	personalInfo?: PersonalInfo;
 }
 
+// Cấu trúc hồ sơ hiện tại
 interface ExistingHoSo {
 	thongTinBoSung?: AdditionalInfo;
-	thongTinLienHe?: AddressInfo;
+	thongTinLienHe?: ContactInfo;
 }
 
 interface PersonalInfoFormProps {
@@ -77,21 +89,24 @@ interface PersonalInfoFormProps {
 const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData, onNext, userData, existingHoSo }) => {
 	const [form] = Form.useForm();
 
-	// State để lưu giá trị địa chỉ đã chọn
+	// State để lưu giá trị địa chỉ hộ khẩu thường trú (từ userData)
 	const [selectedProvince, setSelectedProvince] = useState<string | undefined>();
 	const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>();
 	const [selectedWard, setSelectedWard] = useState<string | undefined>();
 
+	// State để lưu giá trị địa chỉ liên hệ (từ hồ sơ)
+	const [selectedContactProvince, setSelectedContactProvince] = useState<string | undefined>();
+	const [selectedContactDistrict, setSelectedContactDistrict] = useState<string | undefined>();
+	const [selectedContactWard, setSelectedContactWard] = useState<string | undefined>();
+
 	// State để lưu giá trị nơi sinh
 	const [selectedBirthProvince, setSelectedBirthProvince] = useState<string | undefined>();
-	const [selectedBirthDistrict, setSelectedBirthDistrict] = useState<string | undefined>();
-	const [selectedBirthWard, setSelectedBirthWard] = useState<string | undefined>();
 	const [birthInCountry, setBirthInCountry] = useState<boolean>(true);
 
 	// Effect to set form values when data is loaded
 	useEffect(() => {
 		if (userData) {
-			// Prepare form values from userData
+			// Prepare form values from userData (thông tin cá nhân)
 			const formValues = {
 				ho: userData.ho,
 				ten: userData.ten,
@@ -109,40 +124,62 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 					xaPhuong: userData.hoKhauThuongTru?.xaPhuong || '',
 					diaChi: userData.hoKhauThuongTru?.diaChi || '',
 				},
-				thongTinBoSung: {
-					danToc: userData.thongTinBoSung?.danToc || '',
-					quocTich: userData.thongTinBoSung?.quocTich || 'Việt Nam',
-					tonGiao: userData.thongTinBoSung?.tonGiao || '',
-					noiSinh: {
-						trongNuoc: userData.thongTinBoSung?.noiSinh?.trongNuoc ?? true,
-						tinh_ThanhPho: userData.thongTinBoSung?.noiSinh?.tinh_ThanhPho || '',
-					},
-				},
+				thongTinBoSung: {},
+				thongTinLienHe: {},
 			};
 
-			// If there's existing hoSo data, merge it
-			if (existingHoSo?.thongTinBoSung) {
+			// Thêm thông tin bổ sung và liên hệ từ hồ sơ (nếu có)
+			if (existingHoSo) {
+				// Thông tin bổ sung
 				formValues.thongTinBoSung = {
-					...formValues.thongTinBoSung,
-					...existingHoSo.thongTinBoSung,
+					danToc: existingHoSo.thongTinBoSung?.danToc || '',
+					quocTich: existingHoSo.thongTinBoSung?.quocTich || 'Việt Nam',
+					tonGiao: existingHoSo.thongTinBoSung?.tonGiao || '',
 					noiSinh: {
-						...formValues.thongTinBoSung.noiSinh,
-						...existingHoSo.thongTinBoSung.noiSinh,
+						trongNuoc: existingHoSo.thongTinBoSung?.noiSinh?.trongNuoc ?? true,
+						tinh_ThanhPho: existingHoSo.thongTinBoSung?.noiSinh?.tinh_ThanhPho || '',
+						quocGia: existingHoSo.thongTinBoSung?.noiSinh?.quocGia || '',
+					},
+				};
+
+				// Thông tin liên hệ
+				formValues.thongTinLienHe = {
+					ten: existingHoSo.thongTinLienHe?.ten || '',
+					diaChi: {
+						tinh_ThanhPho: existingHoSo.thongTinLienHe?.diaChi?.tinh_ThanhPho || '',
+						quanHuyen: existingHoSo.thongTinLienHe?.diaChi?.quanHuyen || '',
+						xaPhuong: existingHoSo.thongTinLienHe?.diaChi?.xaPhuong || '',
+						diaChiCuThe: existingHoSo.thongTinLienHe?.diaChi?.diaChiCuThe || '',
+					},
+				};
+			} else {
+				// Nếu không có hồ sơ, khởi tạo giá trị mặc định
+				formValues.thongTinBoSung = {
+					danToc: '',
+					quocTich: 'Việt Nam',
+					tonGiao: '',
+					noiSinh: {
+						trongNuoc: true,
+						tinh_ThanhPho: '',
+						quocGia: '',
+					},
+				};
+
+				formValues.thongTinLienHe = {
+					ten: '',
+					diaChi: {
+						tinh_ThanhPho: '',
+						quanHuyen: '',
+						xaPhuong: '',
+						diaChiCuThe: '',
 					},
 				};
 			}
 
-			if (existingHoSo?.thongTinLienHe) {
-				formValues.hoKhauThuongTru = {
-					...formValues.hoKhauThuongTru,
-					...existingHoSo.thongTinLienHe,
-				};
-			}
-
-			// Set address states
-			const province = userData.hoKhauThuongTru?.tinh_ThanhPho || existingHoSo?.thongTinLienHe?.tinh_ThanhPho;
-			const district = userData.hoKhauThuongTru?.quanHuyen || existingHoSo?.thongTinLienHe?.quanHuyen;
-			const ward = userData.hoKhauThuongTru?.xaPhuong || existingHoSo?.thongTinLienHe?.xaPhuong;
+			// Set address states for hộ khẩu thường trú
+			const province = userData.hoKhauThuongTru?.tinh_ThanhPho;
+			const district = userData.hoKhauThuongTru?.quanHuyen;
+			const ward = userData.hoKhauThuongTru?.xaPhuong;
 
 			setSelectedProvince(province);
 			if (province && district) {
@@ -156,9 +193,26 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				}, 100);
 			}
 
+			// Set address states for thông tin liên hệ
+			const contactProvince = existingHoSo?.thongTinLienHe?.diaChi?.tinh_ThanhPho;
+			const contactDistrict = existingHoSo?.thongTinLienHe?.diaChi?.quanHuyen;
+			const contactWard = existingHoSo?.thongTinLienHe?.diaChi?.xaPhuong;
+
+			setSelectedContactProvince(contactProvince);
+			if (contactProvince && contactDistrict) {
+				setTimeout(() => {
+					setSelectedContactDistrict(contactDistrict);
+					if (contactWard) {
+						setTimeout(() => {
+							setSelectedContactWard(contactWard);
+						}, 100);
+					}
+				}, 100);
+			}
+
 			// Set birth place states
-			const birthProvince = formValues.thongTinBoSung.noiSinh.tinh_ThanhPho;
-			const inCountry = formValues.thongTinBoSung.noiSinh.trongNuoc;
+			const birthProvince = existingHoSo?.thongTinBoSung?.noiSinh?.tinh_ThanhPho;
+			const inCountry = existingHoSo?.thongTinBoSung?.noiSinh?.trongNuoc ?? true;
 
 			setBirthInCountry(inCountry);
 			if (inCountry && birthProvince) {
@@ -207,19 +261,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				}
 			}
 
-			// Set birth place states from initialData
-			const birthInfo = existingHoSo?.thongTinBoSung?.noiSinh;
-			if (birthInfo) {
-				setBirthInCountry(birthInfo.trongNuoc ?? true);
-				if (birthInfo.trongNuoc && birthInfo.tinh_ThanhPho) {
-					setSelectedBirthProvince(birthInfo.tinh_ThanhPho);
-				}
-			}
-
 			form.setFieldsValue(formValues);
 		}
 	}, [initialData, form]);
 
+	// Handlers cho hộ khẩu thường trú
 	const handleProvinceChange = (value: string) => {
 		setSelectedProvince(value);
 		setSelectedDistrict(undefined);
@@ -262,15 +308,64 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 		});
 	};
 
-	// Handlers for birth place - FIXED: Using RadioChangeEvent instead of React.ChangeEvent
+	// Handlers cho thông tin liên hệ
+	const handleContactProvinceChange = (value: string) => {
+		setSelectedContactProvince(value);
+		setSelectedContactDistrict(undefined);
+		setSelectedContactWard(undefined);
+
+		form.setFieldsValue({
+			thongTinLienHe: {
+				...form.getFieldValue('thongTinLienHe'),
+				diaChi: {
+					tinh_ThanhPho: value,
+					quanHuyen: undefined,
+					xaPhuong: undefined,
+					diaChiCuThe: form.getFieldValue(['thongTinLienHe', 'diaChi', 'diaChiCuThe']),
+				},
+			},
+		});
+	};
+
+	const handleContactDistrictChange = (value: string) => {
+		setSelectedContactDistrict(value);
+		setSelectedContactWard(undefined);
+
+		form.setFieldsValue({
+			thongTinLienHe: {
+				...form.getFieldValue('thongTinLienHe'),
+				diaChi: {
+					tinh_ThanhPho: selectedContactProvince,
+					quanHuyen: value,
+					xaPhuong: undefined,
+					diaChiCuThe: form.getFieldValue(['thongTinLienHe', 'diaChi', 'diaChiCuThe']),
+				},
+			},
+		});
+	};
+
+	const handleContactWardChange = (value: string) => {
+		setSelectedContactWard(value);
+
+		form.setFieldsValue({
+			thongTinLienHe: {
+				...form.getFieldValue('thongTinLienHe'),
+				diaChi: {
+					tinh_ThanhPho: selectedContactProvince,
+					quanHuyen: selectedContactDistrict,
+					xaPhuong: value,
+					diaChiCuThe: form.getFieldValue(['thongTinLienHe', 'diaChi', 'diaChiCuThe']),
+				},
+			},
+		});
+	};
+
+	// Handlers for birth place
 	const handleBirthInCountryChange = (e: RadioChangeEvent) => {
-		const inCountry = e.target.value as boolean; // Cast to boolean since radio values are boolean
+		const inCountry = e.target.value as boolean;
 		setBirthInCountry(inCountry);
 
-		// Reset birth place fields when changing country status
 		setSelectedBirthProvince(undefined);
-		setSelectedBirthDistrict(undefined);
-		setSelectedBirthWard(undefined);
 
 		form.setFieldsValue({
 			thongTinBoSung: {
@@ -286,8 +381,6 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 
 	const handleBirthProvinceChange = (value: string) => {
 		setSelectedBirthProvince(value);
-		setSelectedBirthDistrict(undefined);
-		setSelectedBirthWard(undefined);
 
 		form.setFieldsValue({
 			thongTinBoSung: {
@@ -307,12 +400,24 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 
 			// Convert moment objects back to string format for API
 			const formattedValues = {
+				// Thông tin cá nhân (cập nhật vào userData)
 				personalInfo: {
-					...values,
+					ho: values.ho,
+					ten: values.ten,
+					username: values.username,
 					ngaySinh: values.ngaySinh ? values.ngaySinh.format('YYYY-MM-DD') : null,
+					gioiTinh: values.gioiTinh,
+					email: values.email,
+					soDT: values.soDT,
+					soCCCD: values.soCCCD,
 					ngayCap: values.ngayCap ? values.ngayCap.format('YYYY-MM-DD') : null,
-					// Separate hoKhauThuongTru as thongTinLienHe for consistency with existing structure
-					thongTinLienHe: values.hoKhauThuongTru,
+					noiCap: values.noiCap,
+					hoKhauThuongTru: values.hoKhauThuongTru,
+				},
+				// Thông tin hồ sơ (thongTinBoSung và thongTinLienHe)
+				hoSoInfo: {
+					thongTinBoSung: values.thongTinBoSung,
+					thongTinLienHe: values.thongTinLienHe,
 				},
 			};
 
@@ -324,93 +429,94 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 
 	return (
 		<Form form={form} layout='vertical'>
-			{/* Thông tin cơ bản */}
-			<Row gutter={16}>
-				<Col span={12}>
-					<Form.Item label='Họ và tên đệm' name='ho' rules={[{ required: true, message: 'Vui lòng nhập họ!' }]}>
-						<Input placeholder='Nhập họ và tên đệm' />
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item label='Tên' name='ten' rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}>
-						<Input placeholder='Nhập tên' />
-					</Form.Item>
-				</Col>
-			</Row>
+			{/* Thông tin cá nhân */}
+			<Card title='Thông tin cá nhân' style={{ marginBottom: 16 }}>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item label='Họ và tên đệm' name='ho' rules={[{ required: true, message: 'Vui lòng nhập họ!' }]}>
+							<Input placeholder='Nhập họ và tên đệm' />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item label='Tên' name='ten' rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}>
+							<Input placeholder='Nhập tên' />
+						</Form.Item>
+					</Col>
+				</Row>
 
-			<Row gutter={16}>
-				<Col span={12}>
-					<Form.Item label='Username' name='username'>
-						<Input placeholder='Nhập username' />
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item
-						label='Email'
-						name='email'
-						rules={[
-							{ required: true, message: 'Vui lòng nhập email!' },
-							{ type: 'email', message: 'Email không hợp lệ!' },
-						]}
-					>
-						<Input placeholder='Nhập email' />
-					</Form.Item>
-				</Col>
-			</Row>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item label='Username' name='username'>
+							<Input placeholder='Nhập username' />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item
+							label='Email'
+							name='email'
+							rules={[
+								{ required: true, message: 'Vui lòng nhập email!' },
+								{ type: 'email', message: 'Email không hợp lệ!' },
+							]}
+						>
+							<Input placeholder='Nhập email' />
+						</Form.Item>
+					</Col>
+				</Row>
 
-			<Row gutter={16}>
-				<Col span={12}>
-					<Form.Item label='Số CCCD' name='soCCCD' rules={[{ required: true, message: 'Vui lòng nhập số CCCD!' }]}>
-						<Input placeholder='Nhập số CCCD' />
-					</Form.Item>
-				</Col>
-				<Col span={12}>
-					<Form.Item
-						label='Số điện thoại'
-						name='soDT'
-						rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
-					>
-						<Input placeholder='Nhập số điện thoại' />
-					</Form.Item>
-				</Col>
-			</Row>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item label='Số CCCD' name='soCCCD' rules={[{ required: true, message: 'Vui lòng nhập số CCCD!' }]}>
+							<Input placeholder='Nhập số CCCD' />
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item
+							label='Số điện thoại'
+							name='soDT'
+							rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+						>
+							<Input placeholder='Nhập số điện thoại' />
+						</Form.Item>
+					</Col>
+				</Row>
 
-			<Row gutter={16}>
-				<Col span={8}>
-					<Form.Item label='Ngày cấp' name='ngayCap' rules={[{ required: true, message: 'Vui lòng chọn ngày cấp!' }]}>
-						<DatePicker style={{ width: '100%' }} placeholder='Chọn ngày cấp' />
-					</Form.Item>
-				</Col>
-				<Col span={8}>
-					<Form.Item
-						label='Ngày sinh'
-						name='ngaySinh'
-						rules={[{ required: true, message: 'Vui lòng chọn ngày sinh!' }]}
-					>
-						<DatePicker style={{ width: '100%' }} placeholder='Chọn ngày sinh' />
-					</Form.Item>
-				</Col>
-				<Col span={8}>
-					<Form.Item
-						label='Giới tính'
-						name='gioiTinh'
-						rules={[{ required: true, message: 'Vui lòng chọn giới tính!' }]}
-					>
-						<Select placeholder='Chọn giới tính'>
-							<Option value='nam'>Nam</Option>
-							<Option value='nữ'>Nữ</Option>
-							<Option value='khác'>Khác</Option>
-						</Select>
-					</Form.Item>
-				</Col>
-			</Row>
+				<Row gutter={16}>
+					<Col span={8}>
+						<Form.Item label='Ngày cấp' name='ngayCap' rules={[{ required: true, message: 'Vui lòng chọn ngày cấp!' }]}>
+							<DatePicker style={{ width: '100%' }} placeholder='Chọn ngày cấp' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item
+							label='Ngày sinh'
+							name='ngaySinh'
+							rules={[{ required: true, message: 'Vui lòng chọn ngày sinh!' }]}
+						>
+							<DatePicker style={{ width: '100%' }} placeholder='Chọn ngày sinh' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item
+							label='Giới tính'
+							name='gioiTinh'
+							rules={[{ required: true, message: 'Vui lòng chọn giới tính!' }]}
+						>
+							<Select placeholder='Chọn giới tính'>
+								<Option value='nam'>Nam</Option>
+								<Option value='nữ'>Nữ</Option>
+								<Option value='khác'>Khác</Option>
+							</Select>
+						</Form.Item>
+					</Col>
+				</Row>
 
-			<Form.Item label='Nơi cấp CCCD' name='noiCap' rules={[{ required: true, message: 'Vui lòng nhập nơi cấp!' }]}>
-				<Input placeholder='Nhập nơi cấp CCCD' />
-			</Form.Item>
+				<Form.Item label='Nơi cấp CCCD' name='noiCap' rules={[{ required: true, message: 'Vui lòng nhập nơi cấp!' }]}>
+					<Input placeholder='Nhập nơi cấp CCCD' />
+				</Form.Item>
 
-			{/* Hộ khẩu thường trú */}
-			<Card title='Hộ khẩu thường trú' style={{ marginTop: 16, marginBottom: 16 }}>
+				{/* Hộ khẩu thường trú */}
+				<Divider>Hộ khẩu thường trú</Divider>
 				<Row gutter={16}>
 					<Col span={12}>
 						<Form.Item
@@ -470,66 +576,137 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				</Row>
 			</Card>
 
-			{/* Thông tin bổ sung */}
-			<Divider>Thông tin bổ sung</Divider>
-			<Row gutter={16}>
-				<Col span={8}>
-					<Form.Item label='Dân tộc' name={['thongTinBoSung', 'danToc']}>
-						<Input placeholder='Nhập dân tộc' />
-					</Form.Item>
-				</Col>
-				<Col span={8}>
-					<Form.Item label='Quốc tịch' name={['thongTinBoSung', 'quocTich']}>
-						<Input placeholder='Nhập quốc tịch' defaultValue='Việt Nam' />
-					</Form.Item>
-				</Col>
-				<Col span={8}>
-					<Form.Item label='Tôn giáo' name={['thongTinBoSung', 'tonGiao']}>
-						<Input placeholder='Nhập tôn giáo' />
-					</Form.Item>
-				</Col>
-			</Row>
+			{/* Thông tin bổ sung cho hồ sơ */}
+			<Card title='Thông tin bổ sung' style={{ marginBottom: 16 }}>
+				<Row gutter={16}>
+					<Col span={8}>
+						<Form.Item label='Dân tộc' name={['thongTinBoSung', 'danToc']}>
+							<Input placeholder='Nhập dân tộc' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item label='Quốc tịch' name={['thongTinBoSung', 'quocTich']}>
+							<Input placeholder='Nhập quốc tịch' defaultValue='Việt Nam' />
+						</Form.Item>
+					</Col>
+					<Col span={8}>
+						<Form.Item label='Tôn giáo' name={['thongTinBoSung', 'tonGiao']}>
+							<Input placeholder='Nhập tôn giáo' />
+						</Form.Item>
+					</Col>
+				</Row>
 
-			{/* Nơi sinh */}
-			<Card title='Nơi sinh' style={{ marginTop: 16, marginBottom: 16 }}>
+				{/* Nơi sinh */}
+				<Divider>Nơi sinh</Divider>
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item
+							label='Sinh tại'
+							name={['thongTinBoSung', 'noiSinh', 'trongNuoc']}
+							rules={[{ required: true, message: 'Vui lòng chọn nơi sinh!' }]}
+						>
+							<Radio.Group onChange={handleBirthInCountryChange} value={birthInCountry}>
+								<Radio value={true}>Trong nước</Radio>
+								<Radio value={false}>Nước ngoài</Radio>
+							</Radio.Group>
+						</Form.Item>
+					</Col>
+
+					{birthInCountry ? (
+						<Col span={12}>
+							<Form.Item
+								label='Tỉnh/Thành phố sinh'
+								name={['thongTinBoSung', 'noiSinh', 'tinh_ThanhPho']}
+								rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố sinh!' }]}
+							>
+								<ProvincesSelect
+									placeholder='Chọn tỉnh/thành phố sinh'
+									onChange={handleBirthProvinceChange}
+									value={selectedBirthProvince}
+								/>
+							</Form.Item>
+						</Col>
+					) : (
+						<Col span={12}>
+							<Form.Item
+								label='Quốc gia sinh'
+								name={['thongTinBoSung', 'noiSinh', 'quocGia']}
+								rules={[{ required: true, message: 'Vui lòng nhập quốc gia sinh!' }]}
+							>
+								<Input placeholder='Nhập tên quốc gia' />
+							</Form.Item>
+						</Col>
+					)}
+				</Row>
+			</Card>
+
+			{/* Thông tin liên hệ cho hồ sơ */}
+			<Card title='Thông tin liên hệ' style={{ marginBottom: 16 }}>
 				<Form.Item
-					label='Sinh tại'
-					name={['thongTinBoSung', 'noiSinh', 'trongNuoc']}
-					rules={[{ required: true, message: 'Vui lòng chọn nơi sinh!' }]}
+					label='Tên người liên hệ'
+					name={['thongTinLienHe', 'ten']}
+					rules={[{ required: true, message: 'Vui lòng nhập tên người liên hệ!' }]}
 				>
-					<Radio.Group onChange={handleBirthInCountryChange} value={birthInCountry}>
-						<Radio value={true}>Trong nước</Radio>
-						<Radio value={false}>Nước ngoài</Radio>
-					</Radio.Group>
+					<Input placeholder='Nhập tên người liên hệ' />
 				</Form.Item>
 
-				{birthInCountry ? (
-					<>
-						<Row gutter={16}>
-							<Col span={8}>
-								<Form.Item
-									label='Tỉnh/Thành phố sinh'
-									name={['thongTinBoSung', 'noiSinh', 'tinh_ThanhPho']}
-									rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố sinh!' }]}
-								>
-									<ProvincesSelect
-										placeholder='Chọn tỉnh/thành phố sinh'
-										onChange={handleBirthProvinceChange}
-										value={selectedBirthProvince}
-									/>
-								</Form.Item>
-							</Col>
-						</Row>
-					</>
-				) : (
-					<Form.Item
-						label='Quốc gia sinh'
-						name={['thongTinBoSung', 'noiSinh', 'quocGia']}
-						rules={[{ required: true, message: 'Vui lòng nhập quốc gia sinh!' }]}
-					>
-						<Input placeholder='Nhập tên quốc gia' />
-					</Form.Item>
-				)}
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item
+							label='Tỉnh/Thành phố'
+							name={['thongTinLienHe', 'diaChi', 'tinh_ThanhPho']}
+							rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố!' }]}
+						>
+							<ProvincesSelect
+								placeholder='Chọn tỉnh/thành phố'
+								onChange={handleContactProvinceChange}
+								value={selectedContactProvince}
+							/>
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item
+							label='Quận/Huyện'
+							name={['thongTinLienHe', 'diaChi', 'quanHuyen']}
+							rules={[{ required: true, message: 'Vui lòng chọn quận/huyện!' }]}
+						>
+							<DistrictsSelect
+								provinceCode={selectedContactProvince}
+								placeholder='Chọn quận/huyện'
+								onChange={handleContactDistrictChange}
+								value={selectedContactDistrict}
+								disabled={!selectedContactProvince}
+							/>
+						</Form.Item>
+					</Col>
+				</Row>
+
+				<Row gutter={16}>
+					<Col span={12}>
+						<Form.Item
+							label='Xã/Phường'
+							name={['thongTinLienHe', 'diaChi', 'xaPhuong']}
+							rules={[{ required: true, message: 'Vui lòng chọn xã/phường!' }]}
+						>
+							<WardsSelect
+								districtCode={selectedContactDistrict}
+								placeholder='Chọn xã/phường'
+								onChange={handleContactWardChange}
+								value={selectedContactWard}
+								disabled={!selectedContactDistrict}
+							/>
+						</Form.Item>
+					</Col>
+					<Col span={12}>
+						<Form.Item
+							label='Địa chỉ cụ thể'
+							name={['thongTinLienHe', 'diaChi', 'diaChiCuThe']}
+							rules={[{ required: true, message: 'Vui lòng nhập địa chỉ cụ thể!' }]}
+						>
+							<Input placeholder='Nhập số nhà, tên đường...' />
+						</Form.Item>
+					</Col>
+				</Row>
 			</Card>
 
 			<div style={{ textAlign: 'center', marginTop: 16 }}>
