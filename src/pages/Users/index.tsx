@@ -279,7 +279,12 @@ const UsersPage = () => {
 				/>
 			)}
 			{admissionModalVisible && selectedUserId && (
-				<AdmissionStepModal userId={selectedUserId} visible={admissionModalVisible} onClose={onCloseAdmissionModal} />
+				<AdmissionStepModal
+					userId={selectedUserId}
+					visible={admissionModalVisible}
+					onClose={onCloseAdmissionModal}
+					// withDrawer={'modal-full'}
+				/>
 			)}
 		</div>
 	);

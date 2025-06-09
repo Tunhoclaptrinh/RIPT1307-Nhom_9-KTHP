@@ -45,9 +45,10 @@ interface AdmissionStepModalProps {
 	userId: string;
 	visible: boolean;
 	onClose?: () => void;
+	withDrawer?: string | number;
 }
 
-const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible, onClose }) => {
+const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible, onClose, withDrawer = 1000 }) => {
 	const [currentStep, setCurrentStep] = useState<number>(0);
 	const [formData, setFormData] = useState<FormData>({});
 	const [showHocBa, setShowHocBa] = useState<boolean>(false);
@@ -432,14 +433,23 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 			title='Hồ sơ xét tuyển đại học'
 			visible={visible}
 			onCancel={handleClose}
-			width={1000}
+			// width={withDrawer}
+			className={withDrawer}
+			width={withDrawer}
+			height={'100%'}
 			footer={null}
 			destroyOnClose
-			// className='modal-full'
+			style={{ background: '#fff' }}
 		>
-			<Steps current={currentStep} style={{ marginBottom: 24 }}>
+			<Steps current={currentStep} style={{ marginBottom: 24, background: '#fff' }}>
 				{steps.map((step, index) => (
-					<Step key={index} title={step.title} description={step.description} icon={step.icon} />
+					<Step
+						key={index}
+						title={step.title}
+						description={step.description}
+						icon={step.icon}
+						style={{ background: '#fff' }}
+					/>
 				))}
 			</Steps>
 

@@ -436,7 +436,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 	};
 
 	return (
-		<Form form={form} layout='vertical'>
+		<Form form={form} layout='vertical' style={{ height: '100%', background: '#fff' }}>
 			{/* Thông tin cá nhân */}
 			<Card title='Thông tin cá nhân' style={{ marginBottom: 16 }}>
 				<Row gutter={16}>
@@ -585,68 +585,70 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 			</Card>
 
 			{/* Thông tin bổ sung cho hồ sơ */}
-			<Card title='Thông tin bổ sung' style={{ marginBottom: 16 }}>
-				<Row gutter={16}>
-					<Col span={8}>
-						<Form.Item label='Dân tộc' name={['thongTinBoSung', 'danToc']}>
-							<Input placeholder='Nhập dân tộc' />
-						</Form.Item>
-					</Col>
-					<Col span={8}>
-						<Form.Item label='Quốc tịch' name={['thongTinBoSung', 'quocTich']}>
-							<Input placeholder='Nhập quốc tịch' defaultValue='Việt Nam' />
-						</Form.Item>
-					</Col>
-					<Col span={8}>
-						<Form.Item label='Tôn giáo' name={['thongTinBoSung', 'tonGiao']}>
-							<Input placeholder='Nhập tôn giáo' />
-						</Form.Item>
-					</Col>
-				</Row>
-
-				{/* Nơi sinh */}
-				<Divider>Nơi sinh</Divider>
-				<Row gutter={16}>
-					<Col span={12}>
-						<Form.Item
-							label='Sinh tại'
-							name={['thongTinBoSung', 'noiSinh', 'trongNuoc']}
-							rules={[{ required: true, message: 'Vui lòng chọn nơi sinh!' }]}
-						>
-							<Radio.Group onChange={handleBirthInCountryChange} value={birthInCountry}>
-								<Radio value={true}>Trong nước</Radio>
-								<Radio value={false}>Nước ngoài</Radio>
-							</Radio.Group>
-						</Form.Item>
-					</Col>
-
-					{birthInCountry ? (
-						<Col span={12}>
-							<Form.Item
-								label='Tỉnh/Thành phố sinh'
-								name={['thongTinBoSung', 'noiSinh', 'tinh_ThanhPho']}
-								rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố sinh!' }]}
-							>
-								<ProvincesSelect
-									placeholder='Chọn tỉnh/thành phố sinh'
-									onChange={handleBirthProvinceChange}
-									value={selectedBirthProvince}
-								/>
+			<div style={{ marginBottom: 16, background: '#fff' }}>
+				<Card title='Thông tin bổ sung'>
+					<Row gutter={16}>
+						<Col span={8}>
+							<Form.Item label='Dân tộc' name={['thongTinBoSung', 'danToc']}>
+								<Input placeholder='Nhập dân tộc' />
 							</Form.Item>
 						</Col>
-					) : (
-						<Col span={12}>
-							<Form.Item
-								label='Quốc gia sinh'
-								name={['thongTinBoSung', 'noiSinh', 'quocGia']}
-								rules={[{ required: true, message: 'Vui lòng nhập quốc gia sinh!' }]}
-							>
-								<Input placeholder='Nhập tên quốc gia' />
+						<Col span={8}>
+							<Form.Item label='Quốc tịch' name={['thongTinBoSung', 'quocTich']}>
+								<Input placeholder='Nhập quốc tịch' defaultValue='Việt Nam' />
 							</Form.Item>
 						</Col>
-					)}
-				</Row>
-			</Card>
+						<Col span={8}>
+							<Form.Item label='Tôn giáo' name={['thongTinBoSung', 'tonGiao']}>
+								<Input placeholder='Nhập tôn giáo' />
+							</Form.Item>
+						</Col>
+					</Row>
+
+					{/* Nơi sinh */}
+					<Divider>Nơi sinh</Divider>
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item
+								label='Sinh tại'
+								name={['thongTinBoSung', 'noiSinh', 'trongNuoc']}
+								rules={[{ required: true, message: 'Vui lòng chọn nơi sinh!' }]}
+							>
+								<Radio.Group onChange={handleBirthInCountryChange} value={birthInCountry}>
+									<Radio value={true}>Trong nước</Radio>
+									<Radio value={false}>Nước ngoài</Radio>
+								</Radio.Group>
+							</Form.Item>
+						</Col>
+
+						{birthInCountry ? (
+							<Col span={12}>
+								<Form.Item
+									label='Tỉnh/Thành phố sinh'
+									name={['thongTinBoSung', 'noiSinh', 'tinh_ThanhPho']}
+									rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố sinh!' }]}
+								>
+									<ProvincesSelect
+										placeholder='Chọn tỉnh/thành phố sinh'
+										onChange={handleBirthProvinceChange}
+										value={selectedBirthProvince}
+									/>
+								</Form.Item>
+							</Col>
+						) : (
+							<Col span={12}>
+								<Form.Item
+									label='Quốc gia sinh'
+									name={['thongTinBoSung', 'noiSinh', 'quocGia']}
+									rules={[{ required: true, message: 'Vui lòng nhập quốc gia sinh!' }]}
+								>
+									<Input placeholder='Nhập tên quốc gia' />
+								</Form.Item>
+							</Col>
+						)}
+					</Row>
+				</Card>
+			</div>
 
 			{/* Thông tin liên hệ cho hồ sơ */}
 			<Card title='Thông tin liên hệ' style={{ marginBottom: 16 }}>
