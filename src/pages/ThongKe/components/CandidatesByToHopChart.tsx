@@ -1,7 +1,7 @@
-// components/CandidatesByToHopChart.tsx
 import React from 'react';
 import { Card } from 'antd';
 import ColumnChart from '../../../components/Chart/ColumnChart';
+import { formatThiSinh } from '@/utils/utils';
 
 interface CandidatesByToHopChartProps {
 	candidatesByToHop: { [toHop: string]: number };
@@ -19,6 +19,7 @@ const CandidatesByToHopChart: React.FC<CandidatesByToHopChartProps> = ({ candida
 				yAxis={[Object.values(candidatesByToHop)]}
 				yLabel={['Số lượng thí sinh']}
 				colors={['#1890ff']}
+				formatY={formatThiSinh}
 				height={300}
 			/>
 		</Card>

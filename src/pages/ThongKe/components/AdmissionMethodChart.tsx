@@ -1,7 +1,7 @@
-// components/AdmissionMethodChart.tsx
 import React from 'react';
 import { Card, Switch } from 'antd';
 import DonutChart from '../../../components/Chart/DonutChart';
+import { formatNguyenVong } from '@/utils/utils';
 
 interface AdmissionMethodChartProps {
 	stats: ThongKe.Stats;
@@ -37,6 +37,7 @@ const AdmissionMethodChart: React.FC<AdmissionMethodChartProps> = ({ stats, char
 				]}
 				yLabel={[chartMode === 'wishes' ? 'Số lượng nguyện vọng' : 'Số lượng nguyện vọng trúng tuyển']}
 				colors={['#1890ff', '#52c41a', '#faad14']}
+				formatY={formatNguyenVong}
 				showTotal
 				height={300}
 			/>

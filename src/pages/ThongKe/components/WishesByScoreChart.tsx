@@ -1,7 +1,7 @@
-// components/WishesByScoreChart.tsx
 import React from 'react';
 import { Card } from 'antd';
 import LineChart from '../../../components/Chart/LineChart';
+import { formatNguyenVong } from '@/utils/utils';
 
 interface WishesByScoreChartProps {
 	stats: ThongKe.Stats;
@@ -19,6 +19,7 @@ const WishesByScoreChart: React.FC<WishesByScoreChartProps> = ({ stats }) => {
 				yAxis={[Object.values(stats.wishesByScore)]}
 				yLabel={['Số lượng nguyện vọng']}
 				colors={['#52c41a']}
+				formatY={formatNguyenVong}
 				height={300}
 			/>
 		</Card>

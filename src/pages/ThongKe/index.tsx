@@ -18,6 +18,7 @@ import CandidatesByToHopChart from './components/CandidatesByToHopChart';
 import ProfileStatusChart from './components/ProfileStatusChart';
 import WishesByScoreChart from './components/WishesByScoreChart';
 import { ipLocal } from '@/utils/ip';
+import { formatNguyenVong } from '@/utils/utils';
 
 const { Option } = Select;
 
@@ -615,6 +616,7 @@ const StatisticsPage: React.FC = () => {
 								colors={['#1890ff', '#52c41a', '#faad14', '#ff4d4f', '#722ed1', '#eb2f96']}
 								showTotal
 								height={300}
+								formatY={formatNguyenVong}
 							/>
 						</Card>
 					</Col>

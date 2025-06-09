@@ -1,8 +1,8 @@
-// components/ProfileStatusChart.tsx
 import React from 'react';
 import { Card, Select, Space, Button, Tooltip, Tag, Divider } from 'antd';
 import { FileExcelOutlined } from '@ant-design/icons';
 import DonutChart from '../../../components/Chart/DonutChart';
+import { formatHoSo } from '@/utils/utils';
 
 const { Option } = Select;
 
@@ -32,6 +32,7 @@ const ProfileStatusChart: React.FC<ProfileStatusChartProps> = ({
 				yAxis={[Object.values(stats.profileStatus).map((item: any) => item.count)]}
 				yLabel={['Số lượng hồ sơ']}
 				colors={['#52c41a', '#ff4d4f', '#faad14']}
+				formatY={formatHoSo}
 				showTotal
 				height={300}
 			/>
