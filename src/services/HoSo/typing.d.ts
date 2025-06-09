@@ -17,7 +17,7 @@ declare module HoSo {
 		danToc: DanToc;
 		quocTich: QuocTich;
 		tonGiao: TonGiao;
-		noiSinh: INoiSinh;
+		noiSinh: INoiSinh | {};
 	}
 
 	export interface IDiaChi {
@@ -40,7 +40,7 @@ declare module HoSo {
 		thongTinLienHe: IThongTinLienHe;
 		tinhTrang: TTinhTrang;
 		nguyenVong: TNguyenVong;
-		ketQua: IKetQua;
+		ketQua: IKetQua | null;
 	}
 
 	// export type nguyenVong = string;

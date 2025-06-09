@@ -55,7 +55,6 @@ interface PersonalInfo {
 	ngayCap?: string;
 	noiCap?: string;
 	hoKhauThuongTru?: AddressInfo;
-	thongTinBoSung?: AdditionalInfo;
 }
 
 interface InitialData {
@@ -117,9 +116,6 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 					noiSinh: {
 						trongNuoc: userData.thongTinBoSung?.noiSinh?.trongNuoc ?? true,
 						tinh_ThanhPho: userData.thongTinBoSung?.noiSinh?.tinh_ThanhPho || '',
-						quanHuyen: userData.thongTinBoSung?.noiSinh?.quanHuyen || '',
-						xaPhuong: userData.thongTinBoSung?.noiSinh?.xaPhuong || '',
-						quocGia: userData.thongTinBoSung?.noiSinh?.quocGia || '',
 					},
 				},
 			};
@@ -162,23 +158,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 
 			// Set birth place states
 			const birthProvince = formValues.thongTinBoSung.noiSinh.tinh_ThanhPho;
-			const birthDistrict = formValues.thongTinBoSung.noiSinh.quanHuyen;
-			const birthWard = formValues.thongTinBoSung.noiSinh.xaPhuong;
 			const inCountry = formValues.thongTinBoSung.noiSinh.trongNuoc;
 
 			setBirthInCountry(inCountry);
 			if (inCountry && birthProvince) {
 				setSelectedBirthProvince(birthProvince);
-				if (birthDistrict) {
-					setTimeout(() => {
-						setSelectedBirthDistrict(birthDistrict);
-						if (birthWard) {
-							setTimeout(() => {
-								setSelectedBirthWard(birthWard);
-							}, 100);
-						}
-					}, 100);
-				}
 			}
 
 			// Set form values
@@ -202,15 +186,6 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				ngayCap: personalInfo.ngayCap ? moment(personalInfo.ngayCap) : null,
 				noiCap: personalInfo.noiCap,
 				hoKhauThuongTru: personalInfo.hoKhauThuongTru || {},
-				thongTinBoSung: personalInfo.thongTinBoSung || {
-					noiSinh: {
-						trongNuoc: true,
-						tinh_ThanhPho: '',
-						quanHuyen: '',
-						xaPhuong: '',
-						quocGia: '',
-					},
-				},
 			};
 
 			// Set address states from initialData
@@ -233,21 +208,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 			}
 
 			// Set birth place states from initialData
-			const birthInfo = personalInfo.thongTinBoSung?.noiSinh;
+			const birthInfo = existingHoSo?.thongTinBoSung?.noiSinh;
 			if (birthInfo) {
 				setBirthInCountry(birthInfo.trongNuoc ?? true);
 				if (birthInfo.trongNuoc && birthInfo.tinh_ThanhPho) {
 					setSelectedBirthProvince(birthInfo.tinh_ThanhPho);
-					if (birthInfo.quanHuyen) {
-						setTimeout(() => {
-							setSelectedBirthDistrict(birthInfo.quanHuyen);
-							if (birthInfo.xaPhuong) {
-								setTimeout(() => {
-									setSelectedBirthWard(birthInfo.xaPhuong);
-								}, 100);
-							}
-						}, 100);
-					}
 				}
 			}
 
@@ -313,8 +278,6 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				noiSinh: {
 					trongNuoc: inCountry,
 					tinh_ThanhPho: '',
-					quanHuyen: '',
-					xaPhuong: '',
 					quocGia: inCountry ? '' : form.getFieldValue(['thongTinBoSung', 'noiSinh', 'quocGia']),
 				},
 			},
@@ -332,38 +295,6 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 				noiSinh: {
 					...form.getFieldValue(['thongTinBoSung', 'noiSinh']),
 					tinh_ThanhPho: value,
-					quanHuyen: '',
-					xaPhuong: '',
-				},
-			},
-		});
-	};
-
-	const handleBirthDistrictChange = (value: string) => {
-		setSelectedBirthDistrict(value);
-		setSelectedBirthWard(undefined);
-
-		form.setFieldsValue({
-			thongTinBoSung: {
-				...form.getFieldValue('thongTinBoSung'),
-				noiSinh: {
-					...form.getFieldValue(['thongTinBoSung', 'noiSinh']),
-					quanHuyen: value,
-					xaPhuong: '',
-				},
-			},
-		});
-	};
-
-	const handleBirthWardChange = (value: string) => {
-		setSelectedBirthWard(value);
-
-		form.setFieldsValue({
-			thongTinBoSung: {
-				...form.getFieldValue('thongTinBoSung'),
-				noiSinh: {
-					...form.getFieldValue(['thongTinBoSung', 'noiSinh']),
-					xaPhuong: value,
 				},
 			},
 		});
@@ -585,36 +516,6 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ userId, initialData
 										placeholder='Chọn tỉnh/thành phố sinh'
 										onChange={handleBirthProvinceChange}
 										value={selectedBirthProvince}
-									/>
-								</Form.Item>
-							</Col>
-							<Col span={8}>
-								<Form.Item
-									label='Quận/Huyện sinh'
-									name={['thongTinBoSung', 'noiSinh', 'quanHuyen']}
-									rules={[{ required: true, message: 'Vui lòng chọn quận/huyện sinh!' }]}
-								>
-									<DistrictsSelect
-										provinceCode={selectedBirthProvince}
-										placeholder='Chọn quận/huyện sinh'
-										onChange={handleBirthDistrictChange}
-										value={selectedBirthDistrict}
-										disabled={!selectedBirthProvince}
-									/>
-								</Form.Item>
-							</Col>
-							<Col span={8}>
-								<Form.Item
-									label='Xã/Phường sinh'
-									name={['thongTinBoSung', 'noiSinh', 'xaPhuong']}
-									rules={[{ required: true, message: 'Vui lòng chọn xã/phường sinh!' }]}
-								>
-									<WardsSelect
-										districtCode={selectedBirthDistrict}
-										placeholder='Chọn xã/phường sinh'
-										onChange={handleBirthWardChange}
-										value={selectedBirthWard}
-										disabled={!selectedBirthDistrict}
 									/>
 								</Form.Item>
 							</Col>

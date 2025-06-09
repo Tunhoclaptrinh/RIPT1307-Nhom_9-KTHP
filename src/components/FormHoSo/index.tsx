@@ -29,6 +29,8 @@ interface FormData {
 	educationGrades?: Partial<ThongTinHocTap.IRecord>;
 	hocBa?: Partial<DiemHocSinh.IRecord>;
 	wishes?: ThongTinNguyenVong.IRecord[];
+	thongTinBoSung: Partial<HoSo.IThongTinBoSung>;
+	thongTinLienHe: Partial<HoSo.IThongTinLienHe>;
 }
 
 interface StepInfo {
@@ -139,6 +141,8 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				educationGrades: thongTinHocTapResponse.data[0] || {},
 				hocBa: hocBaResponse.data[0] || {},
 				wishes: nguyenVongResponse.data || [],
+				thongTinBoSung: hoSoResponse.data[0].thongTinBoSung || {},
+				thongTinLienHe: hoSoResponse.data[0].thongTinLienHe || {},
 			};
 
 			setFormData(initialFormData);
@@ -233,31 +237,41 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 				thongTinCaNhanId: userId,
 				thongTinHocTapId: apiData.thongTinHocTap?.id || '',
 				thongTinBoSung: {
-					danToc: formData.personalInfo?.thongTinBoSung?.danToc || 'none',
-					quocTich: formData.personalInfo?.thongTinBoSung?.quocTich || 'Việt Nam',
-					tonGiao: formData.personalInfo?.thongTinBoSung?.tonGiao || 'Không',
-					noiSinh: formData.personalInfo?.thongTinBoSung?.noiSinh || {
-						trongNuoc: true,
-						tinh_ThanhPho: formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho || '',
-						quanHuyen: formData.personalInfo?.hoKhauThuongTru?.quanHuyen || '',
-						xaPhuong: formData.personalInfo?.hoKhauThuongTru?.xaPhuong || '',
-					},
+					danToc: formData?.thongTinBoSung?.danToc || 'none',
+					quocTich: formData?.thongTinBoSung?.quocTich || 'Việt Nam',
+					tonGiao: formData?.thongTinBoSung?.tonGiao || 'Không',
+					noiSinh:
+						formData?.thongTinBoSung?.noiSinh ||
+						// || {
+						// 	trongNuoc: true,
+						// 	tinh_ThanhPho: formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho || '',
+						// 	quanHuyen: formData.personalInfo?.hoKhauThuongTru?.quanHuyen || '',
+						// 	xaPhuong: formData.personalInfo?.hoKhauThuongTru?.xaPhuong || '',
+						// },
+						{},
 				},
 				thongTinLienHe: {
 					ten: `${formData.personalInfo?.ho || ''} ${formData.personalInfo?.ten || ''}`.trim(),
 					diaChi: {
 						tinh_ThanhPho:
-							formData.personalInfo?.thongTinLienHe?.tinh_ThanhPho ||
-							formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho ||
+							formData?.thongTinLienHe?.diaChi?.tinh_ThanhPho ||
+							// || formData.personalInfo?.hoKhauThuongTru?.tinh_ThanhPho
 							'',
 						quanHuyen:
-							formData.personalInfo?.thongTinLienHe?.quanHuyen ||
-							formData.personalInfo?.hoKhauThuongTru?.quanHuyen ||
+							formData.thongTinLienHe?.diaChi?.quanHuyen ||
+							// formData.personalInfo?.thongTinLienHe?.quanHuyen ||
+							// formData.personalInfo?.hoKhauThuongTru?.quanHuyen ||
 							'',
 						xaPhuong:
-							formData.personalInfo?.thongTinLienHe?.xaPhuong || formData.personalInfo?.hoKhauThuongTru?.xaPhuong || '',
+							formData.thongTinLienHe?.diaChi?.xaPhuong ||
+							// formData.personalInfo?.thongTinLienHe?.xaPhuong ||
+							// formData.personalInfo?.hoKhauThuongTru?.xaPhuong ||
+							'',
 						diaChiCuThe:
-							formData.personalInfo?.thongTinLienHe?.diaChi || formData.personalInfo?.hoKhauThuongTru?.diaChi || '',
+							formData?.thongTinLienHe?.diaChi?.diaChiCuThe ||
+							// formData.personalInfo?.thongTinLienHe?.diaChi ||
+							// formData.personalInfo?.hoKhauThuongTru?.diaChi ||
+							'',
 					},
 				},
 				nguyenVong: formData.wishes?.map((wish) => wish.id) || [],
