@@ -3,14 +3,13 @@ import { Card, Avatar, Badge, Typography, Timeline, Button, Tag } from 'antd';
 import { EditOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { history } from 'umi';
-import useAuth from '../../../hooks/useAuth'; // Import hook useAuth
-import { IUser } from './IUser'; // Import interface IUser
+import useAuth from '../../../hooks/useAuth';
 
 const { Title, Text } = Typography;
 
 const Sidebar: React.FC<{ currentStep: number }> = ({ currentStep }) => {
 	const { user, isAuthenticated } = useAuth();
-	const currentDate = moment('2025-06-01T16:59:00+07:00'); // Ngày giờ hiện tại: 04:59 PM, 01/06/2025
+	const currentDate = moment('2025-06-01T16:59:00+07:00');
 
 	const timelineItems = [
 		{
@@ -75,7 +74,6 @@ const Sidebar: React.FC<{ currentStep: number }> = ({ currentStep }) => {
 		},
 	];
 
-	// Mã hồ sơ giả định dựa trên userId
 	const registrationId = `PTT${user?.id ? user.id.replace('user_', '') : '2400009'}`;
 
 	return (
@@ -92,6 +90,8 @@ const Sidebar: React.FC<{ currentStep: number }> = ({ currentStep }) => {
 				<Text type='secondary'>Mã hồ sơ: {registrationId}</Text>
 				<br />
 				<Text type='secondary'>CCCD: {user?.soCCCD || 'Chưa cung cấp'}</Text>
+				<br />
+				<Text type='secondary'>Email: {user?.email || 'Chưa cung cấp'}</Text>
 				<br />
 				<Badge
 					status={isAuthenticated ? 'processing' : 'default'}

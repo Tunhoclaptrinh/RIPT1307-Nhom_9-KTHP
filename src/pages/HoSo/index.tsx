@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, message } from 'antd';
+import { Popconfirm, Tag, Space, message, Button, Popover, Avatar, Typography } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import Form from './components/Form';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
-import { CheckOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import {
+	CheckOutlined,
+	CloseOutlined,
+	DeleteOutlined,
+	EditOutlined,
+	EyeOutlined,
+	UserOutlined,
+} from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
 import HoSoDetail from './components/Detail';
-import { duyetHoSo } from '@/services/HoSo';
-import AdmissionStepModal from '@/components/FormHoSo';
+import { duyetHoSo, tuChoiHoSo } from '@/services/HoSo';
+import useUsers from '@/hooks/useUsers';
+import UserDetail from '../Users/components/Detail'; // Import UserDetail component
 
 const HoSoPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
+	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers(); // Add useUsers hook
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
+	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false); // State for UserDetail modal
 	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
+	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // State for selected user
 
 	const onOpenExtendedModal = (record: HoSo.IRecord) => {
 		setSelectedRecord(record);
@@ -32,7 +43,79 @@ const HoSoPage = () => {
 		}
 	};
 
+	// Hàm xử lý click vào thông tin user
+	const handleUserClick = (userId: string) => {
+		const user = getUserById(userId);
+		if (user) {
+			setSelectedUser(user);
+			setUserDetailModalVisible(true);
+		}
+	};
+
+	// Hàm đóng modal user detail
+	const handleCloseUserDetail = () => {
+		setUserDetailModalVisible(false);
+		setSelectedUser(undefined);
+	};
+
+	// Render user info với avatar và tên - có thể click
+	const renderUserInfo = (userId: string) => {
+		const userInfo = getUserInfo(userId);
+		const fullName = getUserFullName(userId);
+
+		if (usersLoading) {
+			return <text type='secondary'>Đang tải...</text>;
+		}
+
+		return (
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					gap: 8,
+					cursor: 'pointer',
+					padding: '4px 8px',
+					borderRadius: '6px',
+					transition: 'all 0.3s ease',
+				}}
+				onClick={() => handleUserClick(userId)}
+				onMouseEnter={(e) => {
+					e.currentTarget.style.backgroundColor = '#f0f9ff';
+					e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.backgroundColor = 'transparent';
+					e.currentTarget.style.boxShadow = 'none';
+				}}
+				title='Click để xem thông tin chi tiết'
+			>
+				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
+				<div>
+					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
+					{userInfo?.username && (
+						<text type='secondary' style={{ fontSize: '12px' }}>
+							@{userInfo.username}
+						</text>
+					)}
+					<div style={{ margin: 0 }}>
+						<text type='secondary' style={{ fontSize: '12px' }}>
+							ID: {userId}
+						</text>
+					</div>
+				</div>
+			</div>
+		);
+	};
+
 	const columns: IColumn<HoSo.IRecord>[] = [
+		{
+			title: 'Người sở hữu',
+			dataIndex: 'thongTinCaNhanId', // Use thongTinCaNhanId instead of userId
+			width: 200,
+			sortable: true,
+			filterType: 'string',
+			render: (userId: string) => renderUserInfo(userId),
+		},
 		{
 			title: 'Họ tên',
 			dataIndex: 'thongTinLienHe',
@@ -111,17 +194,49 @@ const HoSoPage = () => {
 						icon={<EyeOutlined />}
 					/>
 					<Popconfirm
-						title='Bạn có chắc chắn muốn duyệt hồ sơ này?'
+						title={
+							<Space direction='vertical'>
+								<Button
+									type='primary'
+									size='small'
+									icon={<CheckOutlined />}
+									onClick={async () => {
+										try {
+											await duyetHoSo(record);
+											message.success('Duyệt hồ sơ thành công!');
+											getModel();
+										} catch (error) {
+											message.error('Duyệt hồ sơ thất bại!');
+										}
+									}}
+									style={{ width: 100 }}
+									disabled={record.tinhTrang === 'đã duyệt'}
+								>
+									Duyệt
+								</Button>
+								<Button
+									danger
+									size='small'
+									icon={<CloseOutlined />}
+									onClick={async () => {
+										try {
+											await tuChoiHoSo(record);
+											message.success('Từ chối hồ sơ thành công!');
+											getModel();
+										} catch (error) {
+											message.error('Từ chối hồ sơ thất bại!');
+										}
+									}}
+									style={{ width: 100 }}
+									disabled={record.tinhTrang === 'đã duyệt'}
+								>
+									Từ chối
+								</Button>
+							</Space>
+						}
+						showCancel={false}
 						placement='topLeft'
-						onConfirm={async () => {
-							try {
-								await duyetHoSo(record);
-								message.success('Duyệt hồ sơ thành công!');
-								getModel();
-							} catch (error) {
-								message.error('Duyệt hồ sơ thất bại!');
-							}
-						}}
+						onConfirm={() => {}}
 					>
 						<ButtonExtend
 							tooltip='Duyệt'
@@ -171,6 +286,13 @@ const HoSoPage = () => {
 				onClose={onCloseExtendedModal}
 				record={selectedRecord}
 				onEdit={onEditFromView}
+			/>
+			<UserDetail
+				isVisible={userDetailModalVisible}
+				onClose={handleCloseUserDetail}
+				record={selectedUser}
+				title='người sở hữu hồ sơ'
+				hideFooter
 			/>
 		</div>
 	);
