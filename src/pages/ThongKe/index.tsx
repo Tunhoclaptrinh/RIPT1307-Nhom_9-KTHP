@@ -18,7 +18,7 @@ import CandidatesByToHopChart from './components/CandidatesByToHopChart';
 import ProfileStatusChart from './components/ProfileStatusChart';
 import WishesByScoreChart from './components/WishesByScoreChart';
 import { ipLocal } from '@/utils/ip';
-import { formatNguyenVong } from '@/utils/utils';
+import { formatNguyenVong, formatThiSinh } from '@/utils/utils';
 
 const { Option } = Select;
 
@@ -537,6 +537,7 @@ const StatisticsPage: React.FC = () => {
 								yLabel={['Số lượng thí sinh']}
 								colors={['#1890ff']}
 								height={300}
+								formatY={formatThiSinh}
 							/>
 							<Divider style={{ margin: '16px 0' }} />
 							<div>
