@@ -281,7 +281,7 @@ const HoSoPage = () => {
 						onClick={() => handleEdit(record)}
 						type='link'
 						icon={<EditOutlined />}
-						disabled={record.tinhTrang === 'đã duyệt'}
+						// disabled={record.tinhTrang === 'đã duyệt'}
 					/>
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}

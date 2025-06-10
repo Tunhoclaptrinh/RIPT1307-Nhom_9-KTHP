@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Col, Form, Input, Row, Select } from 'antd';
+import { Button, Card, Col, Form, Input, Row, Select, Modal, message } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import { HoSo } from '@/services/HoSo/typing';
 import { Space } from 'antd';
+import axios from 'axios';
 const { Option } = Select;
 
 interface HoSoFormProps {
@@ -16,6 +17,7 @@ interface HoSoFormProps {
 const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('hoso');
 	const [form] = Form.useForm();
+	const [resultForm] = Form.useForm();
 	const intl = useIntl();
 
 	// State for address selection
@@ -23,6 +25,31 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 	const [selectedDistrict, setSelectedDistrict] = useState<string>();
 	const [selectedWard, setSelectedWard] = useState<string>();
 	const [submitting, setSubmitting] = useState(false);
+	const [resultModalVisible, setResultModalVisible] = useState(false);
+	const [nguyenVongList, setNguyenVongList] = useState<any[]>([]);
+	const [phuongThucList, setPhuongThucList] = useState<any[]>([]);
+
+	// Fetch nguyenVong and phuongThucXetTuyen when record changes
+	useEffect(() => {
+		const fetchData = async () => {
+			if (record?.thongTinCaNhanId) {
+				try {
+					// Fetch nguyenVong for the user
+					const nguyenVongResponse = await axios.get(
+						`http://localhost:3000/thongTinNguyenVong?userId=${record.thongTinCaNhanId}`,
+					);
+					setNguyenVongList(nguyenVongResponse.data);
+
+					// Fetch all phuongThucXetTuyen
+					const phuongThucResponse = await axios.get('http://localhost:3000/phuongThucXetTuyen');
+					setPhuongThucList(phuongThucResponse.data);
+				} catch (error) {
+					message.error('Không thể tải dữ liệu nguyện vọng hoặc phương thức xét tuyển');
+				}
+			}
+		};
+		fetchData();
+	}, [record?.thongTinCaNhanId]);
 
 	// Reset form and update values when record changes
 	useEffect(() => {
@@ -31,6 +58,8 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 			setSelectedProvince(undefined);
 			setSelectedDistrict(undefined);
 			setSelectedWard(undefined);
+			setResultModalVisible(false);
+			resetFieldsForm(resultForm);
 		} else if (record?.id) {
 			const formData = {
 				...record,
@@ -42,6 +71,7 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 					...record.thongTinBoSung,
 					noiSinh: record.thongTinBoSung?.noiSinh || {},
 				},
+				ketQua: record.ketQua || {},
 			};
 			form.setFieldsValue(formData);
 
@@ -49,8 +79,20 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 			setSelectedProvince(record.thongTinLienHe?.diaChi?.tinh_ThanhPho);
 			setSelectedDistrict(record.thongTinLienHe?.diaChi?.quanHuyen);
 			setSelectedWard(record.thongTinLienHe?.diaChi?.xaPhuong);
+
+			// Set result form values if ketQua exists
+			if (record.ketQua) {
+				resultForm.setFieldsValue({
+					ketQua: {
+						succes: record.ketQua.succes,
+						nguyenVongDo: record.ketQua.nguyenVongDo,
+						phuongThucId: record.ketQua.phuongThucId,
+						diem: record.ketQua.diem,
+					},
+				});
+			}
 		}
-	}, [record?.id, visibleForm, form]);
+	}, [record?.id, visibleForm, form, resultForm]);
 
 	// Handle form submission
 	const onFinish = async (values: any) => {
@@ -76,7 +118,7 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 				},
 				nguyenVong: values.nguyenVong || [],
 				tinhTrang: 'chờ duyệt',
-				ketQua: values.ketQUa || {},
+				ketQua: values.ketQua || {},
 			};
 
 			if (edit) {
@@ -87,6 +129,35 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 			setVisibleForm(false);
 		} catch (error) {
 			console.error('Form submission error:', error);
+			message.error('Lỗi khi gửi biểu mẫu');
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	// Handle result form submission
+	const onResultFinish = async (values: any) => {
+		try {
+			setSubmitting(true);
+			const updatedKetQua = {
+				...record,
+				ketQua: {
+					succes: values.ketQua.succes,
+					nguyenVongDo: values.ketQua.nguyenVongDo,
+					phuongThucId: values.ketQua.phuongThucId,
+					diem: parseFloat(values.ketQua.diem),
+				},
+			};
+
+			if (edit) {
+				await putModel(record?.id ?? '', updatedKetQua);
+				message.success('Cập nhật kết quả thành công');
+			}
+			setResultModalVisible(false);
+			setVisibleForm(false);
+		} catch (error) {
+			console.error('Result form submission error:', error);
+			message.error('Lỗi khi cập nhật kết quả');
 		} finally {
 			setSubmitting(false);
 		}
@@ -135,6 +206,19 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 				},
 			},
 		});
+	};
+
+	// Handle nguyenVongDo change to filter phuongThucId
+	const handleNguyenVongDoChange = (value: string) => {
+		const selectedNguyenVong = nguyenVongList.find((nv) => nv.id === value);
+		if (selectedNguyenVong) {
+			resultForm.setFieldsValue({
+				ketQua: {
+					...resultForm.getFieldValue('ketQua'),
+					phuongThucId: selectedNguyenVong.phuongThucId,
+				},
+			});
+		}
 	};
 
 	return (
@@ -224,7 +308,7 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 								<Form.Item
 									label='Quận/Huyện'
 									name={['thongTinLienHe', 'diaChi', 'quanHuyen']}
-									//   rules={[...rules.required]}
+									// rules={[...rules.required]}
 								>
 									<DistrictsSelect
 										provinceCode={selectedProvince}
@@ -240,7 +324,7 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 								<Form.Item
 									label='Xã/Phường'
 									name={['thongTinLienHe', 'diaChi', 'xaPhuong']}
-									//   rules={[...rules.required]}
+									// rules={[...rules.required]}
 								>
 									<WardsSelect
 										districtCode={selectedDistrict}
@@ -262,6 +346,12 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 						</Row>
 					</Card>
 
+					<div style={{ marginTop: 16, marginBottom: 24 }}>
+						<Button type='primary' onClick={() => setResultModalVisible(true)}>
+							Cập nhật kết quả
+						</Button>
+					</div>
+
 					<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>
 						<Space>
 							<Button loading={submitting} htmlType='submit' type='primary'>
@@ -274,6 +364,64 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 					</div>
 				</Form>
 			</Card>
+
+			<Modal
+				title='Cập nhật kết quả xét tuyển'
+				visible={resultModalVisible}
+				onCancel={() => setResultModalVisible(false)}
+				footer={null}
+				destroyOnClose
+			>
+				<Form form={resultForm} layout='vertical' onFinish={onResultFinish} autoComplete='off'>
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item label='Kết quả' name={['ketQua', 'succes']} rules={[...rules.required]}>
+								<Select placeholder='Chọn kết quả'>
+									<Option value={true}>Đỗ</Option>
+									<Option value={false}>Trượt</Option>
+								</Select>
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							<Form.Item label='Nguyện vọng đỗ' name={['ketQua', 'nguyenVongDo']} rules={[...rules.required]}>
+								<Select placeholder='Chọn nguyện vọng' onChange={handleNguyenVongDoChange}>
+									{nguyenVongList.map((nv) => (
+										<Option key={nv.id} value={nv.id}>
+											{nv.ten} (Thứ tự: {nv.thuTuNV})
+										</Option>
+									))}
+								</Select>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item label='Phương thức xét tuyển' name={['ketQua', 'phuongThucId']} rules={[...rules.required]}>
+								<Select placeholder='Chọn phương thức xét tuyển' disabled>
+									{phuongThucList.map((pt) => (
+										<Option key={pt.id} value={pt.id}>
+											{pt.ten}
+										</Option>
+									))}
+								</Select>
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							<Form.Item label='Điểm' name={['ketQua', 'diem']} rules={[...rules.required, ...rules.number()]}>
+								<Input placeholder='Nhập điểm' type='number' step='0.1' />
+							</Form.Item>
+						</Col>
+					</Row>
+					<div style={{ textAlign: 'center', marginTop: 24 }}>
+						<Space>
+							<Button loading={submitting} htmlType='submit' type='primary'>
+								Lưu
+							</Button>
+							<Button onClick={() => setResultModalVisible(false)}>Hủy</Button>
+						</Space>
+					</div>
+				</Form>
+			</Modal>
 		</div>
 	);
 };
