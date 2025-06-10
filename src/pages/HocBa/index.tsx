@@ -14,6 +14,7 @@ import ModalExport from '@/components/Table/Export';
 import { getNameFile } from '@/utils/utils';
 import { ipLocal } from '@/utils/ip';
 import { DiemHocSinh } from '@/services/HocBa/typing';
+import { User } from '@/services/Users/typing';
 
 const { Text } = Typography;
 

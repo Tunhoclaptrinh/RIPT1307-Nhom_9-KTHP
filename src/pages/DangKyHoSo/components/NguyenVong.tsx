@@ -1,22 +1,26 @@
-import React, { useEffect } from 'react';
-import { Form, Card, Button, Select, InputNumber, Row, Col, Divider, Space, message } from 'antd';
+import React from 'react';
+import { Form, Button, Card, Select, InputNumber, Row, Col, Input, Space } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
-import rules from '@/utils/rules';
+import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
+import NganhDaoTaoSelect from '@/pages/NganhDaoTao/components/Select';
+import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
+import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
 
 const { Option } = Select;
 
-interface WishListProps {
+interface WisheListProps {
 	userId: string;
-	initialData: any;
-	onNext: (values: any) => void;
-	onPrev: () => void;
-	phuongThucXetTuyenData: any[];
-	nganhDaoTaoData: any[];
-	toHopData: any[];
-	existingNguyenVong: any[];
+	initialData: { wishes?: ThongTinNguyenVong.IRecord[] };
+	onNext: (data: { wishes: ThongTinNguyenVong.IRecord[] }) => void;
+	onPrev: (data: any) => void;
+	phuongThucXetTuyenData: PhuongThucXT.IRecord[];
+	nganhDaoTaoData: NganhDaoTao.IRecord[];
+	toHopData: ToHop.IRecord[];
+	existingNguyenVong: ThongTinNguyenVong.IRecord[];
+	loading?: boolean;
 }
 
-const WishList: React.FC<WishListProps> = ({
+const WisheList: React.FC<WisheListProps> = ({
 	userId,
 	initialData,
 	onNext,
@@ -24,97 +28,193 @@ const WishList: React.FC<WishListProps> = ({
 	phuongThucXetTuyenData,
 	nganhDaoTaoData,
 	toHopData,
-	existingNguyenVong,
+	loading = false,
 }) => {
 	const [form] = Form.useForm();
 
-	useEffect(() => {
-		form.setFieldsValue({
-			wishes: initialData.wishes || existingNguyenVong || [],
-		});
-	}, [initialData, existingNguyenVong, form]);
-
+	// Hàm xử lý khi nhấn "Tiếp tục"
 	const handleNext = async () => {
 		try {
 			const values = await form.validateFields();
-			const submissionData = {
-				wishes: values.wishes.map((wish: any, index: number) => ({
-					...wish,
-					userId,
-					id: existingNguyenVong[index]?.id || `wish_${Date.now()}_${index}`,
-					thuTuNguyenVong: index + 1,
-				})),
-			};
-			onNext(submissionData);
+			// Chuẩn hóa dữ liệu để gửi qua onNext
+			const wishes: ThongTinNguyenVong.IRecord[] = values.nguyenVong.map((nv: any, index: number) => ({
+				id: nv.id || `ttnv_${Date.now()}${Math.random().toString(36).substr(2, 9)}`,
+				userId,
+				thuTuNV: index + 1,
+				maNganh: nv.maNganh,
+				ten: nganhDaoTaoData.find((nganh) => nganh.ma === nv.maNganh)?.ten || nv.ten || '',
+				coSoDaoTao: nv.coSoDaoTao,
+				phuongThucId: nv.phuongThucId,
+				diemChuaUT: Number(nv.diemChuaUT) || 0,
+				diemCoUT: Number(nv.diemCoUT) || 0,
+				diemDoiTuongUT: Number(nv.diemDoiTuongUT) || 0, // Chuẩn hóa thành số
+				diemKhuVucUT: Number(nv.diemKhuVucUT) || 0, // Chuẩn hóa thành số
+				tongDiem: Number(nv.tongDiem) || 0,
+				phuongThucXT: [phuongThucXetTuyenData.find((pt) => pt.id === nv.phuongThucId)?.ten || ''],
+			}));
+			onNext({ wishes });
 		} catch (error) {
 			console.error('Validation failed:', error);
-			message.error('Vui lòng hoàn thành tất cả các trường bắt buộc!');
 		}
 	};
 
 	return (
-		<Card title='Nguyện vọng'>
-			<Form form={form} layout='vertical'>
-				<Form.List name='wishes'>
+		<Form form={form} layout='vertical' initialValues={{ nguyenVong: initialData.wishes || [] }}>
+			<Card title='Nguyện vọng xét tuyển'>
+				<Form.List name='nguyenVong'>
 					{(fields, { add, remove }) => (
 						<>
 							{fields.map(({ key, name, ...restField }) => (
-								<div key={key} style={{ marginBottom: 24 }}>
-									<Divider>Nguyện vọng {name + 1}</Divider>
+								<Card
+									key={key}
+									type='inner'
+									title={`Nguyện vọng ${name + 1}`}
+									style={{ marginBottom: 16 }}
+									extra={<Button type='text' danger icon={<MinusCircleOutlined />} onClick={() => remove(name)} />}
+								>
+									<Row gutter={16}>
+										<Col span={12}>
+											<Form.Item
+												{...restField}
+												name={[name, 'maNganh']}
+												label='Ngành đào tạo'
+												rules={[{ required: true, message: 'Vui lòng chọn ngành!' }]}
+											>
+												<NganhDaoTaoSelect selectData={nganhDaoTaoData} placeholder='Chọn ngành đào tạo' />
+											</Form.Item>
+										</Col>
+										<Col span={12}>
+											<Form.Item
+												{...restField}
+												name={[name, 'phuongThucId']}
+												label='Phương thức xét tuyển'
+												rules={[{ required: true, message: 'Vui lòng chọn phương thức!' }]}
+											>
+												<PhuongThucXTSelect
+													selectData={phuongThucXetTuyenData}
+													placeholder='Chọn phương thức xét tuyển'
+												/>
+											</Form.Item>
+										</Col>
+									</Row>
+									{/* 
 									<Row gutter={16}>
 										<Col span={8}>
 											<Form.Item
 												{...restField}
-												label='Phương thức xét tuyển'
-												name={[name, 'phuongThucXetTuyenId']}
-												rules={[...rules.required]}
+												name={[name, 'diemChuaUT']}
+												label='Điểm chưa ưu tiên'
+												rules={[
+													{ required: true, message: 'Vui lòng nhập điểm!' },
+													{ type: 'number', min: 0, max: 30, message: 'Điểm phải từ 0 đến 30!' },
+												]}
 											>
-												<Select placeholder='Chọn phương thức xét tuyển'>
-													{phuongThucXetTuyenData.map((item) => (
-														<Option key={item.id} value={item.id}>
-															{item.name}
-														</Option>
-													))}
-												</Select>
+												<InputNumber
+													min={0}
+													max={30}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
 											</Form.Item>
 										</Col>
 										<Col span={8}>
 											<Form.Item
 												{...restField}
-												label='Ngành đào tạo'
-												name={[name, 'nganhDaoTaoId']}
-												rules={[...rules.required]}
+												name={[name, 'diemCoUT']}
+												label='Điểm có ưu tiên'
+												rules={[
+													{ required: true, message: 'Vui lòng nhập điểm!' },
+													{ type: 'number', min: 0, max: 30, message: 'Điểm phải từ 0 đến 30!' },
+												]}
 											>
-												<Select placeholder='Chọn ngành đào tạo'>
-													{nganhDaoTaoData.map((item) => (
-														<Option key={item.id} value={item.id}>
-															{item.tenNganh}
-														</Option>
-													))}
-												</Select>
+												<InputNumber
+													min={0}
+													max={30}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
 											</Form.Item>
 										</Col>
 										<Col span={8}>
-											<Form.Item {...restField} label='Tổ hợp môn' name={[name, 'toHopId']} rules={[...rules.required]}>
-												<Select placeholder='Chọn tổ hợp'>
-													{toHopData.map((item) => (
-														<Option key={item.id} value={item.id}>
-															{item.tenToHop}
-														</Option>
-													))}
-												</Select>
+											<Form.Item
+												{...restField}
+												name={[name, 'tongDiem']}
+												label='Tổng điểm'
+												rules={[
+													{ required: true, message: 'Vui lòng nhập tổng điểm!' },
+													{ type: 'number', min: 0, max: 30, message: 'Điểm phải từ 0 đến 30!' },
+												]}
+											>
+												<InputNumber
+													min={0}
+													max={30}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
 											</Form.Item>
 										</Col>
-									</Row>
-									<Button
-										type='link'
-										icon={<MinusCircleOutlined />}
-										onClick={() => remove(name)}
-										style={{ color: 'red' }}
+									</Row> */}
+
+									{/* <Row gutter={16}>
+										<Col span={12}>
+											<Form.Item
+												{...restField}
+												name={[name, 'diemDoiTuongUT']}
+												label='Điểm ưu tiên đối tượng'
+												rules={[{ type: 'number', min: 0, max: 5, message: 'Điểm phải từ 0 đến 5!' }]}
+											>
+												<InputNumber
+													min={0}
+													max={5}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
+											</Form.Item>
+										</Col>
+										<Col span={12}>
+											<Form.Item
+												{...restField}
+												name={[name, 'diemKhuVucUT']}
+												label='Điểm ưu tiên khu vực'
+												rules={[{ type: 'number', min: 0, max: 5, message: 'Điểm phải từ 0 đến 5!' }]}
+											>
+												<InputNumber
+													min={0}
+													max={5}
+													step={0.1}
+													precision={2}
+													placeholder='0.0'
+													style={{ width: '100%' }}
+												/>
+											</Form.Item>
+										</Col>
+									</Row> */}
+
+									<Form.Item
+										{...restField}
+										name={[name, 'coSoDaoTao']}
+										label='Cơ sở đào tạo'
+										rules={[{ required: true, message: 'Vui lòng chọn cơ sở đào tạo!' }]}
 									>
-										Xóa nguyện vọng
-									</Button>
-								</div>
+										<Select placeholder='Chọn cơ sở đào tạo'>
+											<Option value='Cơ sở chính'>Cơ sở chính</Option>
+											<Option value='Cơ sở 2'>Cơ sở 2</Option>
+											<Option value='Cơ sở 3'>Cơ sở 3</Option>
+										</Select>
+									</Form.Item>
+
+									<Form.Item {...restField} name={[name, 'ghiChu']} label='Ghi chú (không bắt buộc)'>
+										<Input.TextArea placeholder='Nhập ghi chú cho nguyện vọng này...' rows={2} />
+									</Form.Item>
+								</Card>
 							))}
 							<Form.Item>
 								<Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
@@ -124,20 +224,20 @@ const WishList: React.FC<WishListProps> = ({
 						</>
 					)}
 				</Form.List>
+			</Card>
 
-				<div style={{ textAlign: 'center', marginTop: '24px' }}>
-					<Space size='middle'>
-						<Button size='large' onClick={onPrev} style={{ minWidth: '100px' }}>
-							Quay lại
-						</Button>
-						<Button type='primary' size='large' onClick={handleNext} style={{ minWidth: '100px' }}>
-							Tiếp tục
-						</Button>
-					</Space>
-				</div>
-			</Form>
-		</Card>
+			<div style={{ textAlign: 'center' }}>
+				<Space style={{ textAlign: 'center', marginTop: 16, gap: 16 }}>
+					<Button onClick={onPrev} disabled={loading}>
+						Quay lại
+					</Button>
+					<Button type='primary' onClick={handleNext} loading={loading}>
+						Tiếp tục
+					</Button>
+				</Space>
+			</div>
+		</Form>
 	);
 };
 
-export default WishList;
+export default WisheList;

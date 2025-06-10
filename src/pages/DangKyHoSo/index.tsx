@@ -386,6 +386,7 @@ const UniversityRegistrationForm: React.FC = () => {
 										onNext={handleNext}
 										onPrev={handlePrev}
 										onSubmit={handleSubmit}
+										loading={loading} // Truyền prop loading
 									/>
 								</Form>
 							</Card>

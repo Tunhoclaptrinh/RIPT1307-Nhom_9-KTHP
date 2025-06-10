@@ -9,6 +9,10 @@ import WishesForm from './Wishes';
 import SummaryForm from './Summary';
 import { ipLocal } from '@/utils/ip';
 import { HoSo } from '@/services/HoSo/typing';
+import { DiemHocSinh } from '@/services/HocBa/typing';
+import { User } from '@/services/Users/typing';
+import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
+import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
 
 const { Step } = Steps;
 

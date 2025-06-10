@@ -1,12 +1,9 @@
 import React from 'react';
-import { Typography } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
+import Summary from './Summary';
 import PersonalInfo from './TTCaNhan';
 import EducationInfo from './TTHocTap';
 import WishList from './NguyenVong';
-import Summary from './Summary';
-
-const { Title, Text } = Typography;
+import { Button, Space } from 'antd';
 
 interface StepContentProps {
 	currentStep: number;
@@ -19,6 +16,7 @@ interface StepContentProps {
 	onNext: (data: any) => void;
 	onPrev: () => void;
 	onSubmit: () => void;
+	loading: boolean; // Thêm loading vào props
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -32,11 +30,13 @@ const StepContent: React.FC<StepContentProps> = ({
 	onNext,
 	onPrev,
 	onSubmit,
+	loading,
 }) => {
-	switch (currentStep) {
-		case 0:
-			return (
+	const steps = [
+		{
+			component: (
 				<PersonalInfo
+					key='personal'
 					userId={userId}
 					initialData={formData}
 					onNext={onNext}
@@ -44,10 +44,12 @@ const StepContent: React.FC<StepContentProps> = ({
 					userData={apiData.user}
 					existingHoSo={apiData.hoSo}
 				/>
-			);
-		case 1:
-			return (
+			),
+		},
+		{
+			component: (
 				<EducationInfo
+					key='education'
 					userId={userId}
 					initialData={formData}
 					showHocBa={showHocBa}
@@ -59,10 +61,12 @@ const StepContent: React.FC<StepContentProps> = ({
 					existingThongTinHocTap={apiData.thongTinHocTap}
 					existingHocBa={apiData.hocBa}
 				/>
-			);
-		case 2:
-			return (
+			),
+		},
+		{
+			component: (
 				<WishList
+					key='wishes'
 					userId={userId}
 					initialData={formData}
 					onNext={onNext}
@@ -72,21 +76,37 @@ const StepContent: React.FC<StepContentProps> = ({
 					toHopData={apiData.toHop}
 					existingNguyenVong={apiData.thongTinNguyenVong}
 				/>
-			);
-		case 3:
-			return (
-				<Summary
-					userId={userId}
-					formData={formData}
-					showHocBa={showHocBa}
-					apiData={apiData}
-					onSubmit={onSubmit}
-					onPrev={onPrev}
-				/>
-			);
-		default:
-			return null;
-	}
+			),
+		},
+		{
+			component: <Summary key='summary' userId={userId} formData={formData} showHocBa={showHocBa} apiData={apiData} />,
+		},
+	];
+
+	return (
+		<div>
+			{steps[currentStep]?.component || null}
+			<div style={{ textAlign: 'center', marginTop: 16 }}>
+				<Space>
+					{currentStep > 0 && (
+						<Button onClick={onPrev} disabled={loading}>
+							Quay lại
+						</Button>
+					)}
+					{currentStep < steps.length - 1 ? (
+						// <Button type='primary' onClick={() => onNext(formData)} loading={loading}>
+						// 	Tiếp tục
+						// </Button>
+						<></>
+					) : (
+						<Button type='primary' onClick={onSubmit} loading={loading}>
+							Nộp hồ sơ
+						</Button>
+					)}
+				</Space>
+			</div>
+		</div>
+	);
 };
 
 export default StepContent;

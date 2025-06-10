@@ -21,6 +21,7 @@ import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/i
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import axios from 'axios';
 import { ipLocal } from '@/utils/ip';
+import { DiemHocSinh } from '@/services/HocBa/typing';
 
 const { Option } = Select;
 

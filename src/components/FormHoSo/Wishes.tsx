@@ -3,6 +3,8 @@ import { Form, Button, Card, Select, InputNumber, Row, Col, Input, Space } from 
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
 import NganhDaoTaoSelect from '@/pages/NganhDaoTao/components/Select';
+import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
+import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
 
 const { Option } = Select;
 
