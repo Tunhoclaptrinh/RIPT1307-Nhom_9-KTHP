@@ -84,7 +84,7 @@ const ChiTietKetQua = ({ visible, record, toHopData, nganhDaoTaoData, onClose }:
 					Đóng
 				</Button>,
 			]}
-			width={800}
+			width={1000}
 		>
 			{renderDetailContent()}
 		</Modal>

@@ -138,15 +138,14 @@ const TrangChuBody = () => {
 										sơ tuyển sinh của bạn mọi lúc, mọi nơi.
 									</Paragraph>
 									<Space>
-										<Link to={'/public/dash-board'} key='detail' style={{ color: 'inherit', textDecoration: 'none' }}>
+										<Link to={'/public/dash-board'} key='register' style={{ color: 'inherit', textDecoration: 'none' }}>
 											<Button type='primary' size='large'>
 												Đăng Ký Xét Tuyển
 											</Button>
 										</Link>
-
 										<Link
 											to={'/public/tra-cuu-public'}
-											key='detail'
+											key='lookup'
 											style={{ color: 'inherit', textDecoration: 'none' }}
 										>
 											<Button size='large'>Tra Cứu Thông Tin</Button>
@@ -176,7 +175,7 @@ const TrangChuBody = () => {
 							</Title>
 							<Row gutter={[32, 32]}>
 								<Col xs={24} md={8}>
-									<Link to={'/public/dash-board'} key='detail'>
+									<Link to={'/public/dash-board'} key='register'>
 										<Card
 											style={{ height: '100%' }}
 											bodyStyle={{
@@ -194,9 +193,8 @@ const TrangChuBody = () => {
 										</Card>
 									</Link>
 								</Col>
-
 								<Col xs={24} md={8}>
-									<Link to={'/public/tra-cuu-public'} key='detail'>
+									<Link to={'/public/tra-cuu-public'} key='lookup'>
 										<Card
 											style={{ height: '100%' }}
 											bodyStyle={{
@@ -215,7 +213,7 @@ const TrangChuBody = () => {
 									</Link>
 								</Col>
 								<Col xs={24} md={8}>
-									<Link to={'/public/theo-doi-ho-so'} key='detail'>
+									<Link to={'/public/theo-doi-ho-so'} key='track'>
 										<Card
 											style={{ height: '100%' }}
 											bodyStyle={{
@@ -374,7 +372,7 @@ const TrangChuBody = () => {
 
 			{/* Modal for displaying details */}
 			<Modal
-				title={selectedItem?.title}
+				title={selectedItem?.title || 'Thông báo tuyển sinh'}
 				visible={modalVisible}
 				onCancel={handleModalClose}
 				footer={[
@@ -382,21 +380,36 @@ const TrangChuBody = () => {
 						Đóng
 					</Button>,
 				]}
-				width={800}
+				width={1000}
+				style={{ top: 20 }}
+				bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', padding: '24px' }}
 			>
 				{selectedItem && (
 					<div>
 						<Paragraph>
 							<Text strong>Ngày đăng: </Text>
-							{selectedItem.date}
+							{selectedItem.date || 'N/A'}
 						</Paragraph>
 						<Paragraph>
 							<Text strong>Tóm tắt: </Text>
-							{selectedItem.summary}
+							{selectedItem.summary || 'Không có tóm tắt'}
 						</Paragraph>
 						<Paragraph>
 							<Text strong>Nội dung: </Text>
-							{selectedItem.content || 'Không có nội dung chi tiết.'}
+							<div
+								style={{
+									lineHeight: '1.6',
+									padding: '12px',
+									background: '#fff',
+									borderRadius: '4px',
+									fontSize: '14px',
+									color: 'rgba(0, 0, 0, 0.85)',
+								}}
+								// Cảnh báo: dangerouslySetInnerHTML chỉ an toàn nếu content được kiểm soát từ backend
+								dangerouslySetInnerHTML={{
+									__html: selectedItem.content || 'Không có nội dung chi tiết.',
+								}}
+							/>
 						</Paragraph>
 					</div>
 				)}

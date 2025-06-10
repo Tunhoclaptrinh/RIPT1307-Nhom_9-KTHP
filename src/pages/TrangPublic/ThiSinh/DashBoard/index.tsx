@@ -30,21 +30,21 @@ const Dashboard: React.FC = () => {
 			icon: <FileSearchOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
 			image: 'https://tuyensinh.ptit.edu.vn/wp-content/uploads/sites/4/2025/05/9-1-1024x520.jpg',
-			path: '/dang-ky-tuyen-sinh',
+			path: '/public/dang-ky-tuyen-sinh',
 		},
 		{
 			title: 'Nhập học trực tuyến',
 			icon: <ReadOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
 			image: 'https://i.ytimg.com/vi/JDadPU_1fPI/maxresdefault.jpg',
-			path: '/dang-ky-tuyen-sinh',
+			path: '/public/dang-ky-tuyen-sinh',
 		},
 		{
 			title: 'Thanh toán trực tuyến',
 			icon: <CreditCardOutlined style={{ fontSize: 24 }} />,
 			description: 'Bạn đang tham gia hệ thống xét tuyển trực tuyến đại học của PTIT',
 			image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOmbWhInhDtFCA215uhODstISa7kEIs0mCRg&s',
-			path: '/dang-ky-tuyen-sinh',
+			path: '/public/dang-ky-tuyen-sinh',
 		},
 	];
 
@@ -144,7 +144,11 @@ const Dashboard: React.FC = () => {
 										</div>
 
 										<div style={{ textAlign: 'right', marginTop: 16 }}>
-											<Button type='link' style={{ padding: 0 }} onClick={() => history.push('/dang-ky-tuyen-sinh')}>
+											<Button
+												type='link'
+												style={{ padding: 0 }}
+												onClick={() => history.push('/public/dang-ky-tuyen-sinh')}
+											>
 												Xem chi tiết <RightOutlined />
 											</Button>
 										</div>

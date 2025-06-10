@@ -1,9 +1,10 @@
-import React from 'react';
-import { Button, Card, Form, Input, DatePicker, Switch, InputNumber, Space, Row, Col } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Card, Form, Input, DatePicker, Switch, InputNumber, Space, Row, Col, message } from 'antd';
 import { useIntl, useModel } from 'umi';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import moment from 'moment';
+import TinyEditor from '@/components/TinyEditor';
 
 interface ThongBaoTSFormProps {
 	title?: string;
@@ -14,15 +15,18 @@ const ThongBaoTSForm: React.FC<ThongBaoTSFormProps> = ({ title = 'Thông báo tu
 		useModel('quanlytrang.thongbaots');
 	const [form] = Form.useForm();
 	const intl = useIntl();
+	const [contentValue, setContentValue] = useState<string>(''); // State để lưu giá trị TinyEditor
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
+			setContentValue('');
 		} else if (record?.id) {
 			form.setFieldsValue({
 				...record,
 				date: record.date ? moment(record.date, 'DD/MM/YYYY') : null,
 			});
+			setContentValue(record.content || ''); // Đặt giá trị content cho TinyEditor
 		}
 	}, [record?.id, visibleForm, form]);
 
@@ -31,16 +35,30 @@ const ThongBaoTSForm: React.FC<ThongBaoTSFormProps> = ({ title = 'Thông báo tu
 			const submitValues = {
 				...values,
 				date: values.date ? values.date.format('DD/MM/YYYY') : '',
+				content: contentValue, // Lấy giá trị từ state của TinyEditor
 			};
 			if (edit) {
 				await putModel(record?.id ?? '', submitValues);
+				message.success('Cập nhật thông báo thành công!');
 			} else {
 				await postModel(submitValues);
+				message.success('Thêm thông báo thành công!');
 			}
 			setVisibleForm(false);
+			form.resetFields();
+			setContentValue('');
 		} catch (error) {
 			console.error('Form submission error:', error);
+			message.error('Có lỗi xảy ra, vui lòng thử lại.');
 		}
+	};
+
+	// Hàm xử lý validation cho TinyEditor
+	const validateContent = async (_: any, value: string) => {
+		if (!value || value === '<p></p>' || value.trim() === '') {
+			return Promise.reject(new Error('Vui lòng nhập nội dung!'));
+		}
+		return Promise.resolve();
 	};
 
 	return (
@@ -75,8 +93,28 @@ const ThongBaoTSForm: React.FC<ThongBaoTSFormProps> = ({ title = 'Thông báo tu
 					<Input.TextArea placeholder='Nhập tóm tắt' autoSize={{ minRows: 2 }} />
 				</Form.Item>
 
-				<Form.Item label='Nội dung' name='content' rules={[...rules.required]}>
-					<Input.TextArea placeholder='Nhập nội dung' autoSize={{ minRows: 4 }} />
+				<Form.Item
+					label='Nội dung'
+					name='content'
+					rules={[{ validator: validateContent }]}
+					valuePropName='value'
+					getValueFromEvent={(value: string) => {
+						setContentValue(value);
+						return value;
+					}}
+				>
+					<TinyEditor
+						value={contentValue}
+						onChange={(value: string) => {
+							setContentValue(value);
+							form.setFieldsValue({ content: value });
+						}}
+						height={400}
+						minHeight={200}
+						miniToolbar={false}
+						hideMenubar={false}
+						stickyToolbar={true}
+					/>
 				</Form.Item>
 
 				<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>

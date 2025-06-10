@@ -58,10 +58,17 @@ export default [
 				layout: false,
 			},
 			{
-				path: '/public//dang-ky-tuyen-sinh',
+				path: '/public/dang-ky-tuyen-sinh',
 				name: 'Đăng ký tuyển sinh',
 				component: './DangKyHoSo',
 				icon: 'ReadOutlined',
+				layout: false,
+			},
+			{
+				path: '/public/theo-doi-ho-so',
+				name: 'Theo dõi hồ sơ',
+				component: './TrangPublic/TheoDoiHSPublic',
+				// icon: 'CheckOutlined',
 				layout: false,
 			},
 		],

@@ -5,6 +5,8 @@ import axios from 'axios';
 import { ipLocal } from '@/utils/ip';
 import { HoSo } from '@/services/HoSo/typing';
 import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
+import { DiemHocSinh } from '@/services/HocBa/typing';
+import { User } from '@/services/Users/typing';
 
 interface ApiData {
 	user: User.IRecord | null;
