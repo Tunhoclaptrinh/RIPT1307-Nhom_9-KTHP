@@ -170,14 +170,17 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 	};
 
 	const beforeUpload = (file: File) => {
-		const isImage = file.type.startsWith('image/');
-		if (!isImage) {
-			message.error('Chỉ được tải lên file ảnh!');
+		const isValidType =
+			file.type.startsWith('image/') ||
+			file.type === 'application/pdf' ||
+			file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+		if (!isValidType) {
+			message.error('Chỉ được tải lên file ảnh, PDF hoặc DOCX!');
 			return false;
 		}
 		const isLt2M = file.size / 1024 / 1024 < 2;
 		if (!isLt2M) {
-			message.error('Ảnh phải nhỏ hơn 2MB!');
+			message.error('File phải nhỏ hơn 2MB!');
 			return false;
 		}
 		return true;
@@ -571,7 +574,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 											fileList={hocBaFileList}
 											onChange={handleUploadChange(setHocBaFileList)}
 											beforeUpload={beforeUpload}
-											accept='image/*'
+											accept='image/*,.pdf,.docx'
 											listType='picture'
 											maxCount={1}
 										>
@@ -644,7 +647,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 								fileList={dgtdFileList}
 								onChange={handleUploadChange(setDgtdFileList)}
 								beforeUpload={beforeUpload}
-								accept='image/*'
+								accept='image/*,.pdf,.docx'
 								listType='picture'
 								maxCount={1}
 							>
@@ -714,7 +717,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 								fileList={dgnlFileList}
 								onChange={handleUploadChange(setDgnlFileList)}
 								beforeUpload={beforeUpload}
-								accept='image/*'
+								accept='image/*,.pdf,.docx'
 								listType='picture'
 								maxCount={1}
 							>
@@ -776,7 +779,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 						fileList={giaiHsgFileList}
 						onChange={handleUploadChange(setGiaiHsgFileList)}
 						beforeUpload={beforeUpload}
-						accept='image/*'
+						accept='image/*,.pdf,.docx'
 						listType='picture'
 						maxCount={1}
 					>
@@ -835,7 +838,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 													setChungChiFileLists(newFileLists);
 												}}
 												beforeUpload={beforeUpload}
-												accept='image/*'
+												accept='image/*,.pdf,.docx'
 												listType='picture'
 												maxCount={1}
 											>

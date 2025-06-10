@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Popconfirm, Tag, Space, message, Button, Popover, Avatar, Typography } from 'antd';
+import { Popconfirm, Tag, Space, message, Button, Popover, Avatar, Typography, Modal } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import Form from './components/Form';
@@ -12,21 +12,25 @@ import {
 	EditOutlined,
 	EyeOutlined,
 	UserOutlined,
+	ProfileOutlined,
 } from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
 import HoSoDetail from './components/Detail';
+
 import { duyetHoSo, tuChoiHoSo } from '@/services/HoSo';
 import useUsers from '@/hooks/useUsers';
-import UserDetail from '../Users/components/Detail'; // Import UserDetail component
 import { ipLocal } from '@/utils/ip';
+import UserDetail from '../Users/components/Detail';
+import SummaryForm from './components/Summary';
 
 const HoSoPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
-	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers(); // Add useUsers hook
+	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
-	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false); // State for UserDetail modal
+	const [summaryModalVisible, setSummaryModalVisible] = useState(false); // State for Summary modal
+	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<HoSo.IRecord | undefined>();
-	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // State for selected user
+	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>();
 
 	const onOpenExtendedModal = (record: HoSo.IRecord) => {
 		setSelectedRecord(record);
@@ -42,6 +46,18 @@ const HoSoPage = () => {
 		if (selectedRecord) {
 			handleEdit(selectedRecord);
 		}
+	};
+
+	// Hàm mở modal Summary
+	const onOpenSummaryModal = (record: HoSo.IRecord) => {
+		setSelectedRecord(record);
+		setSummaryModalVisible(true);
+	};
+
+	// Hàm đóng modal Summary
+	const onCloseSummaryModal = () => {
+		setSummaryModalVisible(false);
+		setSelectedRecord(undefined);
 	};
 
 	// Hàm xử lý click vào thông tin user
@@ -118,7 +134,7 @@ const HoSoPage = () => {
 		},
 		{
 			title: 'Người sở hữu',
-			dataIndex: 'thongTinCaNhanId', // Use thongTinCaNhanId instead of userId
+			dataIndex: 'thongTinCaNhanId',
 			width: 200,
 			sortable: true,
 			filterType: 'string',
@@ -191,7 +207,7 @@ const HoSoPage = () => {
 		{
 			title: 'Thao tác',
 			align: 'center',
-			width: 150,
+			width: 200, // Increased width to accommodate new button
 			fixed: 'right',
 			render: (_, record) => (
 				<Space>
@@ -200,6 +216,12 @@ const HoSoPage = () => {
 						onClick={() => onOpenExtendedModal(record)}
 						type='link'
 						icon={<EyeOutlined />}
+					/>
+					<ButtonExtend
+						tooltip='Xem tóm tắt'
+						onClick={() => onOpenSummaryModal(record)}
+						type='link'
+						icon={<ProfileOutlined />}
 					/>
 					<Popconfirm
 						title={
@@ -302,6 +324,16 @@ const HoSoPage = () => {
 				title='người sở hữu hồ sơ'
 				hideFooter
 			/>
+			<Modal
+				title='Tóm tắt hồ sơ'
+				visible={summaryModalVisible}
+				onCancel={onCloseSummaryModal}
+				footer={null}
+				width={1000}
+				destroyOnClose
+			>
+				{selectedRecord && <SummaryForm userId={selectedRecord.thongTinCaNhanId} />}
+			</Modal>
 		</div>
 	);
 };
