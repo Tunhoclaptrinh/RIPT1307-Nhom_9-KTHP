@@ -12,6 +12,7 @@ import UserDetail from '../Users/components/Detail';
 import useUsers from '@/hooks/useUsers';
 import ModalExport from '@/components/Table/Export';
 import { getNameFile } from '@/utils/utils';
+import { ipLocal } from '@/utils/ip';
 
 const { Text } = Typography;
 
@@ -120,7 +121,7 @@ const DiemHocSinhPage = () => {
 				}}
 				title='Click để xem thông tin chi tiết'
 			>
-				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
+				<Avatar size='small' src={`${ipLocal}${userInfo?.avatar}`} icon={<UserOutlined />} />
 				<div>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
 					{userInfo?.username && (

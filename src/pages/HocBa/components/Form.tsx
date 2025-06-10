@@ -150,24 +150,6 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 		}
 	}, [record, visibleForm, namHocOptions]);
 
-	// Hàm xử lý upload file
-	const handleUploadFile = async (file: File, userId: string) => {
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('userId', userId);
-		formData.append('type', 'proof'); // Minh chứng thuộc loại proof
-
-		try {
-			const response = await axios.post(`${ipLocal}/upload`, formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			});
-			return response.data.fileUrl; // Trả về URL của file từ server
-		} catch (error) {
-			console.error('Upload file error:', error);
-			throw new Error('Failed to upload file');
-		}
-	};
-
 	const onFinish = async (values: DiemHocSinh.IRecord) => {
 		try {
 			// Lọc bỏ các môn học trống
