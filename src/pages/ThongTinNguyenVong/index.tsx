@@ -10,6 +10,7 @@ import ThongTinNguyenVongDetail from './components/Detail';
 import useUsers from '@/hooks/useUsers';
 import UserDetail from '../Users/components/Detail';
 import { ipLocal } from '@/utils/ip';
+import {User }	from '@/services/Users/typing';
 
 const { Text } = Typography;
 
