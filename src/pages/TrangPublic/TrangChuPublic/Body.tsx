@@ -304,7 +304,18 @@ const TrangChuBody = () => {
 										itemLayout='horizontal'
 										dataSource={huongDanHoSo}
 										renderItem={(item) => (
-											<List.Item actions={[<Button type='link'>Tải xuống</Button>]}>
+											<List.Item
+												actions={[
+													<Button
+														type='link'
+														href={`${ipLocal}${item.fileUrl}`}
+														target='_blank'
+														rel='noopener noreferrer'
+													>
+														Tải xuống
+													</Button>,
+												]}
+											>
 												<List.Item.Meta
 													title={
 														<Text strong style={{ color: primaryColor, fontSize: 16 }}>
