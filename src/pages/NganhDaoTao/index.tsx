@@ -10,22 +10,34 @@ import NganhDaoTaoForm from './components/Form';
 import NganhDaoTaoDetail from './components/Detail';
 
 const NganhDaoTao = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('nganhdaotao');
+	const { 
+		handleEdit, 
+		handleView, 
+		deleteModel, 
+		getModel,
+		getExportFieldsModel,
+		postExportModel,
+		getImportHeaderModel,
+		getImportTemplateModel,
+		postValidateModel,
+		postExecuteImpotModel,
+		importHeaders
+	} = useModel('nganhdaotao');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<NganhDaoTao.IRecord | undefined>();
 
-	// Hàm xử lý mở modal mở rộng
+	// Function to open extended modal
 	const onOpenExtendedModal = (record: NganhDaoTao.IRecord) => {
 		setSelectedRecord(record);
 		setExtendedModalVisible(true);
 	};
 
-	// Hàm đóng
+	// Function to close modal
 	const onCloseExtendedModal = () => {
 		setExtendedModalVisible(false);
 	};
 
-	// Hàm chuyển sang chế độ edit
+	// Function to switch to edit mode
 	const onEditFromView = () => {
 		setExtendedModalVisible(false);
 		if (selectedRecord) {
@@ -51,6 +63,13 @@ const NganhDaoTao = () => {
 		{
 			title: 'Mô tả ngành đào tạo',
 			dataIndex: 'moTa',
+			width: 180,
+			sortable: true,
+			filterType: 'string',
+		},
+		{
+			title: 'Tổ hợp xét tuyển',
+			dataIndex: 'toHopXetTuyenId',
 			width: 180,
 			sortable: true,
 			filterType: 'string',
@@ -92,6 +111,22 @@ const NganhDaoTao = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
+				// Export configuration
+				exportConfig={{
+					fileName: 'DanhSachNganhDaoTao.xlsx',
+					getExportFieldsModel,
+					postExportModel,
+					maskCloseableForm: false
+				}}
+				// Import configuration
+				importConfig={{
+					titleTemplate: 'Template_NganhDaoTao.xlsx',
+					maskCloseableForm: false,
+					extendData: {
+						createdAt: new Date().toISOString(),
+						updatedAt: new Date().toISOString()
+					}
+				}}
 			/>
 			<NganhDaoTaoDetail
 				isVisible={extendedModalVisible}
