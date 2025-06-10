@@ -9,6 +9,7 @@ import moment from 'moment';
 import HuongDanHSForm from './components/Form';
 import HuongDanHSDetail from './components/Detail';
 import { getNameFile } from '@/utils/utils';
+import { ipLocal } from '@/utils/ip';
 
 interface HuongDanHSRecord {
 	id: string;
@@ -95,7 +96,7 @@ const HuongDanHSPage = () => {
 			sortable: false,
 			render: (fileUrl: string) =>
 				fileUrl ? (
-					<a href={fileUrl} target='_blank' rel='noopener noreferrer'>
+					<a href={`${ipLocal}${fileUrl}`} target='_blank' rel='noopener noreferrer'>
 						{getNameFile(fileUrl)}
 					</a>
 				) : (
