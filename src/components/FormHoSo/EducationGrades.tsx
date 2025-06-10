@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import {
 	Form,
@@ -14,9 +14,13 @@ import {
 	Divider,
 	Checkbox,
 	Space,
+	Upload,
+	message,
 } from 'antd';
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { PlusOutlined, MinusCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import axios from 'axios';
+import { ipLocal } from '@/utils/ip';
 
 const { Option } = Select;
 
@@ -47,6 +51,11 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 	existingHocBa,
 }) => {
 	const [form] = Form.useForm();
+	const [hocBaFileList, setHocBaFileList] = useState<any[]>([]);
+	const [dgtdFileList, setDgtdFileList] = useState<any[]>([]);
+	const [dgnlFileList, setDgnlFileList] = useState<any[]>([]);
+	const [giaiHsgFileList, setGiaiHsgFileList] = useState<any[]>([]);
+	const [chungChiFileLists, setChungChiFileLists] = useState<any[]>([]);
 
 	// Convert string dates to Moment objects for initial values
 	const formattedInitialData = {
@@ -68,6 +77,60 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 		},
 	};
 
+	// Initialize file lists for existing data
+	React.useEffect(() => {
+		if (initialData.educationGrades?.diemDGTD?.minhChung) {
+			setDgtdFileList([
+				{
+					uid: '-1',
+					name: 'dgtd_minhchung',
+					status: 'done',
+					url: `${ipLocal}${initialData.educationGrades.diemDGTD.minhChung}`,
+				},
+			]);
+		}
+		if (initialData.educationGrades?.diemDGNL?.minhChung) {
+			setDgnlFileList([
+				{
+					uid: '-1',
+					name: 'dgnl_minhchung',
+					status: 'done',
+					url: `${ipLocal}${initialData.educationGrades.diemDGNL.minhChung}`,
+				},
+			]);
+		}
+		if (initialData.educationGrades?.giaiHSG?.minhChung) {
+			setGiaiHsgFileList([
+				{
+					uid: '-1',
+					name: 'giaiHsg_minhchung',
+					status: 'done',
+					url: `${ipLocal}${initialData.educationGrades.giaiHSG.minhChung}`,
+				},
+			]);
+		}
+		if (initialData.hocBa?.minhChung) {
+			setHocBaFileList([
+				{
+					uid: '-1',
+					name: 'hocBa_minhchung',
+					status: 'done',
+					url: `${ipLocal}${initialData.hocBa.minhChung}`,
+				},
+			]);
+		}
+		if (initialData.educationGrades?.chungChi) {
+			setChungChiFileLists(
+				initialData.educationGrades.chungChi.map((cc: any, index: number) => ({
+					uid: `-${index + 1}`,
+					name: `chungChi_minhchung_${index}`,
+					status: 'done',
+					url: `${ipLocal}${cc.minhChung}`,
+				})),
+			);
+		}
+	}, [initialData]);
+
 	// Watch form fields for reactive updates
 	const provinceCode = Form.useWatch(['educationGrades', 'thongTinTHPT', 'tinh_ThanhPho'], form);
 	const districtCode = Form.useWatch(['educationGrades', 'thongTinTHPT', 'quanHuyen'], form);
@@ -88,9 +151,90 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 		'Mỹ thuật',
 	];
 
+	const handleUploadFile = async (file: File, userId: string, type: string) => {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('userId', userId || 'temp');
+		formData.append('type', type);
+
+		try {
+			const response = await axios.post(`${ipLocal}/upload`, formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			});
+			return response.data.fileUrl;
+		} catch (error) {
+			console.error(`Upload ${type} error:`, error);
+			message.error(`Tải file ${type} thất bại`);
+			throw error;
+		}
+	};
+
+	const beforeUpload = (file: File) => {
+		const isImage = file.type.startsWith('image/');
+		if (!isImage) {
+			message.error('Chỉ được tải lên file ảnh!');
+			return false;
+		}
+		const isLt2M = file.size / 1024 / 1024 < 2;
+		if (!isLt2M) {
+			message.error('Ảnh phải nhỏ hơn 2MB!');
+			return false;
+		}
+		return true;
+	};
+
 	const handleNext = async () => {
 		try {
 			const values = await form.validateFields();
+			let hocBaFileUrl = initialData.hocBa?.minhChung;
+			let dgtdFileUrl = initialData.educationGrades?.diemDGTD?.minhChung;
+			let dgnlFileUrl = initialData.educationGrades?.diemDGNL?.minhChung;
+			let giaiHsgFileUrl = initialData.educationGrades?.giaiHSG?.minhChung;
+			let chungChiFileUrls = initialData.educationGrades?.chungChi
+				? initialData.educationGrades.chungChi.map((cc: any) => cc.minhChung)
+				: values.educationGrades.chungChi
+				? values.educationGrades.chungChi.map(() => undefined)
+				: [];
+
+			// Handle hocBa file upload
+			if (showHocBa && hocBaFileList.length > 0 && hocBaFileList[0].originFileObj) {
+				hocBaFileUrl = await handleUploadFile(hocBaFileList[0].originFileObj, userId, 'hocBa');
+			} else if (hocBaFileList.length === 0) {
+				hocBaFileUrl = undefined;
+			}
+
+			// Handle DGTD file upload
+			if (dgtdFileList.length > 0 && dgtdFileList[0].originFileObj) {
+				dgtdFileUrl = await handleUploadFile(dgtdFileList[0].originFileObj, userId, 'dgtd');
+			} else if (dgtdFileList.length === 0) {
+				dgtdFileUrl = undefined;
+			}
+
+			// Handle DGNL file upload
+			if (dgnlFileList.length > 0 && dgnlFileList[0].originFileObj) {
+				dgnlFileUrl = await handleUploadFile(dgnlFileList[0].originFileObj, userId, 'dgnl');
+			} else if (dgnlFileList.length === 0) {
+				dgnlFileUrl = undefined;
+			}
+
+			// Handle giaiHSG file upload
+			if (giaiHsgFileList.length > 0 && giaiHsgFileList[0].originFileObj) {
+				giaiHsgFileUrl = await handleUploadFile(giaiHsgFileList[0].originFileObj, userId, 'giaiHsg');
+			} else if (giaiHsgFileList.length === 0) {
+				giaiHsgFileUrl = undefined;
+			}
+
+			// Handle chungChi file uploads
+			if (values.educationGrades.chungChi) {
+				for (let i = 0; i < values.educationGrades.chungChi.length; i++) {
+					if (chungChiFileLists[i]?.originFileObj) {
+						chungChiFileUrls[i] = await handleUploadFile(chungChiFileLists[i].originFileObj, userId, `chungChi_${i}`);
+					} else if (!chungChiFileLists[i]) {
+						chungChiFileUrls[i] = undefined;
+					}
+				}
+			}
+
 			const submissionData = {
 				educationGrades: {
 					...values.educationGrades,
@@ -106,7 +250,26 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 						? {
 								...values.educationGrades.giaiHSG,
 								nam: values.educationGrades.giaiHSG.nam ? values.educationGrades.giaiHSG.nam.format('YYYY') : undefined,
+								minhChung: giaiHsgFileUrl,
 						  }
+						: undefined,
+					diemDGTD: values.educationGrades.diemDGTD
+						? {
+								...values.educationGrades.diemDGTD,
+								minhChung: dgtdFileUrl,
+						  }
+						: undefined,
+					diemDGNL: values.educationGrades.diemDGNL
+						? {
+								...values.educationGrades.diemDGNL,
+								minhChung: dgnlFileUrl,
+						  }
+						: undefined,
+					chungChi: values.educationGrades.chungChi
+						? values.educationGrades.chungChi.map((cc: any, index: number) => ({
+								...cc,
+								minhChung: chungChiFileUrls[index],
+						  }))
 						: undefined,
 				},
 				hocBa: showHocBa
@@ -115,6 +278,7 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							userId,
 							id: existingHocBa?.id || `hb_${Date.now()}`,
 							thongTinHocTapId: existingThongTinHocTap?.id || `ttht_${Date.now()}`,
+							minhChung: hocBaFileUrl,
 					  }
 					: null,
 			};
@@ -124,6 +288,12 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 			console.error('Validation failed:', error);
 		}
 	};
+
+	const handleUploadChange =
+		(setFileList: React.Dispatch<React.SetStateAction<any[]>>) =>
+		({ fileList }: { fileList: any[] }) => {
+			setFileList(fileList);
+		};
 
 	return (
 		<Form form={form} layout='vertical' initialValues={formattedInitialData}>
@@ -395,9 +565,18 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 									<Form.Item
 										label='Minh chứng học bạ'
 										name={['hocBa', 'minhChung']}
-										rules={[{ required: true, message: 'Nhập minh chứng!' }]}
+										rules={[{ required: true, message: 'Vui lòng tải lên minh chứng!' }]}
 									>
-										<Input placeholder='Đường dẫn file học bạ hoặc mô tả minh chứng' />
+										<Upload
+											fileList={hocBaFileList}
+											onChange={handleUploadChange(setHocBaFileList)}
+											beforeUpload={beforeUpload}
+											accept='image/*'
+											listType='picture'
+											maxCount={1}
+										>
+											<Button icon={<UploadOutlined />}>Tải lên minh chứng học bạ</Button>
+										</Upload>
 									</Form.Item>
 								</Col>
 							</Row>
@@ -461,7 +640,16 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 					<Col span={12}>
 						<Form.Item label='Minh chứng DGTD' name={['educationGrades', 'diemDGTD', 'minhChung']}>
-							<Input placeholder='Đường dẫn file minh chứng' />
+							<Upload
+								fileList={dgtdFileList}
+								onChange={handleUploadChange(setDgtdFileList)}
+								beforeUpload={beforeUpload}
+								accept='image/*'
+								listType='picture'
+								maxCount={1}
+							>
+								<Button icon={<UploadOutlined />}>Tải lên minh chứng DGTD</Button>
+							</Upload>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -522,7 +710,16 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 					<Col span={12}>
 						<Form.Item label='Minh chứng DGNL' name={['educationGrades', 'diemDGNL', 'minhChung']}>
-							<Input placeholder='Đường dẫn file minh chứng' />
+							<Upload
+								fileList={dgnlFileList}
+								onChange={handleUploadChange(setDgnlFileList)}
+								beforeUpload={beforeUpload}
+								accept='image/*'
+								listType='picture'
+								maxCount={1}
+							>
+								<Button icon={<UploadOutlined />}>Tải lên minh chứng DGNL</Button>
+							</Upload>
 						</Form.Item>
 					</Col>
 				</Row>
@@ -575,7 +772,16 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 					</Col>
 				</Row>
 				<Form.Item label='Minh chứng' name={['educationGrades', 'giaiHSG', 'minhChung']}>
-					<Input placeholder='Đường dẫn file minh chứng' />
+					<Upload
+						fileList={giaiHsgFileList}
+						onChange={handleUploadChange(setGiaiHsgFileList)}
+						beforeUpload={beforeUpload}
+						accept='image/*'
+						listType='picture'
+						maxCount={1}
+					>
+						<Button icon={<UploadOutlined />}>Tải lên minh chứng giải HSG</Button>
+					</Upload>
 				</Form.Item>
 			</Card>
 
@@ -619,9 +825,22 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 											{...restField}
 											name={[name, 'minhChung']}
 											label='Minh chứng'
-											rules={[{ required: true, message: 'Nhập minh chứng!' }]}
+											rules={[{ required: true, message: 'Vui lòng tải lên minh chứng!' }]}
 										>
-											<Input placeholder='Đường dẫn file' />
+											<Upload
+												fileList={chungChiFileLists[name] ? [chungChiFileLists[name]] : []}
+												onChange={({ fileList }) => {
+													const newFileLists = [...chungChiFileLists];
+													newFileLists[name] = fileList[0];
+													setChungChiFileLists(newFileLists);
+												}}
+												beforeUpload={beforeUpload}
+												accept='image/*'
+												listType='picture'
+												maxCount={1}
+											>
+												<Button icon={<UploadOutlined />}>Tải lên minh chứng</Button>
+											</Upload>
 										</Form.Item>
 									</Col>
 									<Col span={2}>
