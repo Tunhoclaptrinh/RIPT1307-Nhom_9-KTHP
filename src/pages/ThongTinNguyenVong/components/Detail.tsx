@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Descriptions, Button, Tag, Card, Row, Col, Avatar, Typography, Space } from 'antd';
 import { UserOutlined, FileTextOutlined } from '@ant-design/icons';
 import useUsers from '@/hooks/useUsers';
+import { ipLocal } from '@/utils/ip';
 
 interface Props {
 	isVisible: boolean;
@@ -56,7 +57,12 @@ const ThongTinNguyenVongDetail: React.FC<Props> = ({ isVisible, onClose, record,
 			>
 				<Row align='middle' gutter={16}>
 					<Col>
-						<Avatar size={64} src={userInfo?.avatar} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
+						<Avatar
+							size={64}
+							src={`${ipLocal}${userInfo?.avatar}`}
+							icon={<UserOutlined />}
+							style={{ border: '3px solid white' }}
+						/>
 					</Col>
 					<Col flex={1}>
 						<Title level={4} style={{ color: 'white', margin: 0 }}>

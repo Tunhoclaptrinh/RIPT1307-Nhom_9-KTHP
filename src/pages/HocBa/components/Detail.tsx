@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, Descriptions, Tag, Button, Typography, Divider, Card, Row, Col, Avatar, Space } from 'antd';
 import { UserOutlined, BookOutlined, TrophyOutlined, FileTextOutlined } from '@ant-design/icons';
 import useUsers from '@/hooks/useUsers';
+import { ipLocal } from '@/utils/ip';
 
 interface Props {
 	isVisible: boolean;
@@ -177,7 +178,12 @@ const HocBaDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) =>
 				>
 					<Row align='middle' gutter={16}>
 						<Col>
-							<Avatar size={64} src={userInfo?.avatar} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
+							<Avatar
+								size={64}
+								src={`${ipLocal}${userInfo?.avatar}`}
+								icon={<UserOutlined />}
+								style={{ border: '3px solid white' }}
+							/>
 						</Col>
 						<Col flex={1}>
 							<Title level={4} style={{ color: 'white', margin: 0 }}>

@@ -9,11 +9,13 @@ import ThongTinNguyenVongForm from './components/Form';
 import ThongTinNguyenVongDetail from './components/Detail';
 import useUsers from '@/hooks/useUsers';
 import UserDetail from '../Users/components/Detail';
+import { ipLocal } from '@/utils/ip';
 
 const { Text } = Typography;
 
 const ThongTinNguyenVongPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } = useModel('thongtinnguyenvong');
+	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } =
+		useModel('thongtinnguyenvong');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<ThongTinNguyenVong.IRecord | undefined>();
@@ -162,7 +164,7 @@ const ThongTinNguyenVongPage = () => {
 			>
 				<Avatar
 					size='small'
-					src={userInfo.avatar}
+					src={`${ipLocal}${userInfo?.avatar}`}
 					icon={<UserOutlined />}
 					style={{
 						flexShrink: 0,
@@ -263,7 +265,7 @@ const ThongTinNguyenVongPage = () => {
 			title: 'Phương thức xét tuyển',
 			dataIndex: 'phuongThucXT',
 			width: 200,
-			render: (phuongThucXT: string[]) => phuongThucXT && phuongThucXT.length > 0 ? phuongThucXT.join(', ') : 'N/A',
+			render: (phuongThucXT: string[]) => (phuongThucXT && phuongThucXT.length > 0 ? phuongThucXT.join(', ') : 'N/A'),
 		},
 		{
 			title: 'Điểm chưa ưu tiên',
@@ -344,7 +346,7 @@ const ThongTinNguyenVongPage = () => {
 					fileName: 'DanhSachNguyenVong.xlsx',
 					getExportFieldsModel,
 					postExportModel,
-					maskCloseableForm: false
+					maskCloseableForm: false,
 				}}
 			/>
 			<ThongTinNguyenVongDetail

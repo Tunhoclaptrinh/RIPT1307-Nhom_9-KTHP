@@ -7,6 +7,7 @@ import { resetFieldsForm } from '@/utils/utils';
 import useUsers from '@/hooks/useUsers';
 import PhuongThucXTSelect from '@/pages/PhuongThucXT/components/Select';
 import NganhDaoTaoSelect from '@/pages/NganhDaoTao/components/Select';
+import { ipLocal } from '@/utils/ip';
 
 interface ThongTinNguyenVongFormProps {
 	title?: string;
@@ -114,7 +115,7 @@ const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({
 		return (
 			<Row align='middle' gutter={16}>
 				<Col>
-					<Avatar src={userInfo.avatar} icon={<UserOutlined />} />
+					<Avatar src={`${ipLocal}${userInfo.avatar}`} icon={<UserOutlined />} />
 				</Col>
 				<Col flex={1}>
 					<div>
@@ -151,7 +152,7 @@ const ThongTinNguyenVongForm: React.FC<ThongTinNguyenVongFormProps> = ({
 	const renderStudentOption = (user: any) => (
 		<div style={{ padding: '8px 0' }}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-				<Avatar size='small' src={user.avatar} icon={<UserOutlined />} />
+				<Avatar size='small' src={`${ipLocal}${user.avatar}`} icon={<UserOutlined />} />
 				<div style={{ flex: 1 }}>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>
 						{user.ho} {user.ten}

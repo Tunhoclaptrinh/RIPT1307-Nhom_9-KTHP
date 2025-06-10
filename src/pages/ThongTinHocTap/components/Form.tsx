@@ -23,6 +23,7 @@ import { PlusOutlined, MinusCircleOutlined, UserOutlined, SearchOutlined } from 
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 import useUsers from '@/hooks/useUsers';
 import DiemHocSinhForm from '@/pages/HocBa/components/Form';
+import { ipLocal } from '@/utils/ip';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -231,7 +232,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 			<Card size='small' style={{ marginTop: 8, backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
 				<Row align='middle' gutter={16}>
 					<Col>
-						<Avatar src={userInfo.avatar} icon={<UserOutlined />} />
+						<Avatar src={`${ipLocal}${userInfo.avatar}`} icon={<UserOutlined />} />
 					</Col>
 					<Col flex={1}>
 						<div>
@@ -270,7 +271,7 @@ const ThongTinHocTapForm: React.FC<ThongTinHocTapFormProps> = (
 		return (
 			<div style={{ padding: '8px 0' }}>
 				<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-					<Avatar size='small' src={user.avatar} icon={<UserOutlined />} />
+					<Avatar size='small' src={`${ipLocal}${user.avatar}`} icon={<UserOutlined />} />
 					<div style={{ flex: 1 }}>
 						<div style={{ fontWeight: 500, color: '#1890ff' }}>
 							{user.ho} {user.ten}

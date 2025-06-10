@@ -11,6 +11,7 @@ import ThongTinHocTapForm from './components/Form';
 import ThongTinHocTapDetail from './components/Detail';
 import UserDetail from '../Users/components/Detail'; // Import UserDetail modal
 import useUsers from '@/hooks/useUsers'; // Import hook
+import { ipLocal } from '@/utils/ip';
 
 const { Text } = Typography;
 
@@ -87,7 +88,7 @@ const ThongTinHocTapPage = () => {
 				}}
 				title='Click để xem thông tin chi tiết'
 			>
-				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
+				<Avatar size='small' src={`${ipLocal}${userInfo?.avatar}`} icon={<UserOutlined />} />
 				<div>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
 					{userInfo?.username && (
@@ -381,7 +382,7 @@ const ThongTinHocTapPage = () => {
 					fileName: 'DanhSachThongTinHocTap.xlsx',
 					getExportFieldsModel,
 					postExportModel,
-					maskCloseableForm: false
+					maskCloseableForm: false,
 				}}
 			/>
 			<ThongTinHocTapDetail

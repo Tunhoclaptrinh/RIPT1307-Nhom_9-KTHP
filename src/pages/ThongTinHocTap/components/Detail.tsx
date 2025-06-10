@@ -3,6 +3,7 @@ import { Modal, Descriptions, Button, Tag, Typography, Divider, Avatar, Card, Ro
 import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, CalendarOutlined } from '@ant-design/icons';
 import useUsers from '@/hooks/useUsers';
 import moment from 'moment';
+import { ipLocal } from '@/utils/ip';
 
 interface Props {
 	isVisible: boolean;
@@ -101,7 +102,12 @@ const ThongTinHocTapDetail: React.FC<Props> = ({ isVisible, onClose, record, onE
 				<Row gutter={16}>
 					<Col span={6}>
 						<div style={{ textAlign: 'center' }}>
-							<Avatar size={80} src={studentUserInfo?.avatar} icon={<UserOutlined />} style={{ marginBottom: 8 }} />
+							<Avatar
+								size={80}
+								src={`${ipLocal}${studentUserInfo?.avatar}`}
+								icon={<UserOutlined />}
+								style={{ marginBottom: 8 }}
+							/>
 							<br />
 							<Text strong style={{ fontSize: '16px', color: '#1890ff' }}>
 								{studentFullName}

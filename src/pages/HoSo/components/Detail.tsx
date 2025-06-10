@@ -3,6 +3,7 @@ import { Modal, Descriptions, Button, Tag, Card, Row, Col, Avatar, Space, Typogr
 import { UserOutlined, FileTextOutlined, CopyOutlined } from '@ant-design/icons';
 import { HoSo } from '@/services/HoSo/typing';
 import useUsers from '@/hooks/useUsers';
+import { ipLocal } from '@/utils/ip';
 
 interface Props {
 	isVisible: boolean;
@@ -71,7 +72,12 @@ const HoSoDetail: React.FC<Props> = ({ isVisible, onClose, record, onEdit }) => 
 				>
 					<Row align='middle' gutter={16}>
 						<Col>
-							<Avatar size={64} src={userInfo?.avatar} icon={<UserOutlined />} style={{ border: '3px solid white' }} />
+							<Avatar
+								size={64}
+								src={`${ipLocal}${userInfo?.avatar}`}
+								icon={<UserOutlined />}
+								style={{ border: '3px solid white' }}
+							/>
 						</Col>
 						<Col flex={1}>
 							<Title level={4} style={{ color: 'white', margin: 0 }}>

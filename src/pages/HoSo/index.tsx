@@ -18,6 +18,7 @@ import HoSoDetail from './components/Detail';
 import { duyetHoSo, tuChoiHoSo } from '@/services/HoSo';
 import useUsers from '@/hooks/useUsers';
 import UserDetail from '../Users/components/Detail'; // Import UserDetail component
+import { ipLocal } from '@/utils/ip';
 
 const HoSoPage = () => {
 	const { handleEdit, handleView, deleteModel, getModel } = useModel('hoso');
@@ -89,7 +90,7 @@ const HoSoPage = () => {
 				}}
 				title='Click để xem thông tin chi tiết'
 			>
-				<Avatar size='small' src={userInfo?.avatar} icon={<UserOutlined />} />
+				<Avatar size='small' src={`${ipLocal}${userInfo?.avatar}`} icon={<UserOutlined />} />
 				<div>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
 					{userInfo?.username && (
@@ -108,6 +109,13 @@ const HoSoPage = () => {
 	};
 
 	const columns: IColumn<HoSo.IRecord>[] = [
+		{
+			title: 'Mã hồ sơ',
+			dataIndex: 'id',
+			width: 150,
+			sortable: true,
+			filterType: 'string',
+		},
 		{
 			title: 'Người sở hữu',
 			dataIndex: 'thongTinCaNhanId', // Use thongTinCaNhanId instead of userId
