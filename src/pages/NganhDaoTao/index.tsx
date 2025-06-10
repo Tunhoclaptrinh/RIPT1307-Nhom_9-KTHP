@@ -1,34 +1,25 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Popconfirm, Tag, Space } from 'antd';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import NganhDaoTaoForm from './components/Form';
 import NganhDaoTaoDetail from './components/Detail';
+
 import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
 
+import { NganhDaoTao as NganhDaoTaoType } from '@/services/NganhDaoTao/typing'; // Rename the imported type
+
 const NganhDaoTaoPage = () => {
-	const {
-		handleEdit,
-		handleView,
-		deleteModel,
-		getModel,
-		getExportFieldsModel,
-		postExportModel,
-		getImportHeaderModel,
-		getImportTemplateModel,
-		postValidateModel,
-		postExecuteImpotModel,
-		importHeaders,
-	} = useModel('nganhdaotao');
+	const { handleEdit, handleView, deleteModel, getExportFieldsModel, postExportModel } = useModel('nganhdaotao');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
-	const [selectedRecord, setSelectedRecord] = useState<NganhDaoTao.IRecord | undefined>();
+	const [selectedRecord, setSelectedRecord] = useState<NganhDaoTaoType.IRecord | undefined>(); // Use renamed type
 
 	// Function to open extended modal
-	const onOpenExtendedModal = (record: NganhDaoTao.IRecord) => {
+	const onOpenExtendedModal = (record: NganhDaoTaoType.IRecord) => {
+		// Use renamed type
 		setSelectedRecord(record);
 		setExtendedModalVisible(true);
 	};
@@ -46,7 +37,8 @@ const NganhDaoTaoPage = () => {
 		}
 	};
 
-	const columns: IColumn<NganhDaoTao.IRecord>[] = [
+	const columns: IColumn<NganhDaoTaoType.IRecord>[] = [
+		// Use renamed type
 		{
 			title: 'Mã ngành đào tạo',
 			dataIndex: 'ma',

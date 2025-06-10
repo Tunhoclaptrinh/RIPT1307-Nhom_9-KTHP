@@ -5,6 +5,7 @@ import { IColumn } from '@/components/Table/typing';
 import Form from './components/Form';
 import { useModel } from 'umi';
 import ButtonExtend from '@/components/Table/ButtonExtend';
+import { User } from '@/services/Users/typing';
 import {
 	CheckOutlined,
 	CloseOutlined,
@@ -303,7 +304,7 @@ const HoSoPage = () => {
 				title='Quản lý hồ sơ'
 				Form={Form}
 				widthDrawer={900}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				buttons={{ create: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 				exportConfig={{
