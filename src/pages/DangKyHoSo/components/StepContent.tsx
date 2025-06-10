@@ -16,7 +16,7 @@ interface StepContentProps {
 	onNext: (data: any) => void;
 	onPrev: () => void;
 	onSubmit: () => void;
-	loading: boolean; // Thêm loading vào props
+	loading: boolean;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -88,7 +88,7 @@ const StepContent: React.FC<StepContentProps> = ({
 			{steps[currentStep]?.component || null}
 			<div style={{ textAlign: 'center', marginTop: 16 }}>
 				<Space>
-					{currentStep > 0 && (
+					{currentStep == steps.length - 1 && (
 						<Button onClick={onPrev} disabled={loading}>
 							Quay lại
 						</Button>

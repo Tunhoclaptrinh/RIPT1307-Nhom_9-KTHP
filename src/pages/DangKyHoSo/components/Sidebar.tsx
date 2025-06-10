@@ -4,6 +4,7 @@ import { EditOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-des
 import moment from 'moment';
 import { history } from 'umi';
 import useAuth from '../../../hooks/useAuth';
+import { ipLocal } from '@/utils/ip';
 
 const { Title, Text } = Typography;
 
@@ -80,7 +81,7 @@ const Sidebar: React.FC<{ currentStep: number }> = ({ currentStep }) => {
 		<Card style={{ marginBottom: '20px', position: 'sticky', top: '20px' }}>
 			<div style={{ textAlign: 'center', marginBottom: '16px' }}>
 				<Badge count={currentStep + 1} showZero color='#ff4d4f'>
-					<Avatar size={64} style={{ backgroundColor: '#ff4d4f' }}>
+					<Avatar size={64} style={{ backgroundColor: '#ff4d4f' }} src={`${ipLocal}${user?.avatar}`}>
 						{user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
 					</Avatar>
 				</Badge>

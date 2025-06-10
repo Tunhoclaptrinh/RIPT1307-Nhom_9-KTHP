@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Row, Col, Steps, message, Space, Typography, Spin } from 'antd';
+import { Form, Button, Card, Row, Col, Steps, message, Space, Typography, Spin, Avatar } from 'antd';
 import { UserOutlined, BookOutlined, HeartOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { history } from 'umi';
 import axios from 'axios';
@@ -167,6 +167,7 @@ const UniversityRegistrationForm: React.FC = () => {
 				noiCap: normalizedUser.noiCap,
 				thongTinBoSung: initialFormData.hoSoInfo.thongTinBoSung,
 				thongTinLienHe: initialFormData.hoSoInfo.thongTinLienHe,
+				avatar: initialFormData.personalInfo.avatar,
 			});
 		} catch (error) {
 			console.error('Error fetching data:', error);
@@ -224,6 +225,7 @@ const UniversityRegistrationForm: React.FC = () => {
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
 					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
+					avatar: formData.personalInfo.avatar,
 				};
 				await axios.put(`${ipLocal}/users/${user?.id}`, userUpdateData);
 			}

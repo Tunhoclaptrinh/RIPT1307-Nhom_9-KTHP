@@ -52,6 +52,7 @@ interface UserData {
 	ngayCap?: string;
 	noiCap?: string;
 	hoKhauThuongTru?: AddressInfo;
+	avatar?: string;
 }
 
 interface PersonalInfo {
@@ -66,6 +67,7 @@ interface PersonalInfo {
 	ngayCap?: string;
 	noiCap?: string;
 	hoKhauThuongTru?: AddressInfo;
+	avatar?: string;
 }
 
 interface InitialData {
@@ -136,6 +138,7 @@ const ThongTinCaNhanForm: React.FC<ThongTinCaNhanFormProps> = ({
 				},
 				thongTinBoSung: {},
 				thongTinLienHe: {},
+				avatar: userData.avatar,
 			};
 
 			// Thêm thông tin bổ sung và liên hệ từ hồ sơ (nếu có)
