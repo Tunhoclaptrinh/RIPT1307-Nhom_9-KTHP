@@ -1,5 +1,6 @@
 import axios from '@/utils/axios';
 import { ipLocal } from '@/utils/ip';
+import { User } from './typing';
 
 // Giả api lập đăng ký
 export async function dangKy(users: User.IRecord) {
