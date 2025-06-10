@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Button, Card, Tabs, Typography, Statistic, List, Space, Timeline, Spin, message } from 'antd';
+import { Row, Col, Button, Card, Tabs, Typography, Statistic, List, Space, Timeline, Spin, message, Modal } from 'antd';
 import {
 	SearchOutlined,
 	CalendarOutlined,
@@ -21,6 +21,7 @@ type ThongTinTuyenSinhItem = {
 	title: string;
 	date?: string;
 	summary?: string;
+	content?: string;
 	[key: string]: any;
 };
 
@@ -38,8 +39,9 @@ const TrangChuBody = () => {
 	const [faqItems, setFaqItems] = useState<any[]>([]);
 	const [lichTrinhTuyenSinh, setLichTrinhTuyenSinh] = useState<any[]>([]);
 	const [thongKeTuyenSinh, setThongKeTuyenSinh] = useState<any>({});
-
 	const [loading, setLoading] = useState(true);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [selectedItem, setSelectedItem] = useState<ThongTinTuyenSinhItem | null>(null);
 
 	const BASE_API_URL = ipLocal;
 
@@ -96,6 +98,18 @@ const TrangChuBody = () => {
 		return size || 'N/A';
 	};
 
+	// Hàm mở modal và hiển thị chi tiết
+	const showModal = (item: ThongTinTuyenSinhItem) => {
+		setSelectedItem(item);
+		setModalVisible(true);
+	};
+
+	// Hàm đóng modal
+	const handleModalClose = () => {
+		setModalVisible(false);
+		setSelectedItem(null);
+	};
+
 	if (loading) {
 		return (
 			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px', marginTop: 90 }}>
@@ -124,15 +138,18 @@ const TrangChuBody = () => {
 										sơ tuyển sinh của bạn mọi lúc, mọi nơi.
 									</Paragraph>
 									<Space>
-										<Button type='primary' size='large'>
-											Đăng Ký Xét Tuyển
-										</Button>
+										<Link to={'/public/dash-board'} key='detail' style={{ color: 'inherit', textDecoration: 'none' }}>
+											<Button type='primary' size='large'>
+												Đăng Ký Xét Tuyển
+											</Button>
+										</Link>
+
 										<Link
 											to={'/public/tra-cuu-public'}
 											key='detail'
 											style={{ color: 'inherit', textDecoration: 'none' }}
 										>
-											<Button size='large'>Tra Cứu Thông Tin</Button>{' '}
+											<Button size='large'>Tra Cứu Thông Tin</Button>
 										</Link>
 									</Space>
 								</Col>
@@ -150,12 +167,7 @@ const TrangChuBody = () => {
 			</div>
 
 			{/* Key features */}
-			<div
-				style={{
-					padding: '40px 0',
-					boxShadow: '0 8px 24px rgba(255, 182, 193, 0.3)',
-				}}
-			>
+			<div style={{ padding: '40px 0', boxShadow: '0 8px 24px rgba(255, 182, 193, 0.3)' }}>
 				<div style={{ margin: '0 20px' }}>
 					<Row justify='center'>
 						<Col xs={24} lg={20}>
@@ -164,17 +176,25 @@ const TrangChuBody = () => {
 							</Title>
 							<Row gutter={[32, 32]}>
 								<Col xs={24} md={8}>
-									<Card
-										style={{ height: '100%' }}
-										bodyStyle={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-									>
-										<FileTextOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
-										<Title level={4}>Đăng Ký Xét Tuyển</Title>
-										<Paragraph>
-											Đăng ký xét tuyển trực tuyến nhanh chóng và đơn giản, tiết kiệm thời gian và chi phí.
-										</Paragraph>
-									</Card>
+									<Link to={'/public/dash-board'} key='detail'>
+										<Card
+											style={{ height: '100%' }}
+											bodyStyle={{
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'center',
+												textAlign: 'center',
+											}}
+										>
+											<FileTextOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
+											<Title level={4}>Đăng Ký Xét Tuyển</Title>
+											<Paragraph>
+												Đăng ký xét tuyển trực tuyến nhanh chóng và đơn giản, tiết kiệm thời gian và chi phí.
+											</Paragraph>
+										</Card>
+									</Link>
 								</Col>
+
 								<Col xs={24} md={8}>
 									<Link to={'/public/tra-cuu-public'} key='detail'>
 										<Card
@@ -187,7 +207,6 @@ const TrangChuBody = () => {
 											}}
 										>
 											<SearchOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
-
 											<Title level={4}>Tra Cứu Thông Tin</Title>
 											<Paragraph>
 												Tra cứu thông tin tuyển sinh, ngành học, điểm chuẩn các năm nhanh chóng và chính xác.
@@ -196,16 +215,23 @@ const TrangChuBody = () => {
 									</Link>
 								</Col>
 								<Col xs={24} md={8}>
-									<Card
-										style={{ height: '100%' }}
-										bodyStyle={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
-									>
-										<CheckCircleOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
-										<Title level={4}>Theo Dõi Hồ Sơ</Title>
-										<Paragraph>
-											Theo dõi trạng thái hồ sơ xét tuyển và nhận thông báo kết quả trực tiếp qua hệ thống.
-										</Paragraph>
-									</Card>
+									<Link to={'/public/theo-doi-ho-so'} key='detail'>
+										<Card
+											style={{ height: '100%' }}
+											bodyStyle={{
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'center',
+												textAlign: 'center',
+											}}
+										>
+											<CheckCircleOutlined style={{ fontSize: 48, color: primaryColor, marginBottom: 16 }} />
+											<Title level={4}>Theo Dõi Hồ Sơ</Title>
+											<Paragraph>
+												Theo dõi trạng thái hồ sơ xét tuyển và nhận thông báo kết quả trực tiếp qua hệ thống.
+											</Paragraph>
+										</Card>
+									</Link>
 								</Col>
 							</Row>
 						</Col>
@@ -280,7 +306,13 @@ const TrangChuBody = () => {
 										itemLayout='horizontal'
 										dataSource={thongTinTuyenSinh}
 										renderItem={(item) => (
-											<List.Item actions={[<Button type='link'>Xem chi tiết</Button>]}>
+											<List.Item
+												actions={[
+													<Button type='link' onClick={() => showModal(item)}>
+														Xem chi tiết
+													</Button>,
+												]}
+											>
 												<List.Item.Meta
 													title={
 														<Text strong style={{ color: primaryColor, fontSize: 16 }}>
@@ -339,6 +371,36 @@ const TrangChuBody = () => {
 					</Row>
 				</div>
 			</div>
+
+			{/* Modal for displaying details */}
+			<Modal
+				title={selectedItem?.title}
+				visible={modalVisible}
+				onCancel={handleModalClose}
+				footer={[
+					<Button key='close' onClick={handleModalClose}>
+						Đóng
+					</Button>,
+				]}
+				width={800}
+			>
+				{selectedItem && (
+					<div>
+						<Paragraph>
+							<Text strong>Ngày đăng: </Text>
+							{selectedItem.date}
+						</Paragraph>
+						<Paragraph>
+							<Text strong>Tóm tắt: </Text>
+							{selectedItem.summary}
+						</Paragraph>
+						<Paragraph>
+							<Text strong>Nội dung: </Text>
+							{selectedItem.content || 'Không có nội dung chi tiết.'}
+						</Paragraph>
+					</div>
+				)}
+			</Modal>
 
 			{/* Timeline */}
 			<div style={{ padding: '40px 0', background: '#fff' }}>
@@ -412,12 +474,16 @@ const TrangChuBody = () => {
 								trình đăng ký xét tuyển đại học.
 							</Paragraph>
 							<Space size='large'>
-								<Button size='large' style={{ borderRadius: 4 }}>
-									Đăng Ký Ngay
-								</Button>
-								<Button size='large' ghost style={{ borderRadius: 4 }}>
-									Tìm Hiểu Thêm
-								</Button>
+								<Link to={'/public/dash-board'}>
+									<Button size='large' style={{ borderRadius: 4 }}>
+										Đăng Ký Ngay
+									</Button>
+								</Link>
+								<Link to={'/public/about'}>
+									<Button size='large' ghost style={{ borderRadius: 4 }}>
+										Tìm Hiểu Thêm
+									</Button>
+								</Link>
 							</Space>
 						</Col>
 					</Row>
