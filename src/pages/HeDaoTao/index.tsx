@@ -53,7 +53,7 @@ const UsersPage = () => {
 				title='Quản lý hệ đào tạo'
 				Form={HeDaoTaoForm}
 				widthDrawer={500}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				// buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>

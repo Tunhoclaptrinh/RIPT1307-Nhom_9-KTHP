@@ -8,12 +8,13 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import NganhDaoTaoForm from './components/Form';
 import NganhDaoTaoDetail from './components/Detail';
+import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
 
-const NganhDaoTao = () => {
-	const { 
-		handleEdit, 
-		handleView, 
-		deleteModel, 
+const NganhDaoTaoPage = () => {
+	const {
+		handleEdit,
+		handleView,
+		deleteModel,
 		getModel,
 		getExportFieldsModel,
 		postExportModel,
@@ -21,7 +22,7 @@ const NganhDaoTao = () => {
 		getImportTemplateModel,
 		postValidateModel,
 		postExecuteImpotModel,
-		importHeaders
+		importHeaders,
 	} = useModel('nganhdaotao');
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<NganhDaoTao.IRecord | undefined>();
@@ -116,7 +117,7 @@ const NganhDaoTao = () => {
 					fileName: 'DanhSachNganhDaoTao.xlsx',
 					getExportFieldsModel,
 					postExportModel,
-					maskCloseableForm: false
+					maskCloseableForm: false,
 				}}
 				// Import configuration
 				importConfig={{
@@ -124,8 +125,8 @@ const NganhDaoTao = () => {
 					maskCloseableForm: false,
 					extendData: {
 						createdAt: new Date().toISOString(),
-						updatedAt: new Date().toISOString()
-					}
+						updatedAt: new Date().toISOString(),
+					},
 				}}
 			/>
 			<NganhDaoTaoDetail
@@ -138,4 +139,4 @@ const NganhDaoTao = () => {
 	);
 };
 
-export default NganhDaoTao;
+export default NganhDaoTaoPage;

@@ -151,7 +151,7 @@ const HuongDanHSPage = () => {
 				title='Hướng dẫn hồ sơ'
 				Form={HuongDanHSForm}
 				widthDrawer={800}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				// buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>

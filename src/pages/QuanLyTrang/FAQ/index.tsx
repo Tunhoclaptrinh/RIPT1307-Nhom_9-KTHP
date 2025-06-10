@@ -145,7 +145,7 @@ const FAQPage = () => {
 				title='Câu hỏi thường gặp'
 				Form={FAQForm}
 				widthDrawer={600}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				// buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>

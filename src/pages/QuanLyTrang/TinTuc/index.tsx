@@ -179,7 +179,7 @@ const TinTucPage = () => {
 				title='Quản lý tin tức'
 				Form={TinTucForm}
 				widthDrawer={650}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				// buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>

@@ -124,7 +124,7 @@ const ThongBaoTSPage = () => {
 				title='Thông báo tuyển sinh'
 				Form={ThongBaoTSForm}
 				widthDrawer={800}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				// buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>
