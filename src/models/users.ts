@@ -17,74 +17,74 @@ export default () => {
 			field: 'ho',
 			label: 'Họ',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'ten',
 			label: 'Tên',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'username',
 			label: 'Username',
 			type: 'String',
-			required: false
+			required: false,
 		},
 		{
 			field: 'email',
 			label: 'Email',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'password',
 			label: 'Mật khẩu',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'soCCCD',
 			label: 'Số CCCD',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'soDT',
 			label: 'Số điện thoại',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'ngaySinh',
 			label: 'Ngày sinh',
 			type: 'Date',
-			required: true
+			required: true,
 		},
 		{
 			field: 'gioiTinh',
 			label: 'Giới tính',
 			type: 'String',
-			required: true
+			required: true,
 		},
 		{
 			field: 'ngayCap',
 			label: 'Ngày cấp CCCD',
 			type: 'Date',
-			required: false
+			required: false,
 		},
 		{
 			field: 'noiCap',
 			label: 'Nơi cấp CCCD',
 			type: 'String',
-			required: false
+			required: false,
 		},
 		{
 			field: 'role',
 			label: 'Vai trò',
 			type: 'String',
-			required: false
-		}
+			required: false,
+		},
 	];
 
 	// Get import headers
@@ -98,10 +98,10 @@ export default () => {
 			// Tạo template Excel với headers và dữ liệu mẫu
 			const templateData = [
 				{
-					'Họ': 'Nguyễn',
-					'Tên': 'Văn A',
-					'Username': 'nguyenvana',
-					'Email': 'nguyenvana@email.com',
+					Họ: 'Nguyễn',
+					Tên: 'Văn A',
+					Username: 'nguyenvana',
+					Email: 'nguyenvana@email.com',
 					'Mật khẩu': '123456',
 					'Số CCCD': '001199000001',
 					'Số điện thoại': '0901234567',
@@ -109,13 +109,13 @@ export default () => {
 					'Giới tính': 'nam',
 					'Ngày cấp CCCD': '01-01-2018',
 					'Nơi cấp CCCD': 'Cục cảnh sát ĐKQL cư trú và DLQG về dân cư',
-					'Vai trò': 'user'
+					'Vai trò': 'user',
 				},
 				{
-					'Họ': 'Trần',
-					'Tên': 'Thị B',
-					'Username': 'tranthib',
-					'Email': 'tranthib@email.com',
+					Họ: 'Trần',
+					Tên: 'Thị B',
+					Username: 'tranthib',
+					Email: 'tranthib@email.com',
 					'Mật khẩu': '123456',
 					'Số CCCD': '001199000002',
 					'Số điện thoại': '0901234568',
@@ -123,8 +123,8 @@ export default () => {
 					'Giới tính': 'nữ',
 					'Ngày cấp CCCD': '15/06/2017',
 					'Nơi cấp CCCD': 'Cục cảnh sát ĐKQL cư trú và DLQG về dân cư',
-					'Vai trò': 'user'
-				}
+					'Vai trò': 'user',
+				},
 			];
 
 			const worksheet = XLSX.utils.json_to_sheet(templateData);
@@ -133,8 +133,8 @@ export default () => {
 
 			// Tạo buffer và return blob
 			const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-			const blob = new Blob([excelBuffer], { 
-				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+			const blob = new Blob([excelBuffer], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 			});
 
 			return blob;
@@ -178,16 +178,16 @@ export default () => {
 	const postValidateModel = async (data: any[]): Promise<TImportResponse> => {
 		try {
 			const validateResults: TImportRowResponse[] = [];
-			
+
 			for (let i = 0; i < data.length; i++) {
 				const record = data[i];
 				const errors: string[] = [];
-				
+
 				// Validate required fields
 				if (!record.ho || record.ho.trim() === '') {
 					errors.push('Họ không được để trống');
 				}
-				
+
 				if (!record.ten || record.ten.trim() === '') {
 					errors.push('Tên không được để trống');
 				}
@@ -214,11 +214,11 @@ export default () => {
 					errors.push('Số điện thoại không đúng định dạng Việt Nam');
 				}
 
-				if (!record.ngaySinh || record.ngaySinh.trim() === '') {
-					errors.push('Ngày sinh không được để trống');
-				} else if (!isValidDate(record.ngaySinh.trim())) {
-					errors.push('Ngày sinh phải có định dạng DD/MM/YYYY');
-				}
+				// if (!record.ngaySinh || record.ngaySinh.trim() === '') {
+				// 	errors.push('Ngày sinh không được để trống');
+				// } else if (!isValidDate(record.ngaySinh.trim())) {
+				// 	errors.push('Ngày sinh phải có định dạng DD/MM/YYYY');
+				// }
 
 				if (!record.gioiTinh || record.gioiTinh.trim() === '') {
 					errors.push('Giới tính không được để trống');
@@ -227,9 +227,9 @@ export default () => {
 				}
 
 				// Validate optional date fields
-				if (record.ngayCap && record.ngayCap.trim() !== '' && !isValidDate(record.ngayCap.trim())) {
-					errors.push('Ngày cấp CCCD phải có định dạng DD/MM/YYYY');
-				}
+				// if (record.ngayCap && record.ngayCap.trim() !== '' && !isValidDate(record.ngayCap.trim())) {
+				// 	errors.push('Ngày cấp CCCD phải có định dạng DD/MM/YYYY');
+				// }
 
 				// Validate role
 				if (record.role && record.role.trim() !== '' && !['user', 'admin'].includes(record.role.trim().toLowerCase())) {
@@ -237,32 +237,27 @@ export default () => {
 				}
 
 				// Check for duplicates in current data
-				const duplicateEmail = data.findIndex((item, index) => 
-					index !== i && 
-					item.email && 
-					item.email.trim().toLowerCase() === record.email?.trim().toLowerCase()
+				const duplicateEmail = data.findIndex(
+					(item, index) =>
+						index !== i && item.email && item.email.trim().toLowerCase() === record.email?.trim().toLowerCase(),
 				);
-				
+
 				if (duplicateEmail !== -1) {
 					errors.push(`Email trùng với dòng ${duplicateEmail + 1} trong file`);
 				}
 
-				const duplicateCCCD = data.findIndex((item, index) => 
-					index !== i && 
-					item.soCCCD && 
-					item.soCCCD.trim() === record.soCCCD?.trim()
+				const duplicateCCCD = data.findIndex(
+					(item, index) => index !== i && item.soCCCD && item.soCCCD.trim() === record.soCCCD?.trim(),
 				);
-				
+
 				if (duplicateCCCD !== -1) {
 					errors.push(`Số CCCD trùng với dòng ${duplicateCCCD + 1} trong file`);
 				}
 
-				const duplicatePhone = data.findIndex((item, index) => 
-					index !== i && 
-					item.soDT && 
-					item.soDT.trim() === record.soDT?.trim()
+				const duplicatePhone = data.findIndex(
+					(item, index) => index !== i && item.soDT && item.soDT.trim() === record.soDT?.trim(),
 				);
-				
+
 				if (duplicatePhone !== -1) {
 					errors.push(`Số điện thoại trùng với dòng ${duplicatePhone + 1} trong file`);
 				}
@@ -271,26 +266,26 @@ export default () => {
 				try {
 					const response = await fetch(`${ipLocal}/users`);
 					const existingRecords: User.IRecord[] = await response.json();
-					
+
 					// Check email exists
-					const existingEmail = existingRecords.find(existing => 
-						existing.email && existing.email.toLowerCase() === record.email?.trim().toLowerCase()
+					const existingEmail = existingRecords.find(
+						(existing) => existing.email && existing.email.toLowerCase() === record.email?.trim().toLowerCase(),
 					);
 					if (existingEmail) {
 						errors.push('Email đã tồn tại trong hệ thống');
 					}
 
 					// Check CCCD exists
-					const existingCCCD = existingRecords.find(existing => 
-						existing.soCCCD && existing.soCCCD === record.soCCCD?.trim()
+					const existingCCCD = existingRecords.find(
+						(existing) => existing.soCCCD && existing.soCCCD === record.soCCCD?.trim(),
 					);
 					if (existingCCCD) {
 						errors.push('Số CCCD đã tồn tại trong hệ thống');
 					}
 
 					// Check phone exists
-					const existingPhone = existingRecords.find(existing => 
-						existing.soDT && existing.soDT === record.soDT?.trim()
+					const existingPhone = existingRecords.find(
+						(existing) => existing.soDT && existing.soDT === record.soDT?.trim(),
 					);
 					if (existingPhone) {
 						errors.push('Số điện thoại đã tồn tại trong hệ thống');
@@ -298,14 +293,14 @@ export default () => {
 
 					// Check username exists (if provided)
 					if (record.username && record.username.trim() !== '') {
-						const existingUsername = existingRecords.find(existing => 
-							existing.username && existing.username.toLowerCase() === record.username?.trim().toLowerCase()
+						const existingUsername = existingRecords.find(
+							(existing) =>
+								existing.username && existing.username.toLowerCase() === record.username?.trim().toLowerCase(),
 						);
 						if (existingUsername) {
 							errors.push('Username đã tồn tại trong hệ thống');
 						}
 					}
-
 				} catch (dbError) {
 					console.error('Database check error:', dbError);
 					errors.push('Không thể kiểm tra dữ liệu trong hệ thống');
@@ -313,19 +308,19 @@ export default () => {
 
 				validateResults.push({
 					index: i,
-					rowErrors: errors.length > 0 ? errors : undefined
+					rowErrors: errors.length > 0 ? errors : undefined,
 				});
 			}
 
 			return {
 				validate: validateResults,
-				error: false
+				error: false,
 			};
 		} catch (error) {
 			console.error('Validation error:', error);
 			return {
 				validate: [],
-				error: true
+				error: true,
 			};
 		}
 	};
@@ -335,11 +330,11 @@ export default () => {
 		try {
 			const executeResults: TImportRowResponse[] = [];
 			let successCount = 0;
-			
+
 			for (let i = 0; i < data.length; i++) {
 				const record = data[i];
 				const errors: string[] = [];
-				
+
 				try {
 					// Prepare data for API
 					const payload: Partial<User.IRecord> = {
@@ -361,7 +356,7 @@ export default () => {
 							quanHuyen: null,
 							xaPhuong: null,
 							diaChi: null,
-						}
+						},
 					};
 
 					// Call API to create record
@@ -370,7 +365,7 @@ export default () => {
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify(payload)
+						body: JSON.stringify(payload),
 					});
 
 					if (!response.ok) {
@@ -386,7 +381,7 @@ export default () => {
 
 				executeResults.push({
 					index: i,
-					rowErrors: errors.length > 0 ? errors : undefined
+					rowErrors: errors.length > 0 ? errors : undefined,
 				});
 			}
 
@@ -394,14 +389,14 @@ export default () => {
 
 			return {
 				validate: executeResults,
-				error: false
+				error: false,
 			};
 		} catch (error) {
 			console.error('Execute import error:', error);
 			message.error('Có lỗi xảy ra khi thực hiện import!');
 			return {
 				validate: [],
-				error: true
+				error: true,
 			};
 		}
 	};
@@ -413,90 +408,90 @@ export default () => {
 				_id: 'id',
 				label: 'ID người dùng',
 				labels: ['ID người dùng'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'hoTen',
 				label: 'Họ và tên',
 				labels: ['Họ và tên'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'username',
 				label: 'Username',
 				labels: ['Username'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'email',
 				label: 'Email',
 				labels: ['Email'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'password',
 				label: 'Mật khẩu',
 				labels: ['Mật khẩu'],
-				selected: false
+				selected: false,
 			},
 			{
 				_id: 'soCCCD',
 				label: 'Số CCCD',
 				labels: ['Số CCCD'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'soDT',
 				label: 'Số điện thoại',
 				labels: ['Số điện thoại'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'ngaySinh',
 				label: 'Ngày sinh',
 				labels: ['Ngày sinh'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'gioiTinh',
 				label: 'Giới tính',
 				labels: ['Giới tính'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'ngayCap',
 				label: 'Ngày cấp CCCD',
 				labels: ['Ngày cấp CCCD'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'noiCap',
 				label: 'Nơi cấp CCCD',
 				labels: ['Nơi cấp CCCD'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'hoKhauThuongTru',
 				label: 'Hộ khẩu thường trú',
 				labels: ['Hộ khẩu thường trú'],
-				selected: true
+				selected: true,
 			},
 			{
 				_id: 'role',
 				label: 'Vai trò',
 				labels: ['Vai trò'],
-				selected: true
-			}
+				selected: true,
+			},
 		];
 	};
 
 	// Hàm format dữ liệu trước khi export
 	const formatDataForExport = async (data: User.IRecord[], fields: any[]) => {
 		const formattedData = [];
-		
+
 		for (const record of data) {
 			const row: any = {};
-			
+
 			for (const field of fields) {
 				switch (field._id) {
 					case 'id':
@@ -545,37 +540,30 @@ export default () => {
 						break;
 				}
 			}
-			
+
 			formattedData.push(row);
 		}
-		
+
 		return formattedData;
 	};
 
 	// Hàm export dữ liệu
-	const postExportModel = async (
-		payload: any,
-		condition?: any,
-		filters?: any,
-		otherQuery?: any
-	) => {
+	const postExportModel = async (payload: any, condition?: any, filters?: any, otherQuery?: any) => {
 		try {
 			let dataToExport: User.IRecord[] = [];
-			
+
 			// Nếu có selectedIds, lấy theo IDs đã chọn
 			if (payload.ids && payload.ids.length > 0) {
-				const promises = payload.ids.map((id: string) => 
-					fetch(`${ipLocal}/users/${id}`).then(res => res.json())
-				);
+				const promises = payload.ids.map((id: string) => fetch(`${ipLocal}/users/${id}`).then((res) => res.json()));
 				dataToExport = await Promise.all(promises);
 			} else {
 				// Lấy toàn bộ dữ liệu
 				const response = await fetch(`${ipLocal}/users`);
 				dataToExport = await response.json();
-				
+
 				// Áp dụng filters nếu có
 				if (filters && Object.keys(filters).length > 0) {
-					dataToExport = dataToExport.filter(record => {
+					dataToExport = dataToExport.filter((record) => {
 						return Object.entries(filters).every(([key, value]) => {
 							if (!value) return true;
 							const recordValue = record[key as keyof User.IRecord];
@@ -587,24 +575,23 @@ export default () => {
 					});
 				}
 			}
-			
+
 			// Format dữ liệu theo các trường đã chọn
 			const formattedData = await formatDataForExport(dataToExport, payload.definitions);
-			
+
 			// Tạo workbook Excel
 			const worksheet = XLSX.utils.json_to_sheet(formattedData);
 			const workbook = XLSX.utils.book_new();
 			XLSX.utils.book_append_sheet(workbook, worksheet, 'Người dùng');
-			
+
 			// Tạo buffer và return blob
 			const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-			const blob = new Blob([excelBuffer], { 
-				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+			const blob = new Blob([excelBuffer], {
+				type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 			});
-			
+
 			message.success(`Đã xuất ${formattedData.length} bản ghi thành công!`);
 			return blob;
-			
 		} catch (error) {
 			console.error('Export error:', error);
 			message.error('Có lỗi xảy ra khi xuất dữ liệu!');
@@ -625,4 +612,4 @@ export default () => {
 		getExportFieldsModel,
 		postExportModel,
 	};
-}
+};

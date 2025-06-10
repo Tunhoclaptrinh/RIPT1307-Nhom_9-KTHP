@@ -263,9 +263,9 @@ const ThongTinNguyenVongPage = () => {
 		},
 		{
 			title: 'Phương thức xét tuyển',
-			dataIndex: 'phuongThucXT',
+			dataIndex: 'phuongThucId',
 			width: 200,
-			render: (phuongThucXT: string[]) => (phuongThucXT && phuongThucXT.length > 0 ? phuongThucXT.join(', ') : 'N/A'),
+			render: (phuongThucXT: string) => phuongThucXT,
 		},
 		{
 			title: 'Điểm chưa ưu tiên',
