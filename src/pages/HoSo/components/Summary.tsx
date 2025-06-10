@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Spin, message } from 'antd';
+import { Card, Descriptions, Spin, message, Image } from 'antd';
 import moment from 'moment';
 import axios from 'axios';
 import { ipLocal } from '@/utils/ip';
@@ -7,6 +7,7 @@ import { HoSo } from '@/services/HoSo/typing';
 import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
 import { DiemHocSinh } from '@/services/HocBa/typing';
 import { User } from '@/services/Users/typing';
+import { ThongTinHocTap } from '@/services/ThongTinHocTap/typing';
 
 interface ApiData {
 	user: User.IRecord | null;
@@ -153,6 +154,18 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId }) => {
 			{/* Personal Information */}
 			<Card title='Thông tin cá nhân' style={{ marginBottom: 16 }}>
 				<Descriptions column={2} bordered>
+					<Descriptions.Item label='Họ và tên'>
+						<div className='flex-shrink-0'>
+							<Image
+								width={150}
+								height={150}
+								src={`${ipLocal}${personalInfo.avatar}`}
+								alt='Avatar'
+								className='rounded-lg object-cover'
+								fallback='https://via.placeholder.com/150?text=Avatar'
+							/>
+						</div>
+					</Descriptions.Item>
 					<Descriptions.Item label='Họ và tên'>
 						{personalInfo.ho || ''} {personalInfo.ten || ''}
 					</Descriptions.Item>

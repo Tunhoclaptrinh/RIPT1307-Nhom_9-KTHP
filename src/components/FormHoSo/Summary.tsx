@@ -1,6 +1,7 @@
 import React from 'react';
-import { Card, Descriptions, Divider } from 'antd';
+import { Card, Descriptions, Divider, Image } from 'antd';
 import moment from 'moment';
+import { ipLocal } from '@/utils/ip';
 
 interface SummaryFormProps {
 	userId: string;
@@ -32,6 +33,18 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 			{/* Personal Information */}
 			<Card title='Thông tin cá nhân' style={{ marginBottom: 16 }}>
 				<Descriptions column={2} bordered>
+					<Descriptions.Item label='Ảnh'>
+						<div className='flex-shrink-0'>
+							<Image
+								width={150}
+								height={150}
+								src={`${ipLocal}${personalInfo.avatar}`}
+								alt='Avatar'
+								className='rounded-lg object-cover'
+								fallback='https://via.placeholder.com/150?text=Avatar'
+							/>
+						</div>
+					</Descriptions.Item>
 					<Descriptions.Item label='Họ và tên'>
 						{personalInfo.ho || ''} {personalInfo.ten || ''}
 					</Descriptions.Item>

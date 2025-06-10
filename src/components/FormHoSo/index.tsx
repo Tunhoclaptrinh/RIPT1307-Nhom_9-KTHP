@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Steps, Button, Space, message, Spin } from 'antd';
+import { Modal, Steps, Button, Space, message, Spin, Avatar } from 'antd';
 import { UserOutlined, BookOutlined, HeartOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -13,6 +13,7 @@ import { DiemHocSinh } from '@/services/HocBa/typing';
 import { User } from '@/services/Users/typing';
 import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
 import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
+import { ThongTinHocTap } from '@/services/ThongTinHocTap/typing';
 
 const { Step } = Steps;
 
@@ -237,6 +238,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
 					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
+					avatar: formData.personalInfo.avatar,
 				};
 				await axios.put(`${ipLocal}/users/${userId}`, userUpdateData);
 			}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Descriptions, Button, Avatar } from 'antd';
+import { Modal, Descriptions, Button, Avatar, Image } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { useAddress } from '@/hooks/useAddress';
 import { ipLocal } from '@/utils/ip';
+import { User } from '@/services/Users/typing';
 
 interface ViewModalProps {
 	isVisible: boolean;
@@ -86,10 +87,11 @@ const UserDetail: React.FC<ViewModalProps> = ({
 		>
 			<Descriptions column={2} bordered>
 				<Descriptions.Item label='Avatar' span={2}>
-					<Avatar
-						size={64}
+					<Image
+						// size={64}
+						width={128}
 						src={record.avatar ? `${ipLocal}${record.avatar}` : undefined}
-						icon={<UserOutlined />}
+						// icon={<UserOutlined />}
 						style={{ marginBottom: 16 }}
 					/>
 				</Descriptions.Item>

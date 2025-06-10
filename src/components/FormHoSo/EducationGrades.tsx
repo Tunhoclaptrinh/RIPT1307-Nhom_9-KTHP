@@ -22,6 +22,7 @@ import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Addr
 import axios from 'axios';
 import { ipLocal } from '@/utils/ip';
 import { DiemHocSinh } from '@/services/HocBa/typing';
+import { ThongTinHocTap } from '@/services/ThongTinHocTap/typing';
 
 const { Option } = Select;
 
@@ -379,6 +380,8 @@ const EducationGradesForm: React.FC<EducationGradesFormProps> = ({
 							<Select placeholder='Chọn đối tượng ưu tiên' allowClear>
 								<Option value='hộ nghèo'>Hộ nghèo</Option>
 								<Option value='cận nghèo'>Cận nghèo</Option>
+								<Option value='con liệt sĩ'>Con liệt sĩ</Option>
+								<Option value='dân tộc thiểu số'>Dân tộc thiểu số</Option>
 							</Select>
 						</Form.Item>
 					</Col>

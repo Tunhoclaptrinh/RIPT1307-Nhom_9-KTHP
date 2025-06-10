@@ -45,7 +45,7 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 			{/* Personal Information */}
 			<Card title='Thông tin cá nhân' className='mb-4 shadow-md'>
 				<div className='flex flex-col md:flex-row gap-6'>
-					<div className='flex-shrink-0'>
+					<div className='flex-shrink-0' style={{ alignContent: 'center' }}>
 						<Image
 							width={150}
 							height={150}
