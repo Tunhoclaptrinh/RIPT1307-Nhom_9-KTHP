@@ -157,52 +157,52 @@ const WishesForm: React.FC<WishesFormProps> = ({
 	};
 
 	// Kiểm tra xem có đủ điểm hợp lệ cho các môn trong tổ hợp xét tuyển không
-	const validateWishPoints = async (nv: any) => {
-		const nganh = nganhDaoTaoData.find((n) => n.ma === nv.maNganh);
-		const toHop = toHopData.find((t) => t.id === nganh?.toHopXetTuyenId);
-		const thongTinHocTapRes = await axios.get(`${ipLocal}/thongTinHocTap?userId=${userId}`);
-		const hocBaRes = await axios.get(`${ipLocal}/hocBa?userId=${userId}`);
-		const thongTinHocTap = thongTinHocTapRes.data[0];
-		const hocBa = hocBaRes.data[0];
+	// const validateWishPoints = async (nv: any) => {
+	// 	const nganh = nganhDaoTaoData.find((n) => n.ma === nv.maNganh);
+	// 	const toHop = toHopData.find((t) => t.id === nganh?.toHopXetTuyenId);
+	// 	const thongTinHocTapRes = await axios.get(`${ipLocal}/thongTinHocTap?userId=${userId}`);
+	// 	const hocBaRes = await axios.get(`${ipLocal}/hocBa?userId=${userId}`);
+	// 	const thongTinHocTap = thongTinHocTapRes.data[0];
+	// 	const hocBa = hocBaRes.data[0];
 
-		if (!thongTinHocTap || !hocBa) {
-			return { valid: false, message: 'Không tìm thấy thông tin học tập hoặc học bạ!' };
-		}
+	// 	if (!thongTinHocTap || !hocBa) {
+	// 		return { valid: false, message: 'Không tìm thấy thông tin học tập hoặc học bạ!' };
+	// 	}
 
-		if (!toHop || !nganh) {
-			return { valid: false, message: 'Không tìm thấy ngành hoặc tổ hợp xét tuyển!' };
-		}
+	// 	if (!toHop || !nganh) {
+	// 		return { valid: false, message: 'Không tìm thấy ngành hoặc tổ hợp xét tuyển!' };
+	// 	}
 
-		if (nv.phuongThucId == 'ptxt_001') {
-			// Kiểm tra điểm THPT cho từng môn trong tổ hợp
-			const missingMon = toHop.monHoc.find((mon: string) => {
-				const diemMon = thongTinHocTap?.diemTHPT?.find((d: any) => d.mon.toLowerCase() == mon.toLowerCase());
-				return !diemMon || diemMon.diem <= 0;
-			});
-			if (missingMon) {
-				return { valid: false, message: `Thiếu điểm môn ${missingMon} trong tổ hợp xét tuyển!` };
-			}
-		} else if (nv.phuongThucId == 'ptxt_002') {
-			// Kiểm tra điểm học bạ cho từng môn trong tổ hợp
-			const missingMon = toHop.monHoc.find((mon: string) => {
-				const diemMonHoc = hocBa?.diemMonHoc?.filter((d: any) => d.mon.toLowerCase() == mon.toLowerCase()) || [];
-				const avgDiem = diemMonHoc.length
-					? diemMonHoc.reduce((sum: number, d: any) => sum + d.diemTongKet, 0) / diemMonHoc.length
-					: 0;
-				return avgDiem <= 0;
-			});
-			if (missingMon) {
-				return { valid: false, message: `Thiếu điểm môn ${missingMon} trong học bạ!` };
-			}
-		} else if (nv.phuongThucId == 'ptxt_003') {
-			// Kiểm tra điểm đánh giá năng lực
-			if (!thongTinHocTap?.diemDGNL?.tongDiem || thongTinHocTap?.diemDGNL?.tongDiem <= 0) {
-				return { valid: false, message: 'Thiếu điểm đánh giá năng lực!' };
-			}
-		}
+	// 	if (nv.phuongThucId == 'ptxt_001') {
+	// 		// Kiểm tra điểm THPT cho từng môn trong tổ hợp
+	// 		const missingMon = toHop.monHoc.find((mon: string) => {
+	// 			const diemMon = thongTinHocTap?.diemTHPT?.find((d: any) => d.mon.toLowerCase() == mon.toLowerCase());
+	// 			return !diemMon || diemMon.diem <= 0;
+	// 		});
+	// 		if (missingMon) {
+	// 			return { valid: false, message: `Thiếu điểm môn ${missingMon} trong tổ hợp xét tuyển!` };
+	// 		}
+	// 	} else if (nv.phuongThucId == 'ptxt_002') {
+	// 		// Kiểm tra điểm học bạ cho từng môn trong tổ hợp
+	// 		const missingMon = toHop.monHoc.find((mon: string) => {
+	// 			const diemMonHoc = hocBa?.diemMonHoc?.filter((d: any) => d.mon.toLowerCase() == mon.toLowerCase()) || [];
+	// 			const avgDiem = diemMonHoc.length
+	// 				? diemMonHoc.reduce((sum: number, d: any) => sum + d.diemTongKet, 0) / diemMonHoc.length
+	// 				: 0;
+	// 			return avgDiem <= 0;
+	// 		});
+	// 		if (missingMon) {
+	// 			return { valid: false, message: `Thiếu điểm môn ${missingMon} trong học bạ!` };
+	// 		}
+	// 	} else if (nv.phuongThucId == 'ptxt_003') {
+	// 		// Kiểm tra điểm đánh giá năng lực
+	// 		if (!thongTinHocTap?.diemDGNL?.tongDiem || thongTinHocTap?.diemDGNL?.tongDiem <= 0) {
+	// 			return { valid: false, message: 'Thiếu điểm đánh giá năng lực!' };
+	// 		}
+	// 	}
 
-		return { valid: true };
-	};
+	// 	return { valid: true };
+	// };
 
 	// Xử lý khi nhấn "Tiếp tục"
 	const handleNext = async () => {
@@ -210,13 +210,13 @@ const WishesForm: React.FC<WishesFormProps> = ({
 			const values = await form.validateFields();
 
 			// Kiểm tra điểm hợp lệ cho từng nguyện vọng
-			for (let i = 0; i < values.nguyenVong.length; i++) {
-				const validation = await validateWishPoints(values.nguyenVong[i]);
-				if (!validation.valid) {
-					message.error(validation.message);
-					return;
-				}
-			}
+			// for (let i = 0; i < values.nguyenVong.length; i++) {
+			// 	const validation = await validateWishPoints(values.nguyenVong[i]);
+			// 	if (!validation.valid) {
+			// 		message.error(validation.message);
+			// 		return;
+			// 	}
+			// }
 
 			// Chuẩn hóa dữ liệu để gửi qua onNext
 			const wishes: ThongTinNguyenVong.IRecord[] = values.nguyenVong.map((nv: any, index: number) => ({

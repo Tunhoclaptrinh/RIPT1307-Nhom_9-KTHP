@@ -38,7 +38,7 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId, formData, showHocBa, 
 							<Image
 								width={150}
 								height={150}
-								src={`${ipLocal}${personalInfo.avatar}`}
+								src={`${ipLocal}${apiData.user.avatar}`}
 								alt='Avatar'
 								className='rounded-lg object-cover'
 								fallback='https://via.placeholder.com/150?text=Avatar'

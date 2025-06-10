@@ -38,6 +38,8 @@ interface FormData {
 		thongTinBoSung: Partial<HoSo.IThongTinBoSung>;
 		thongTinLienHe: Partial<HoSo.IThongTinLienHe>;
 	};
+	// toHop: any;
+	// nganhDaoTao: any;
 }
 
 interface StepInfo {
@@ -153,6 +155,8 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					thongTinBoSung: hoSoResponse.data[0].thongTinBoSung || {},
 					thongTinLienHe: hoSoResponse.data[0].thongTinLienHe || {},
 				},
+				// toHop: toHopResponse.data[0],
+				// nganhDaoTao: nganhResponse.data[0],
 			};
 
 			setFormData(initialFormData);
@@ -238,7 +242,7 @@ const AdmissionStepModal: React.FC<AdmissionStepModalProps> = ({ userId, visible
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
 					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
-					avatar: formData.personalInfo.avatar,
+					// avatar: formData.personalInfo.avatar,
 				};
 				await axios.put(`${ipLocal}/users/${userId}`, userUpdateData);
 			}

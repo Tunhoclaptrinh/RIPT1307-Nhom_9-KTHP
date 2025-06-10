@@ -154,7 +154,7 @@ const SummaryForm: React.FC<SummaryFormProps> = ({ userId }) => {
 			{/* Personal Information */}
 			<Card title='Thông tin cá nhân' style={{ marginBottom: 16 }}>
 				<Descriptions column={2} bordered>
-					<Descriptions.Item label='Họ và tên'>
+					<Descriptions.Item label='Avatar'>
 						<div className='flex-shrink-0'>
 							<Image
 								width={150}

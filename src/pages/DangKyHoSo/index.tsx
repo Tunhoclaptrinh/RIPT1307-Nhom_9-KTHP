@@ -34,6 +34,8 @@ interface FormData {
 		thongTinBoSung: any;
 		thongTinLienHe: any;
 	};
+	// toHop: any;
+	// nganhDaoTao: any;
 }
 
 const UniversityRegistrationForm: React.FC = () => {
@@ -150,6 +152,8 @@ const UniversityRegistrationForm: React.FC = () => {
 					},
 					thongTinLienHe: hoSoResponse.data[0]?.thongTinLienHe || { ten: '', diaChi: {} },
 				},
+				// toHop: apiData.toHop,
+				// nganhDaoTao: apiData.nganhDaoTao,
 			};
 
 			setFormData(initialFormData);
@@ -225,7 +229,7 @@ const UniversityRegistrationForm: React.FC = () => {
 					ngayCap: formData.personalInfo.ngayCap,
 					noiCap: formData.personalInfo.noiCap,
 					hoKhauThuongTru: formData.personalInfo.hoKhauThuongTru || {},
-					avatar: formData.personalInfo.avatar,
+					// avatar: formData.personalInfo.avatar,
 				};
 				await axios.put(`${ipLocal}/users/${user?.id}`, userUpdateData);
 			}

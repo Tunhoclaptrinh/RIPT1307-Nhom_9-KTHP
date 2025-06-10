@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Row, Col, Select, DatePicker, Divider, Card, Radio, RadioChangeEvent, Space } from 'antd';
+import {
+	Form,
+	Input,
+	Button,
+	Row,
+	Col,
+	Select,
+	DatePicker,
+	Divider,
+	Card,
+	Radio,
+	RadioChangeEvent,
+	Space,
+	Avatar,
+} from 'antd';
 import moment from 'moment';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
 
@@ -55,6 +69,7 @@ interface UserData {
 }
 
 interface PersonalInfo {
+	avatar: string;
 	ho?: string;
 	ten?: string;
 	username?: string;
@@ -116,6 +131,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 		if (userData) {
 			// Prepare form values from userData (thông tin cá nhân)
 			const formValues = {
+				// ...initialData?.personalInfo,
 				ho: userData.ho,
 				ten: userData.ten,
 				username: userData.username,
@@ -237,6 +253,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 		if (initialData?.personalInfo) {
 			const personalInfo = initialData.personalInfo;
 			const formValues = {
+				// ...personalInfo,
 				ho: personalInfo.ho,
 				ten: personalInfo.ten,
 				username: personalInfo.username,

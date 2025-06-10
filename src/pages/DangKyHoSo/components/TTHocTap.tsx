@@ -22,6 +22,7 @@ import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Addr
 import axios from 'axios';
 import { ipLocal } from '@/utils/ip';
 import { DiemHocSinh } from '@/services/HocBa/typing';
+import { ThongTinHocTap } from '@/services/ThongTinHocTap/typing';
 
 const { Option } = Select;
 
@@ -141,7 +142,7 @@ const TTHocTapForm: React.FC<TTHocTapFormProps> = ({
 		'Toán',
 		'Ngữ văn',
 		'Tiếng Anh',
-		'Vật lý',
+		'Lý',
 		'Hóa học',
 		'Sinh học',
 		'Lịch sử',
