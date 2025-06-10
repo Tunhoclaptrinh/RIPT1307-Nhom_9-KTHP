@@ -207,7 +207,7 @@ const DiemHocSinhPage = () => {
 				const fileName = getNameFile(text); // Lấy tên file từ URL
 				return (
 					<a
-						href={`http://localhost:3000${text}`}
+						href={`${ipLocal}${text}`}
 						download={fileName}
 						style={{ color: '#1890ff', textDecoration: 'underline' }}
 						title='Nhấn để tải file'

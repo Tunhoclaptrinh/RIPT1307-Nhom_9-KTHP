@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { EOperatorType } from '../components/Table/constant';
 import type { TFilter } from '../components/Table/typing';
+import { ipLocal } from '@/utils/ip';
 
 const useInitService = (url: string, baseURL?: string) => {
-	const finalURL = baseURL ?? 'http://localhost:3000';
+	const finalURL = baseURL ?? `${ipLocal}`;
 
 	const getService = (
 		payload: {

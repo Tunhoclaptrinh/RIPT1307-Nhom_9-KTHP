@@ -8,9 +8,24 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import PhuongThucXTForm from './components/Form';
 import PhuongThucXTDetail from './components/Detail';
+import { PhuongThucXT } from '@/services/PhuongThucXT/typing';
 
 const PhuongThucXetTuyenPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } = useModel('phuongthucxt');
+	const { 
+		handleEdit, 
+		handleView, 
+		deleteModel, 
+		getModel, 
+		getExportFieldsModel, 
+		postExportModel,
+		// Import functions
+		getImportHeaderModel,
+		getImportTemplateModel,
+		postValidateModel,
+		postExecuteImpotModel,
+		importHeaders
+	} = useModel('phuongthucxt');
+	
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<PhuongThucXT.IRecord | undefined>();
 
@@ -91,6 +106,16 @@ const PhuongThucXetTuyenPage = () => {
 					getExportFieldsModel,
 					postExportModel,
 					maskCloseableForm: false
+				}}
+				// Cấu hình import
+				importConfig={{
+					titleTemplate: 'Template_PhuongThucXetTuyen.xlsx',
+					maskCloseableForm: false,
+					extendData: {
+						// Có thể thêm dữ liệu mở rộng nếu cần
+						createdAt: new Date().toISOString(),
+						updatedAt: new Date().toISOString()
+					}
 				}}
 			/>
 			<PhuongThucXTDetail

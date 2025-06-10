@@ -114,6 +114,7 @@
     "@types/react-helmet": "^6.1.0",
     "@types/react-pdf": "^5.0.9",
     "@types/react-recaptcha": "^2.3.4",
+    "@types/uuid": "^10.0.0",
     "@umijs/fabric": "^2.6.2",
     "@umijs/openapi": "^1.1.14",
     "@umijs/plugin-blocks": "^2.0.5",

@@ -132,7 +132,7 @@ export default () => {
 	// Hàm lấy thông tin user từ API users
 	const getUserInfo = async (userId: string) => {
 		try {
-			const response = await fetch(`http://localhost:3000/users/${userId}`);
+			const response = await fetch(`${ipLocal}/users/${userId}`);
 			if (response.ok) {
 				return await response.json();
 			}
@@ -255,12 +255,12 @@ export default () => {
 			// Nếu có selectedIds, lấy theo IDs đã chọn
 			if (payload.ids && payload.ids.length > 0) {
 				const promises = payload.ids.map((id: string) => 
-					fetch(`http://localhost:3000/thongTinHocTap/${id}`).then(res => res.json())
+					fetch(`${ipLocal}/thongTinHocTap/${id}`).then(res => res.json())
 				);
 				dataToExport = await Promise.all(promises);
 			} else {
 				// Lấy toàn bộ dữ liệu
-				const response = await fetch('http://localhost:3000/thongTinHocTap');
+				const response = await fetch(`${ipLocal}/thongTinHocTap`);
 				dataToExport = await response.json();
 				
 				// Áp dụng filters nếu có
