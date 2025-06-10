@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
-import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message } from 'antd';
+import { Button, Card, Col, DatePicker, Form, Input, Row, Select, Modal, message, Upload, Space, Avatar } from 'antd';
 import { useIntl, useModel } from 'umi';
+import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import moment from 'moment';
 import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Address';
+import axios from 'axios';
+import { ipLocal } from '@/utils/ip';
+
 const { Option } = Select;
-import { Space } from 'antd';
 
 interface UserFormProps {
 	title?: string;
 	hideFooter?: boolean;
-	// [key: string]: any;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFooter, ...props }) => {
+const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFooter }) => {
 	const { record, setVisibleForm, edit, postModel, putModel, visibleForm } = useModel('users');
 	const [form] = Form.useForm();
 	const intl = useIntl();
 
-	// State để lưu giá trị địa chỉ đã chọn
 	const [selectedProvince, setSelectedProvince] = useState<string | undefined>();
 	const [selectedDistrict, setSelectedDistrict] = useState<string | undefined>();
 	const [selectedWard, setSelectedWard] = useState<string | undefined>();
@@ -27,14 +28,15 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 	const [resetPasswordModalVisible, setResetPasswordModalVisible] = useState(false);
 	const [newPassword, setNewPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
+	const [fileList, setFileList] = useState<any[]>([]);
 
-	// Reset form khi đóng modal hoặc khi mở form mới
 	React.useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
 			setSelectedProvince(undefined);
 			setSelectedDistrict(undefined);
 			setSelectedWard(undefined);
+			setFileList([]);
 		} else if (record?.id) {
 			const formData = {
 				...record,
@@ -48,6 +50,9 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 				},
 			};
 			form.setFieldsValue(formData);
+			setFileList(
+				record.avatar ? [{ uid: '-1', name: 'avatar', status: 'done', url: `${ipLocal}${record.avatar}` }] : [],
+			);
 
 			const province = record.hoKhauThuongTru?.tinh_ThanhPho;
 			const district = record.hoKhauThuongTru?.quanHuyen;
@@ -67,11 +72,39 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 		}
 	}, [record?.id, visibleForm, form]);
 
+	const handleUploadFile = async (file: File, userId: string) => {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('userId', userId || 'temp');
+		formData.append('type', 'avatar');
+
+		try {
+			const response = await axios.post(`${ipLocal}/upload`, formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			});
+			return response.data.fileUrl;
+		} catch (error) {
+			console.error('Upload avatar error:', error);
+			message.error('Tải ảnh avatar thất bại');
+			throw error;
+		}
+	};
+
 	const onFinish = async (values: any) => {
 		try {
 			setSubmitting(true);
+			let avatarUrl = record?.avatar;
+
+			if (fileList.length > 0 && fileList[0].originFileObj) {
+				const file = fileList[0].originFileObj;
+				avatarUrl = await handleUploadFile(file, record?.id || values.soCCCD);
+			} else if (fileList.length === 0) {
+				avatarUrl = undefined;
+			}
+
 			const submitData = {
 				...values,
+				avatar: avatarUrl,
 				ngayCap: values.ngayCap?.format('YYYY-MM-DD'),
 				ngaySinh: values.ngaySinh?.format('YYYY-MM-DD'),
 				hoKhauThuongTru: {
@@ -98,13 +131,13 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 			resetFieldsForm(form);
 		} catch (error) {
 			console.error('Form submission error:', error);
+			message.error('Lưu thông tin thất bại');
 		} finally {
 			setSubmitting(false);
 		}
 	};
 
 	const handleProvinceChange = (value: string) => {
-		console.log('Province changed:', value);
 		setSelectedProvince(value);
 		setSelectedDistrict(undefined);
 		setSelectedWard(undefined);
@@ -134,6 +167,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 			const currentData = {
 				...record,
 				password: record.soCCCD,
+				avatar: record.avatar,
 				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
 				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
 				hoKhauThuongTru: {
@@ -168,6 +202,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 			const currentData = {
 				...record,
 				password: newPassword.trim(),
+				avatar: record.avatar,
 				ngayCap: record.ngayCap ? moment(record.ngayCap).format('YYYY-MM-DD') : undefined,
 				ngaySinh: record.ngaySinh ? moment(record.ngaySinh).format('YYYY-MM-DD') : undefined,
 				hoKhauThuongTru: {
@@ -189,7 +224,6 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 	};
 
 	const handleDistrictChange = (value: string) => {
-		console.log('District changed:', value);
 		setSelectedDistrict(value);
 		setSelectedWard(undefined);
 
@@ -203,20 +237,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 		});
 	};
 
-	const handleMouseDown = () => {
-		setShowPassword(true);
-	};
-
-	const handleMouseUp = () => {
-		setShowPassword(false);
-	};
-
-	const handleMouseLeave = () => {
-		setShowPassword(false);
-	};
-
 	const handleWardChange = (value: string) => {
-		console.log('Ward changed:', value);
 		setSelectedWard(value);
 
 		form.setFieldsValue({
@@ -227,6 +248,36 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 				diaChi: form.getFieldValue(['hoKhauThuongTru', 'diaChi']),
 			},
 		});
+	};
+
+	const handleUploadChange = ({ fileList }: { fileList: any[] }) => {
+		setFileList(fileList);
+	};
+
+	const beforeUpload = (file: File) => {
+		const isImage = file.type.startsWith('image/');
+		if (!isImage) {
+			message.error('Chỉ được tải lên file ảnh!');
+			return false;
+		}
+		const isLt2M = file.size / 1024 / 1024 < 2;
+		if (!isLt2M) {
+			message.error('Ảnh phải nhỏ hơn 2MB!');
+			return false;
+		}
+		return true;
+	};
+
+	const handleMouseDown = () => {
+		setShowPassword(true);
+	};
+
+	const handleMouseUp = () => {
+		setShowPassword(false);
+	};
+
+	const handleMouseLeave = () => {
+		setShowPassword(false);
 	};
 
 	return (
@@ -243,6 +294,33 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 							<Form.Item label='Tên' name='ten' rules={[...rules.required]}>
 								<Input placeholder='Nhập tên' />
 							</Form.Item>
+						</Col>
+					</Row>
+
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item label='Avatar' name='avatar'>
+								<Upload
+									fileList={fileList}
+									onChange={handleUploadChange}
+									beforeUpload={beforeUpload}
+									accept='image/*'
+									listType='picture'
+									maxCount={1}
+								>
+									<Button icon={<UploadOutlined />}>Tải lên ảnh avatar</Button>
+								</Upload>
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							{fileList.length > 0 && (
+								<Avatar
+									size={64}
+									src={fileList[0].url || (fileList[0].originFileObj && URL.createObjectURL(fileList[0].originFileObj))}
+									icon={<UserOutlined />}
+									style={{ marginBottom: 16 }}
+								/>
+							)}
 						</Col>
 					</Row>
 
@@ -308,9 +386,9 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 						<Row gutter={16} style={{ marginBottom: 16 }}>
 							<Col
 								span={18}
-								onMouseDown={handleMouseDown}
-								onMouseUp={handleMouseUp}
-								onMouseLeave={handleMouseLeave}
+								onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => handleMouseDown()}
+								onMouseUp={(e: React.MouseEvent<HTMLDivElement>) => handleMouseUp()}
+								onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => handleMouseLeave()}
 								style={{
 									cursor: 'pointer',
 									userSelect: 'none',
@@ -324,7 +402,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 								}}
 								title='Nhấn và giữ để xem mật khẩu'
 							>
-								{showPassword ? record.password || '••••••••' : '••••••••'}
+								{showPassword ? record?.password || '••••••••' : '••••••••'}
 							</Col>
 							<Col span={6}>
 								<Button
@@ -373,7 +451,7 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 								<Form.Item label='Xã/Phường' name={['hoKhauThuongTru', 'xaPhuong']} rules={[...rules.required]}>
 									<WardsSelect
 										districtCode={selectedDistrict}
-										placeholder='Chọn xã/phường'
+										placeholder='Chọn xã phường'
 										onChange={handleWardChange}
 										value={selectedWard}
 										disabled={!selectedDistrict}
@@ -415,8 +493,8 @@ const UserForm: React.FC<UserFormProps> = ({ title = 'người dùng', hideFoote
 			>
 				<div style={{ padding: '16px 0' }}>
 					<div style={{ marginBottom: 24 }}>
-						<h4 style={{ marginBottom: 8 }}>Reset mật khẩu về CCCD</h4>
-						<p style={{ color: '#666', marginBottom: 16 }}>
+						<h4 style={{ marginBottom: 8 }}>Reset password về CCCD</h4>
+						<p style={{ color: 'inherit', marginBottom: 16 }}>
 							Mật khẩu sẽ được reset về số CCCD: <strong>{record?.soCCCD}</strong>
 						</p>
 						<Button type='primary' danger onClick={handleResetPassword} style={{ width: '100%' }}>

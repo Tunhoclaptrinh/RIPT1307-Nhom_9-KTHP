@@ -21,6 +21,7 @@ import { resetFieldsForm } from '@/utils/utils';
 import useUsers from '@/hooks/useUsers';
 
 import axios from 'axios';
+import { ipLocal } from '@/utils/ip';
 import FormItemUrlOrUpload from '@/components/Upload/FormItemUrlOrUpload';
 
 const { Option } = Select;
@@ -157,7 +158,7 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 		formData.append('type', 'proof'); // Minh chứng thuộc loại proof
 
 		try {
-			const response = await axios.post('http://localhost:3000/upload', formData, {
+			const response = await axios.post(`${ipLocal}/upload`, formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			});
 			return response.data.fileUrl; // Trả về URL của file từ server

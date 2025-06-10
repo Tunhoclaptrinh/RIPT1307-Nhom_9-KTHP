@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Popconfirm, Tag, Space, Popover } from 'antd';
+import { Popconfirm, Tag, Space, Popover, Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import TableBase from '@/components/Table';
 import { IColumn } from '@/components/Table/typing';
 import { useModel } from 'umi';
@@ -11,6 +12,7 @@ import UserDetail from './components/Detail';
 import AdmissionStepModal from '../../components/FormHoSo';
 import { useAddress } from '@/hooks/useAddress';
 import ExpandText from '@/components/ExpandText';
+import { ipLocal } from '@/utils/ip';
 
 // PasswordCell component
 const PasswordCell = ({ password }: { password: string }) => {
@@ -146,7 +148,12 @@ const UsersPage = () => {
 			width: 180,
 			sortable: true,
 			filterType: 'string',
-			render: (ho, record) => `${ho || ''} ${record.ten || ''}`,
+			render: (ho, record) => (
+				<Space>
+					<Avatar size={32} src={record.avatar ? `${ipLocal}${record.avatar}` : undefined} icon={<UserOutlined />} />
+					<span>{`${ho || ''} ${record.ten || ''}`}</span>
+				</Space>
+			),
 		},
 		{
 			title: 'Username',
@@ -268,7 +275,6 @@ const UsersPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
-				// Cấu hình export
 				exportConfig={{
 					fileName: 'DanhSachNguoiDung.xlsx',
 					getExportFieldsModel,
@@ -286,12 +292,7 @@ const UsersPage = () => {
 				/>
 			)}
 			{admissionModalVisible && selectedUserId && (
-				<AdmissionStepModal
-					userId={selectedUserId}
-					visible={admissionModalVisible}
-					onClose={onCloseAdmissionModal}
-					// withDrawer={'modal-full'}
-				/>
+				<AdmissionStepModal userId={selectedUserId} visible={admissionModalVisible} onClose={onCloseAdmissionModal} />
 			)}
 		</div>
 	);
