@@ -9,32 +9,43 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import ThongTinHocTapForm from './components/Form';
 import ThongTinHocTapDetail from './components/Detail';
-import UserDetail from '../Users/components/Detail'; // Import UserDetail modal
-import useUsers from '@/hooks/useUsers'; // Import hook
+import UserDetail from '../Users/components/Detail';
+import useUsers from '@/hooks/useUsers';
 import { ipLocal } from '@/utils/ip';
+import { User } from '@/services/Users/typing';
+import { ThongTinHocTap } from '@/services/ThongTinHocTap/typing';
 
 const { Text } = Typography;
 
 const ThongTinHocTapPage = () => {
-	const { handleEdit, handleView, deleteModel, getExportFieldsModel, postExportModel } = useModel('thongtinhoctap');
+	const {
+		handleEdit,
+		handleView,
+		deleteModel,
+		getExportFieldsModel,
+		postExportModel,
+		// Import functions
+		getImportHeaderModel,
+		getImportTemplateModel,
+		postValidateModel,
+		postExecuteImpotModel,
+		importHeaders,
+	} = useModel('thongtinhoctap');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
-	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false); // Modal xem thông tin user
+	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<ThongTinHocTap.IRecord | undefined>();
-	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // User được chọn
+	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>();
 
-	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: ThongTinHocTap.IRecord) => {
 		setSelectedRecord(record);
 		setExtendedModalVisible(true);
 	};
 
-	// Hàm đóng
 	const onCloseExtendedModal = () => {
 		setExtendedModalVisible(false);
 	};
 
-	// Hàm chuyển sang chế độ edit
 	const onEditFromView = () => {
 		setExtendedModalVisible(false);
 		if (selectedRecord) {
@@ -42,7 +53,6 @@ const ThongTinHocTapPage = () => {
 		}
 	};
 
-	// Hàm xử lý click vào thông tin user
 	const handleUserClick = (userId: string) => {
 		const user = getUserById(userId);
 		if (user) {
@@ -51,19 +61,17 @@ const ThongTinHocTapPage = () => {
 		}
 	};
 
-	// Hàm đóng modal user detail
 	const handleCloseUserDetail = () => {
 		setUserDetailModalVisible(false);
 		setSelectedUser(undefined);
 	};
 
-	// Render user info với avatar và tên - có thể click
 	const renderUserInfo = (userId: string) => {
 		const userInfo = getUserInfo(userId);
 		const fullName = getUserFullName(userId);
 
 		if (usersLoading) {
-			return <Text type='secondary'>Đang tải...</Text>;
+			return <Text type="secondary">Đang tải...</Text>;
 		}
 
 		return (
@@ -86,18 +94,18 @@ const ThongTinHocTapPage = () => {
 					e.currentTarget.style.backgroundColor = 'transparent';
 					e.currentTarget.style.boxShadow = 'none';
 				}}
-				title='Click để xem thông tin chi tiết'
+				title="Click để xem thông tin chi tiết"
 			>
-				<Avatar size='small' src={`${ipLocal}${userInfo?.avatar}`} icon={<UserOutlined />} />
+				<Avatar size="small" src={`${ipLocal}${userInfo?.avatar}`} icon={<UserOutlined />} />
 				<div>
 					<div style={{ fontWeight: 500, color: '#1890ff' }}>{fullName}</div>
 					{userInfo?.username && (
-						<Text type='secondary' style={{ fontSize: '12px' }}>
+						<Text type="secondary" style={{ fontSize: '12px' }}>
 							@{userInfo.username}
 						</Text>
 					)}
 					<div style={{ margin: 0 }}>
-						<Text type='secondary' style={{ fontSize: '12px' }}>
+						<Text type="secondary" style={{ fontSize: '12px' }}>
 							ID:{userId}
 						</Text>
 					</div>
@@ -106,78 +114,73 @@ const ThongTinHocTapPage = () => {
 		);
 	};
 
-	// Helper function để render trạng thái tốt nghiệp
 	const renderTrangThaiTotNghiep = (daTotNghiep: boolean, namTotNghiep: string | Date) => {
 		if (daTotNghiep) {
 			return (
 				<div>
-					<Tag color='green'>Đã tốt nghiệp</Tag>
+					<Tag color="green">Đã tốt nghiệp</Tag>
 					<br />
-					<Text type='secondary'>Năm: {moment(namTotNghiep).format('YYYY')}</Text>
+					<Text type="secondary">Năm: {moment(namTotNghiep).format('YYYY')}</Text>
 				</div>
 			);
 		}
-		return <Tag color='orange'>Chưa tốt nghiệp</Tag>;
+		return <Tag color="orange">Chưa tốt nghiệp</Tag>;
 	};
 
-	// Helper function để render điểm THPT
 	const renderDiemTHPT = (diemTHPT: ThongTinHocTap.IDiemTHPT[]) => {
 		if (!diemTHPT || diemTHPT.length === 0) {
-			return <Text type='secondary'>Chưa có điểm</Text>;
+			return <Text type="secondary">Chưa có điểm</Text>;
 		}
 
 		return (
 			<div style={{ maxHeight: 300, overflowY: 'auto' }}>
 				{diemTHPT.map((diem, index) => (
 					<div key={index} style={{ marginBottom: 4 }}>
-						<Text strong>{diem.mon}</Text>: <Text type='success'>{diem.diem}</Text>
+						<Text strong>{diem.mon}</Text>: <Text type="success">{diem.diem}</Text>
 					</div>
 				))}
 			</div>
 		);
 	};
 
-	// Helper function để render điểm ĐGTD chi tiết
 	const renderDiemDGTD = (diemDGTD: ThongTinHocTap.IDiemDGTD) => {
 		if (!diemDGTD || !diemDGTD.mon || diemDGTD.mon.length === 0) {
-			return <Text type='secondary'>Chưa có điểm</Text>;
+			return <Text type="secondary">Chưa có điểm</Text>;
 		}
 
 		return (
 			<div style={{ maxHeight: 300, overflowY: 'auto' }}>
 				<div style={{ marginBottom: 4 }}>
-					<Text strong>Tổng điểm:</Text> <Text type='success'>{diemDGTD.tongDiem}</Text>
+					<Text strong>Tổng điểm:</Text> <Text type="success">{diemDGTD.tongDiem}</Text>
 				</div>
 				{diemDGTD.mon.map((mon, index) => (
 					<div key={index} style={{ marginBottom: 4 }}>
-						<Text strong>{mon.ten}</Text>: <Text type='success'>{mon.diem}</Text>
+						<Text strong>{mon.ten}</Text>: <Text type="success">{mon.diem}</Text>
 					</div>
 				))}
 			</div>
 		);
 	};
 
-	// Helper function để render điểm ĐGNL chi tiết
 	const renderDiemDGNL = (diemDGNL: ThongTinHocTap.IDiemDGNL) => {
 		if (!diemDGNL || !diemDGNL.mon || diemDGNL.mon.length === 0) {
-			return <Text type='secondary'>Chưa có điểm</Text>;
+			return <Text type="secondary">Chưa có điểm</Text>;
 		}
 
 		return (
 			<div style={{ maxHeight: 300, overflowY: 'auto' }}>
 				<div style={{ marginBottom: 4 }}>
-					<Text strong>Tổng điểm:</Text> <Text type='success'>{diemDGNL.tongDiem}</Text>
+					<Text strong>Tổng điểm:</Text> <Text type="success">{diemDGNL.tongDiem}</Text>
 				</div>
 				{diemDGNL.mon.map((mon, index) => (
 					<div key={index} style={{ marginBottom: 4 }}>
-						<Text strong>{mon.ten}</Text>: <Text type='success'>{mon.diem}</Text>
+						<Text strong>{mon.ten}</Text>: <Text type="success">{mon.diem}</Text>
 					</div>
 				))}
 			</div>
 		);
 	};
 
-	// Helper function để render khu vực ưu tiên
 	const renderKhuVucUT = (khuVuc: ThongTinHocTap.KhuVucUT) => {
 		const colorMap: Record<string, string> = {
 			kv1: 'red',
@@ -188,7 +191,6 @@ const ThongTinHocTapPage = () => {
 		return <Tag color={colorMap[khuVuc] || 'default'}>{khuVuc.toUpperCase()}</Tag>;
 	};
 
-	// Helper function để render đối tượng ưu tiên
 	const renderDoiTuongUT = (doiTuong: ThongTinHocTap.DoiTuongUT) => {
 		const colorMap: Record<string, string> = {
 			'hộ nghèo': 'volcano',
@@ -251,7 +253,7 @@ const ThongTinHocTapPage = () => {
 			width: 200,
 			render: (diemTHPT: ThongTinHocTap.IDiemTHPT[]) => {
 				if (!diemTHPT || diemTHPT.length === 0) {
-					return <Text type='secondary'>Chưa có điểm</Text>;
+					return <Text type="secondary">Chưa có điểm</Text>;
 				}
 
 				const summary =
@@ -261,7 +263,7 @@ const ThongTinHocTapPage = () => {
 						.join(', ') + (diemTHPT.length > 3 ? ', ...' : '');
 
 				return (
-					<Popover content={renderDiemTHPT(diemTHPT)} title='Chi tiết điểm THPT' trigger='click'>
+					<Popover content={renderDiemTHPT(diemTHPT)} title="Chi tiết điểm THPT" trigger="click">
 						<div
 							style={{
 								overflow: 'hidden',
@@ -281,9 +283,9 @@ const ThongTinHocTapPage = () => {
 			title: 'Điểm ĐGTD',
 			width: 100,
 			render: (_, record) => (
-				<Popover content={renderDiemDGTD(record.diemDGTD)} title='Chi tiết điểm ĐGTD' trigger='click'>
+				<Popover content={renderDiemDGTD(record.diemDGTD)} title="Chi tiết điểm ĐGTD" trigger="click">
 					<div style={{ cursor: 'pointer', textAlign: 'center' }}>
-						<Text strong type='success'>
+						<Text strong type="success">
 							{record.diemDGTD?.tongDiem || 0}
 						</Text>
 					</div>
@@ -294,9 +296,9 @@ const ThongTinHocTapPage = () => {
 			title: 'Điểm ĐGNL',
 			width: 100,
 			render: (_, record) => (
-				<Popover content={renderDiemDGNL(record.diemDGNL)} title='Chi tiết điểm ĐGNL' trigger='click'>
+				<Popover content={renderDiemDGNL(record.diemDGNL)} title="Chi tiết điểm ĐGNL" trigger="click">
 					<div style={{ cursor: 'pointer', textAlign: 'center' }}>
-						<Text strong type='success'>
+						<Text strong type="success">
 							{record.diemDGNL?.tongDiem || 0}
 						</Text>
 					</div>
@@ -308,13 +310,13 @@ const ThongTinHocTapPage = () => {
 			width: 150,
 			render: (_, record) => {
 				if (!record.giaiHSG) {
-					return <Text type='secondary'>Không có</Text>;
+					return <Text type="secondary">Không có</Text>;
 				}
 				return (
 					<div>
-						<Tag color='gold'>{record.giaiHSG.loaiGiai}</Tag>
+						<Tag color="gold">{record.giaiHSG.loaiGiai}</Tag>
 						<br />
-						<Text type='secondary'>
+						<Text type="secondary">
 							{record.giaiHSG.mon} - {record.giaiHSG.giaiHsgCap}
 						</Text>
 					</div>
@@ -326,16 +328,16 @@ const ThongTinHocTapPage = () => {
 			width: 120,
 			render: (_, record) => {
 				if (!record.chungChi || record.chungChi.length === 0) {
-					return <Text type='secondary'>Không có</Text>;
+					return <Text type="secondary">Không có</Text>;
 				}
 				return (
 					<div>
 						{record.chungChi.slice(0, 2).map((cc, index) => (
-							<Tag key={index} color='blue' style={{ marginBottom: 2 }}>
+							<Tag key={index} color="blue" style={{ marginBottom: 2 }}>
 								{cc.loaiCC}
 							</Tag>
 						))}
-						{record.chungChi.length > 2 && <Text type='secondary'>+{record.chungChi.length - 2}</Text>}
+						{record.chungChi.length > 2 && <Text type="secondary">+{record.chungChi.length - 2}</Text>}
 					</div>
 				);
 			},
@@ -348,18 +350,23 @@ const ThongTinHocTapPage = () => {
 			render: (_, record) => (
 				<Space>
 					<ButtonExtend
-						tooltip='Xem chi tiết'
+						tooltip="Xem chi tiết"
 						onClick={() => onOpenExtendedModal(record)}
-						type='link'
+						type="link"
 						icon={<EyeOutlined />}
 					/>
-					<ButtonExtend tooltip='Chỉnh sửa' onClick={() => handleEdit(record)} type='link' icon={<EditOutlined />} />
+					<ButtonExtend
+						tooltip="Chỉnh sửa"
+						onClick={() => handleEdit(record)}
+						type="link"
+						icon={<EditOutlined />}
+					/>
 					<Popconfirm
 						onConfirm={() => deleteModel(record.id)}
-						title='Bạn có chắc chắn muốn xóa thông tin học tập này?'
-						placement='topRight'
+						title="Bạn có chắc chắn muốn xóa thông tin học tập này?"
+						placement="topRight"
 					>
-						<ButtonExtend tooltip='Xóa' danger type='link' icon={<DeleteOutlined />} />
+						<ButtonExtend tooltip="Xóa" danger type="link" icon={<DeleteOutlined />} />
 					</Popconfirm>
 				</Space>
 			),
@@ -370,8 +377,8 @@ const ThongTinHocTapPage = () => {
 		<div>
 			<TableBase
 				columns={columns}
-				modelName='thongtinhoctap'
-				title='Quản lý thông tin học tập'
+				modelName="thongtinhoctap"
+				title="Quản lý thông tin học tập"
 				Form={ThongTinHocTapForm}
 				widthDrawer={1000}
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
@@ -384,6 +391,20 @@ const ThongTinHocTapPage = () => {
 					postExportModel,
 					maskCloseableForm: false,
 				}}
+				// Cấu hình import
+				importConfig={{
+					titleTemplate: 'Template_ThongTinHocTap.xlsx',
+					getImportHeaderModel,
+					getImportTemplateModel,
+					postValidateModel,
+					postExecuteImpotModel,
+					importHeaders,
+					maskCloseableForm: false,
+					extendData: {
+						createdAt: new Date().toISOString(),
+						updatedAt: new Date().toISOString(),
+					},
+				}}
 			/>
 			<ThongTinHocTapDetail
 				isVisible={extendedModalVisible}
@@ -395,7 +416,7 @@ const ThongTinHocTapPage = () => {
 				isVisible={userDetailModalVisible}
 				onClose={handleCloseUserDetail}
 				record={selectedUser}
-				title='thí sinh'
+				title="thí sinh"
 				hideFooter
 			/>
 		</div>
