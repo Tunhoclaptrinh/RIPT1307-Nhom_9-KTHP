@@ -1,12 +1,11 @@
 // admissionService.js
 import axios from 'axios';
-import { ipLocal } from '@/utils/ip';
 
 // Base URL cho json-server (thay đổi theo cấu hình của bạn)
-// const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3000';
 
 const api = axios.create({
-	baseURL: `${ipLocal}`,
+	baseURL: BASE_URL,
 	headers: {
 		'Content-Type': 'application/json',
 	},
