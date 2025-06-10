@@ -13,11 +13,24 @@ import useUsers from '@/hooks/useUsers';
 import ModalExport from '@/components/Table/Export';
 import { getNameFile } from '@/utils/utils';
 import { ipLocal } from '@/utils/ip';
+import { DiemHocSinh } from '@/services/HocBa/typing';
 
 const { Text } = Typography;
 
 const DiemHocSinhPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel } = useModel('hocba');
+	const { 
+		handleEdit, 
+		handleView, 
+		deleteModel, 
+		getModel,
+		getImportHeaderModel,
+		getImportTemplateModel,
+		postValidateModel,
+		postExecuteImpotModel,
+		importHeaders,
+		getExportFieldsModel,
+		postExportModel 
+	} = useModel('hocba');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
@@ -258,7 +271,21 @@ const DiemHocSinhPage = () => {
 				rowSelection
 				exportConfig={{
 					fileName: 'DanhSachHocBa.xlsx',
+					getExportFieldsModel,
+					postExportModel,
+					maskCloseableForm: false
+				}}
+				importConfig={{
+					titleTemplate: 'Template_HocBa.xlsx',
 					maskCloseableForm: false,
+					getTemplate: getImportTemplateModel,
+					getImportHeaderModel,
+					postValidateModel,
+					postExecuteImpotModel,
+					extendData: {
+						createdAt: new Date().toISOString(),
+						updatedAt: new Date().toISOString()
+					}
 				}}
 			/>
 			<HocBaDetail
