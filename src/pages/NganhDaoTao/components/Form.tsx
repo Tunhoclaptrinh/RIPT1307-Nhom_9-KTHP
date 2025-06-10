@@ -5,6 +5,8 @@ import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { Space } from 'antd';
 import ToHopSelect from '@/pages/ToHop/components/Select';
+import { NganhDaoTao } from '@/services/NganhDaoTao/typing';
+
 
 interface NganhDaoTaoFormProps {
   title?: string;

@@ -15,7 +15,7 @@ import {User }	from '@/services/Users/typing';
 const { Text } = Typography;
 
 const ThongTinNguyenVongPage = () => {
-	const { handleEdit, handleView, deleteModel, getModel, getExportFieldsModel, postExportModel } =
+	const { handleEdit, deleteModel, getExportFieldsModel, postExportModel } =
 		useModel('thongtinnguyenvong');
 	const { getUserFullName, getUserInfo, getUserById, loading: usersLoading } = useUsers();
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
@@ -338,7 +338,7 @@ const ThongTinNguyenVongPage = () => {
 				title='Quản lý thông tin nguyện vọng'
 				Form={ThongTinNguyenVongForm}
 				widthDrawer={900}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				buttons={{ create: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSortable
 				rowSelection
