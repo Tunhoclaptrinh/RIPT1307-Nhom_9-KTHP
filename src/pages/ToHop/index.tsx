@@ -62,7 +62,7 @@ const ToHopPage = () => {
 				title='Tổ hợp môn học'
 				Form={ToHopForm}
 				widthDrawer={500}
-				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
+				// buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
 			/>
