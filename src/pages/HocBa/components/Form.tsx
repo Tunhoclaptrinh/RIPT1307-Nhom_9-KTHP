@@ -20,8 +20,10 @@ import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import useUsers from '@/hooks/useUsers';
 
+import axios from 'axios';
+import FormItemUrlOrUpload from '@/components/Upload/FormItemUrlOrUpload';
+
 const { Option } = Select;
-const { TextArea } = Input;
 const { Text } = Typography;
 
 interface DiemHocSinhFormProps {
@@ -36,7 +38,7 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 	const [form] = Form.useForm();
 	const intl = useIntl();
 	const [selectedUserId, setSelectedUserId] = React.useState<string>('');
-	const [searchValue, setSearchValue] = React.useState<string>(''); // Thêm state cho search
+	const [searchValue, setSearchValue] = React.useState<string>('');
 
 	// Danh sách môn học có thể chọn
 	const monHocOptions = [
@@ -107,7 +109,6 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 		const searchTerm = input.toLowerCase();
 		const user = option.user;
 
-		// Kiểm tra an toàn cho tất cả các thuộc tính
 		const fullName = `${user.ho || ''} ${user.ten || ''}`.toLowerCase();
 		const username = (user.username || '').toLowerCase();
 		const userId = (user.id || '').toLowerCase();
@@ -132,7 +133,6 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 		} else if (record) {
 			form.setFieldsValue({
 				...record,
-				// Đảm bảo diemMonHoc có ít nhất 1 phần tử
 				diemMonHoc:
 					record.diemMonHoc && record.diemMonHoc.length > 0
 						? record.diemMonHoc
@@ -140,7 +140,6 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 			});
 			setSelectedUserId(record.userId || '');
 		} else {
-			// Khi tạo mới, khởi tạo với 1 môn học mặc định
 			form.setFieldsValue({
 				diemMonHoc: [{ mon: '', hocKy: '1', diemTongKet: 0 }],
 				loaiHanhKiem: 'trung bình',
@@ -150,6 +149,24 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 		}
 	}, [record, visibleForm, namHocOptions]);
 
+	// Hàm xử lý upload file
+	const handleUploadFile = async (file: File, userId: string) => {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('userId', userId);
+		formData.append('type', 'proof'); // Minh chứng thuộc loại proof
+
+		try {
+			const response = await axios.post('http://localhost:3000/upload', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			});
+			return response.data.fileUrl; // Trả về URL của file từ server
+		} catch (error) {
+			console.error('Upload file error:', error);
+			throw new Error('Failed to upload file');
+		}
+	};
+
 	const onFinish = async (values: DiemHocSinh.IRecord) => {
 		try {
 			// Lọc bỏ các môn học trống
@@ -157,6 +174,15 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 				...values,
 				diemMonHoc: values.diemMonHoc.filter((item) => item.mon && item.hocKy && item.diemTongKet !== undefined),
 			};
+
+			// Nếu có file upload trong minhChung
+			if (values.minhChung?.fileList?.length) {
+				const file = values.minhChung.fileList[0].originFileObj;
+				if (file && selectedUserId) {
+					const fileUrl = await handleUploadFile(file, selectedUserId);
+					filteredValues.minhChung = fileUrl; // Gán URL file vào minhChung
+				}
+			}
 
 			if (edit) {
 				await putModel(record?.id ?? '', filteredValues);
@@ -271,7 +297,6 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 
 					<Row gutter={16}>
 						<Col span={12}>
-							{/* Chọn học sinh với tìm kiếm nâng cao */}
 							<Form.Item label='Học sinh' name='userId' rules={[...rules.required]}>
 								<Select
 									showSearch
@@ -279,7 +304,7 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 									loading={usersLoading}
 									filterOption={filterOption}
 									onChange={(value) => setSelectedUserId(value)}
-									disabled={edit} // Không cho phép thay đổi học sinh khi chỉnh sửa
+									disabled={edit}
 									suffixIcon={<SearchOutlined />}
 									optionLabelProp='label'
 									style={{ width: '100%' }}
@@ -294,10 +319,8 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 								</Select>
 							</Form.Item>
 
-							{/* Hiển thị thông tin học sinh đã chọn */}
 							{renderSelectedStudent()}
 
-							{/* Hướng dẫn tìm kiếm */}
 							{!edit && (
 								<div
 									style={{
@@ -460,20 +483,19 @@ const DiemHocSinhForm: React.FC<DiemHocSinhFormProps> = ({ title = 'điểm họ
 						</Col>
 					</Row>
 
-					{/* Nhận xét của giáo viên */}
 					<Form.Item label='Nhận xét của giáo viên chủ nhiệm' name='nhanXetGiaoVien'>
-						<TextArea placeholder='Nhập nhận xét về học sinh...' rows={3} showCount maxLength={500} />
+						<Input.TextArea placeholder='Nhập nhận xét về học sinh...' rows={3} showCount maxLength={500} />
 					</Form.Item>
 
 					{/* Minh chứng */}
-					<Form.Item label='Minh chứng, tài liệu đính kèm' name='minhChung' rules={[...rules.required]}>
-						<TextArea
-							placeholder='Nhập minh chứng, tài liệu đính kèm, thành tích đạt được...'
-							rows={4}
-							showCount
-							maxLength={1000}
-						/>
-					</Form.Item>
+					<FormItemUrlOrUpload
+						form={form}
+						initValue={record?.minhChung}
+						field='minhChung'
+						accept='.pdf,.doc,.docx'
+						isRequired={true}
+						label='Minh chứng, tài liệu đính kèm'
+					/>
 
 					{!hideFooter && (
 						<div className='form-actions' style={{ marginTop: 24, textAlign: 'center' }}>

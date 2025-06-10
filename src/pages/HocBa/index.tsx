@@ -11,6 +11,7 @@ import HocBaDetail from './components/Detail';
 import UserDetail from '../Users/components/Detail';
 import useUsers from '@/hooks/useUsers';
 import ModalExport from '@/components/Table/Export';
+import { getNameFile } from '@/utils/utils';
 
 const { Text } = Typography;
 
@@ -20,7 +21,7 @@ const DiemHocSinhPage = () => {
 	const [extendedModalVisible, setExtendedModalVisible] = useState(false);
 	const [userDetailModalVisible, setUserDetailModalVisible] = useState(false);
 	const [selectedRecord, setSelectedRecord] = useState<DiemHocSinh.IRecord | undefined>();
-	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>(); // User được chọn
+	const [selectedUser, setSelectedUser] = useState<User.IRecord | undefined>();
 
 	// Hàm xử lý mở modal mở rộng
 	const onOpenExtendedModal = (record: DiemHocSinh.IRecord) => {
@@ -198,11 +199,24 @@ const DiemHocSinhPage = () => {
 			dataIndex: 'minhChung',
 			width: 200,
 			filterType: 'string',
-			render: (text: string) => (
-				<Text ellipsis={{ tooltip: text }} style={{ maxWidth: 180 }}>
-					{text}
-				</Text>
-			),
+			render: (text: string) => {
+				if (!text || !text.startsWith('/files/')) {
+					return <Text type='secondary'>Không có file</Text>;
+				}
+				const fileName = getNameFile(text); // Lấy tên file từ URL
+				return (
+					<a
+						href={`http://localhost:3000${text}`}
+						download={fileName}
+						style={{ color: '#1890ff', textDecoration: 'underline' }}
+						title='Nhấn để tải file'
+					>
+						<Text ellipsis={{ tooltip: fileName }} style={{ maxWidth: 180 }}>
+							{fileName}
+						</Text>
+					</a>
+				);
+			},
 		},
 		{
 			title: 'Thao tác',
@@ -241,10 +255,9 @@ const DiemHocSinhPage = () => {
 				buttons={{ create: true, import: true, export: true, filter: true, reload: true }}
 				deleteMany
 				rowSelection
-				// Cấu hình export
 				exportConfig={{
 					fileName: 'DanhSachHocBa.xlsx',
-					maskCloseableForm: false
+					maskCloseableForm: false,
 				}}
 			/>
 			<HocBaDetail
