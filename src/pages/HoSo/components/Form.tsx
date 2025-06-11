@@ -7,6 +7,7 @@ import { ProvincesSelect, DistrictsSelect, WardsSelect } from '@/components/Addr
 import { HoSo } from '@/services/HoSo/typing';
 import { Space } from 'antd';
 import axios from 'axios';
+import { ipLocal } from '@/utils/ip';
 const { Option } = Select;
 
 interface HoSoFormProps {
@@ -35,13 +36,11 @@ const HoSoForm: React.FC<HoSoFormProps> = ({ title = 'hồ sơ' }) => {
 			if (record?.thongTinCaNhanId) {
 				try {
 					// Fetch nguyenVong for the user
-					const nguyenVongResponse = await axios.get(
-						`http://localhost:3000/thongTinNguyenVong?userId=${record.thongTinCaNhanId}`,
-					);
+					const nguyenVongResponse = await axios.get(`${ipLocal}/thongTinNguyenVong?userId=${record.thongTinCaNhanId}`);
 					setNguyenVongList(nguyenVongResponse.data);
 
 					// Fetch all phuongThucXetTuyen
-					const phuongThucResponse = await axios.get('http://localhost:3000/phuongThucXetTuyen');
+					const phuongThucResponse = await axios.get(`${ipLocal}/phuongThucXetTuyen`);
 					setPhuongThucList(phuongThucResponse.data);
 				} catch (error) {
 					message.error('Không thể tải dữ liệu nguyện vọng hoặc phương thức xét tuyển');
