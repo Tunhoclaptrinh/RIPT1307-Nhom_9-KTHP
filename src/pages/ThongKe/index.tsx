@@ -161,8 +161,8 @@ const StatisticsPage: React.FC = () => {
 					profileStatus[status].candidates.push(h);
 
 					// Process admitted candidates - FIX: Check if ketQua exists
-					if (h.ketQua?.succes && h.ketQua.nguyenVong) {
-						const nv = nguyenVongData.find((n) => n.id === h.ketQua!.nguyenVong);
+					if (h.ketQua?.succes && h.ketQua.nguyenVongDo) {
+						const nv = nguyenVongData.find((n) => n.id === h.ketQua!.nguyenVongDo);
 						if (nv) {
 							const nganh = nganhDaoTaoData.find((n) => n.ma === nv.maNganh);
 							if (nganh && admittedByMajor[nganh.ten]) {

@@ -37,7 +37,7 @@ declare module ThongKe {
 		tinhTrang?: string;
 		ketQua?: {
 			succes?: boolean;
-			nguyenVong?: string;
+			nguyenVongDo?: string;
 			phuongThucId?: string;
 			diem?: number;
 		};
